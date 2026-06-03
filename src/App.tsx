@@ -53,7 +53,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <div className="flex min-h-screen flex-col bg-neutral-50/50">
-        
+
         {/* Universal Navigation Header */}
         <Navbar
           currentUser={currentUser}
@@ -94,11 +94,11 @@ export default function App() {
                     />
                   }
                 />
-                
+
                 <Route path="/admin/profile" element={<AdminProfile />} />
                 <Route path="/admin/experiences" element={<AdminExperiences />} />
                 <Route path="/admin/projects" element={<AdminProjects />} />
-                
+
                 {/* Admin Users table restricted to SUPER_ADMIN */}
                 <Route
                   path="/admin/users"
@@ -110,7 +110,7 @@ export default function App() {
                     )
                   }
                 />
-                
+
                 <Route path="/admin/diagnostics" element={<AdminDiagnostics />} />
               </Route>
             </Route>
