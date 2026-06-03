@@ -3,18 +3,24 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useMemo } from 'react';
-import type { User, Experience, Project } from '../types';
-import { ProjectType, Role } from '../types';
+import React, { useState, useMemo, useEffect } from 'react';
+import type { User, Experience, Project } from '../../types';
+import { ProjectType, Role } from '../../types';
 import { Briefcase, FolderGit2, Search, Calendar, Github, GraduationCap, Sparkles, Code2, Globe } from 'lucide-react';
+import { getUsers, getExperiences, getProjects, initializeDB } from '../../utils/db';
 
-interface LandingPageProps {
-    users: User[];
-    experiences: Experience[];
-    projects: Project[];
-}
+export const LandingPage: React.FC = () => {
+    const [users, setUsers] = useState<User[]>([]);
+    const [experiences, setExperiences] = useState<Experience[]>([]);
+    const [projects, setProjects] = useState<Project[]>([]);
 
-export const LandingPage: React.FC<LandingPageProps> = ({ users, experiences, projects }) => {
+    useEffect(() => {
+        initializeDB();
+        setUsers(getUsers());
+        setExperiences(getExperiences());
+        setProjects(getProjects());
+    }, []);
+
     const [selectedUser, setSelectedUser] = useState<string>('all');
     const [projectType, setProjectType] = useState<'all' | ProjectType>('all');
     const [searchQuery, setSearchQuery] = useState<string>('');

@@ -34,13 +34,14 @@ export interface AdminExperiencesParams {
  * Hook to retrieve logged-in user's own experiences.
  * Hits GET /experiences/me
  */
-export function useMyExperiences() {
+export function useMyExperiences(options?: { enabled?: boolean }) {
   return useQuery<Experience[], AxiosError<{ message?: string }>>({
     queryKey: ['experiences', 'me'],
     queryFn: async () => {
       const { data } = await api.get<Experience[]>('/experiences/me');
       return data;
     },
+    ...options,
   });
 }
 
@@ -48,7 +49,7 @@ export function useMyExperiences() {
  * Hook for SUPER_ADMIN to query all experiences on the platform.
  * Hits GET /admin/experiences
  */
-export function useAdminExperiences(params: AdminExperiencesParams) {
+export function useAdminExperiences(params: AdminExperiencesParams, options?: { enabled?: boolean }) {
   return useQuery<Experience[], AxiosError<{ message?: string }>>({
     queryKey: ['experiences', 'admin', params],
     queryFn: async () => {
@@ -57,6 +58,7 @@ export function useAdminExperiences(params: AdminExperiencesParams) {
       });
       return data;
     },
+    ...options,
   });
 }
 

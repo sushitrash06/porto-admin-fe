@@ -4,20 +4,22 @@
  */
 
 import React, { useState } from 'react';
-import type { User } from '../types';
-import { useLogin } from '../hooks/useLogin';
+import { useNavigate, Link } from 'react-router-dom';
+import type { User } from '../../types';
+import { Role } from '../../types';
+import { useLogin } from '../../hooks/useLogin';
 import { ShieldAlert, LogIn, Sparkles, Eye, EyeOff, Lock, Mail, Compass, Loader2 } from 'lucide-react';
 
 interface LoginPageProps {
     onLoginSuccess: (user: User) => void;
-    onCancel: () => void;
 }
 
-export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess, onCancel }) => {
+export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
     const [email, setEmail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
     const [showPassword, setShowPassword] = useState<boolean>(false);
     const [error, setError] = useState<string>('');
+    const navigate = useNavigate();
 
     const loginMutation = useLogin();
 
@@ -34,7 +36,6 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess, onCancel }
             { email: email.trim(), password },
             {
                 onSuccess: (payload) => {
-                    // Build a User object from the JWT payload for the app state
                     const user: User = {
                         id: payload.sub,
                         email: payload.email,
@@ -43,9 +44,14 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess, onCancel }
                         updatedAt: '',
                     };
                     onLoginSuccess(user);
+                    // Redirect based on role permissions
+                    if (payload.role === Role.SUPER_ADMIN) {
+                        navigate('/admin/users');
+                    } else {
+                        navigate('/admin/experiences');
+                    }
                 },
                 onError: (err) => {
-                    // Extract message from Axios error response or fallback
                     const msg =
                         err.response?.data?.message ||
                         err.message ||
@@ -59,8 +65,8 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess, onCancel }
     const prefill = (role: 'super' | 'regular') => {
         setError('');
         if (role === 'super') {
-            setEmail('admin@test.com');
-            setPassword('123456');
+            setEmail('admin@porto.dev');
+            setPassword('admin123');
         } else {
             setEmail('user2@test.com');
             setPassword('123456');
@@ -71,10 +77,10 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess, onCancel }
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs">
             <div className="w-full max-w-md overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg animate-in fade-in-50 zoom-in-95 duration-200">
 
-                {/* Solid line top branding */}
+                {/* Brand Line */}
                 <div className="h-1 bg-black"></div>
 
-                {/* Modal body */}
+                {/* Form Container */}
                 <div className="px-6 py-6.5">
 
                     <div className="flex items-center justify-between">
@@ -83,14 +89,14 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess, onCancel }
                             <span className="font-mono text-[9px] font-bold uppercase tracking-wider text-slate-400">Secure Access</span>
                         </div>
 
-                        <button
+                        <Link
                             id="login-cancel-btn"
-                            onClick={onCancel}
+                            to="/"
                             className="flex items-center space-x-1 rounded-md px-2.5 py-1 font-sans text-[10px] font-bold uppercase tracking-wider text-slate-400 hover:bg-slate-50 hover:text-slate-900 transition-all cursor-pointer border border-transparent hover:border-slate-200"
                         >
                             <Compass className="h-3 w-3" />
                             <span>Showcase</span>
-                        </button>
+                        </Link>
                     </div>
 
                     <h2 className="mt-4 font-sans text-xl font-bold tracking-tight text-slate-900">
@@ -100,7 +106,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess, onCancel }
                         Enter secure credentials to administer directory databases.
                     </p>
 
-                    {/* Quick Prefill Selection for Easy Testing */}
+                    {/* Quick Prefill selection */}
                     <div className="mt-5 rounded-md border border-slate-200 bg-slate-50 px-3.5 py-3">
                         <span className="block font-mono text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-2">
                             Autofill Credentials
@@ -125,7 +131,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess, onCancel }
                         </div>
                     </div>
 
-                    {/* Error message block */}
+                    {/* Errors */}
                     {error && (
                         <div className="mt-4 flex items-start space-x-2 rounded-md border border-red-100 bg-red-50 p-3 text-xs text-red-600">
                             <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0 text-red-600" />
@@ -135,8 +141,6 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess, onCancel }
 
                     {/* Form */}
                     <form onSubmit={handleLogin} className="mt-5 space-y-4">
-
-                        {/* Email */}
                         <div>
                             <label className="block font-sans text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
                                 Email Address <span className="text-red-500">*</span>
@@ -155,7 +159,6 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess, onCancel }
                             </div>
                         </div>
 
-                        {/* Password */}
                         <div>
                             <label className="block font-sans text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
                                 Password <span className="text-red-500">*</span>
@@ -181,7 +184,6 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess, onCancel }
                             </div>
                         </div>
 
-                        {/* Submit Actions */}
                         <div className="pt-2">
                             <button
                                 id="login-submit-btn"
@@ -202,9 +204,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess, onCancel }
                                 )}
                             </button>
                         </div>
-
                     </form>
-
                 </div>
             </div>
         </div>

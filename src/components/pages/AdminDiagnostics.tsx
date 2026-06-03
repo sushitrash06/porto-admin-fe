@@ -4,7 +4,7 @@
  */
 
 import React, { useState } from 'react';
-import { api } from '../lib/api';
+import { api } from '../../lib/api';
 import { ShieldCheck, Play, CheckCircle2, AlertTriangle, Terminal, Loader2, KeyRound } from 'lucide-react';
 
 export const AdminDiagnostics: React.FC = () => {
@@ -48,6 +48,16 @@ export const AdminDiagnostics: React.FC = () => {
 
     return (
         <div className="space-y-6">
+            {/* Self-contained header display */}
+            <div className="mb-6 border-b border-slate-100 pb-4">
+                <h2 className="font-sans text-lg font-extrabold tracking-tight text-neutral-900 uppercase">
+                    System Security & Route Diagnostics
+                </h2>
+                <p className="font-sans text-xs text-neutral-450 mt-1">
+                    Run verified security tests and inspect raw JSON outputs for postman APIs.
+                </p>
+            </div>
+
             <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-3xs">
                 <div className="flex items-center space-x-2">
                     <ShieldCheck className="h-5 w-5 text-slate-800" />
@@ -65,7 +75,7 @@ export const AdminDiagnostics: React.FC = () => {
                 <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-3xs flex flex-col justify-between">
                     <div>
                         <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                            <span className="inline-flex items-center rounded-md bg-slate-100 border border-slate-200 px-2 py-0.5 font-mono text-[9px] font-bold text-slate-600 uppercase tracking-wider">
+                            <span className="inline-flex items-center rounded-md bg-slate-105 border border-slate-200 px-2 py-0.5 font-mono text-[9px] font-bold text-slate-600 uppercase tracking-wider">
                                 GET /auth/me
                             </span>
                             <span className="font-sans text-[10px] text-slate-400">Current Session Details</span>
@@ -124,7 +134,7 @@ export const AdminDiagnostics: React.FC = () => {
                 <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-3xs flex flex-col justify-between">
                     <div>
                         <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                            <span className="inline-flex items-center rounded-md bg-slate-100 border border-slate-200 px-2 py-0.5 font-mono text-[9px] font-bold text-slate-600 uppercase tracking-wider">
+                            <span className="inline-flex items-center rounded-md bg-slate-105 border border-slate-200 px-2 py-0.5 font-mono text-[9px] font-bold text-slate-600 uppercase tracking-wider">
                                 GET /auth/admin
                             </span>
                             <span className="font-sans text-[10px] text-slate-400">Admin Gate Guard Check</span>
@@ -169,7 +179,7 @@ export const AdminDiagnostics: React.FC = () => {
                                             <AlertTriangle className="h-4 w-4" />
                                             <span>Forbidden (Access Guard Working)</span>
                                         </div>
-                                        <div className="font-mono text-[10px] text-amber-700 bg-amber-50/50 p-2.5 rounded-md border border-amber-200">
+                                        <div className="font-mono text-[10px] text-amber-750 bg-amber-50/50 p-2.5 rounded-md border border-amber-200">
                                             {authAdminError}
                                         </div>
                                     </div>

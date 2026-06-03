@@ -4,15 +4,11 @@
  */
 
 import React, { useState } from 'react';
-import { Role } from '../types';
-import { useUsers, useCreateUser } from '../hooks/useUsers';
+import { Role } from '../../types';
+import { useUsers, useCreateUser } from '../../hooks/useUsers';
 import { Plus, ShieldAlert, Users, Search, UserCheck, Loader2, Calendar, ChevronLeft, ChevronRight } from 'lucide-react';
 
-interface AdminUsersProps {
-    onRefreshDB?: () => void;
-}
-
-export const AdminUsers: React.FC<AdminUsersProps> = ({ onRefreshDB }) => {
+export const AdminUsers: React.FC = () => {
     const [searchQuery, setSearchQuery] = useState<string>('');
     const [debouncedSearch, setDebouncedSearch] = useState<string>('');
     const [page, setPage] = useState<number>(1);
@@ -74,7 +70,6 @@ export const AdminUsers: React.FC<AdminUsersProps> = ({ onRefreshDB }) => {
             {
                 onSuccess: () => {
                     setIsModalOpen(false);
-                    if (onRefreshDB) onRefreshDB();
                 },
                 onError: (err) => {
                     const msg = err.response?.data?.message || err.message || 'Failed to create user.';
@@ -89,6 +84,15 @@ export const AdminUsers: React.FC<AdminUsersProps> = ({ onRefreshDB }) => {
 
     return (
         <div className="space-y-6">
+            {/* Self-contained header display */}
+            <div className="mb-6 border-b border-slate-100 pb-4">
+                <h2 className="font-sans text-lg font-extrabold tracking-tight text-neutral-900 uppercase">
+                    System User Databases
+                </h2>
+                <p className="font-sans text-xs text-neutral-450 mt-1">
+                    Manage employee role configurations, email constraints, and security entry privileges.
+                </p>
+            </div>
 
             {/* Search Header and Action panel */}
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-slate-200 pb-5">
@@ -147,7 +151,7 @@ export const AdminUsers: React.FC<AdminUsersProps> = ({ onRefreshDB }) => {
                             ) : usersList.length === 0 ? (
                                 <tr>
                                     <td colSpan={3} className="px-6 py-12 text-center text-slate-400">
-                                        <Users className="mx-auto h-8 w-8 text-slate-350 mb-2" />
+                                        <Users className="mx-auto h-8 w-8 text-slate-355 mb-2" />
                                         <p className="font-sans text-xs">No users match your listing criteria.</p>
                                     </td>
                                 </tr>
@@ -187,7 +191,7 @@ export const AdminUsers: React.FC<AdminUsersProps> = ({ onRefreshDB }) => {
 
                                         {/* Created At */}
                                         <td className="px-6 py-4">
-                                            <div className="flex items-center space-x-1.5 font-mono text-[10px] text-slate-500">
+                                            <div className="flex items-center space-x-1.5 font-mono text-[10px] text-slate-550">
                                                 <Calendar className="h-3.5 w-3.5 text-slate-400" />
                                                 <span>{new Date(user.createdAt).toLocaleDateString(undefined, {
                                                     year: 'numeric',
@@ -257,8 +261,8 @@ export const AdminUsers: React.FC<AdminUsersProps> = ({ onRefreshDB }) => {
                             <div className="p-6 space-y-4">
 
                                 {error && (
-                                    <div className="flex items-start space-x-2 rounded-md border border-red-100 bg-red-50 p-3 text-xs text-red-600 font-sans font-medium">
-                                        <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0 text-red-600" />
+                                    <div className="flex items-start space-x-2 rounded-md border border-red-100 bg-red-50 p-3 text-xs text-red-650 font-sans font-medium">
+                                        <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0" />
                                         <span>{error}</span>
                                     </div>
                                 )}

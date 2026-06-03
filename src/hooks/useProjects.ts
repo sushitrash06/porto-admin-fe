@@ -38,13 +38,14 @@ export interface AdminProjectsParams {
  * Hook to retrieve logged-in user's own projects.
  * Hits GET /projects/me
  */
-export function useMyProjects() {
+export function useMyProjects(options?: { enabled?: boolean }) {
   return useQuery<Project[], AxiosError<{ message?: string }>>({
     queryKey: ['projects', 'me'],
     queryFn: async () => {
       const { data } = await api.get<Project[]>('/projects/me');
       return data;
     },
+    ...options,
   });
 }
 
@@ -52,7 +53,7 @@ export function useMyProjects() {
  * Hook for SUPER_ADMIN to query all projects on the platform.
  * Hits GET /admin/projects
  */
-export function useAdminProjects(params: AdminProjectsParams) {
+export function useAdminProjects(params: AdminProjectsParams, options?: { enabled?: boolean }) {
   return useQuery<Project[], AxiosError<{ message?: string }>>({
     queryKey: ['projects', 'admin', params],
     queryFn: async () => {
@@ -61,6 +62,7 @@ export function useAdminProjects(params: AdminProjectsParams) {
       });
       return data;
     },
+    ...options,
   });
 }
 

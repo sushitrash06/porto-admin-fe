@@ -4,18 +4,14 @@
  */
 
 import React, { useState, useMemo, useEffect } from 'react';
-import type { User, Experience } from '../types';
-import { Role } from '../types';
-import { useMyExperiences, useAdminExperiences, useCreateExperience, useUpdateExperience, useDeleteExperience } from '../hooks/useExperiences';
-import { useUsers } from '../hooks/useUsers';
+import type { User, Experience } from '../../types';
+import { Role } from '../../types';
+import { useMyExperiences, useAdminExperiences, useCreateExperience, useUpdateExperience, useDeleteExperience } from '../../hooks/useExperiences';
+import { useUsers } from '../../hooks/useUsers';
+import { getSessionPayload } from '../../lib/auth';
 import { Briefcase, Search, Plus, Edit, Trash2, Calendar, Info, ShieldAlert, Grid, List, Loader2 } from 'lucide-react';
 
-interface AdminExperiencesProps {
-    currentUser: User;
-    onRefreshDB?: () => void;
-}
-
-export const AdminExperiences: React.FC<AdminExperiencesProps> = ({ currentUser, onRefreshDB }) => {
+export const AdminExperiences: React.FC = () => {
     const [searchQuery, setSearchQuery] = useState<string>('');
     const [debouncedSearch, setDebouncedSearch] = useState<string>('');
     const [developerFilter, setDeveloperFilter] = useState<string>('all');
@@ -26,7 +22,19 @@ export const AdminExperiences: React.FC<AdminExperiencesProps> = ({ currentUser,
     const [currentPage, setCurrentPage] = useState<number>(1);
     const ITEMS_PER_PAGE = 4;
 
-    const isSuper = currentUser.role === Role.SUPER_ADMIN;
+    const payload = getSessionPayload();
+    const currentUser = useMemo<User | null>(() => {
+        if (!payload) return null;
+        return {
+            id: payload.sub,
+            email: payload.email,
+            role: payload.role,
+            createdAt: '',
+            updatedAt: '',
+        };
+    }, [payload]);
+
+    const isSuper = currentUser?.role === Role.SUPER_ADMIN;
 
     // Fetch all users list if super admin (for filtering)
     const { data: usersData } = useUsers(
@@ -35,13 +43,17 @@ export const AdminExperiences: React.FC<AdminExperiencesProps> = ({ currentUser,
     const usersList = usersData?.data || [];
 
     // Fetch logged-in user's own experiences
-    const { data: myExpsData, isLoading: isMyExpsLoading, isError: isMyExpsError, error: myExpsErr } = useMyExperiences();
+    const { data: myExpsData, isLoading: isMyExpsLoading, isError: isMyExpsError, error: myExpsErr } = useMyExperiences({
+        enabled: !!currentUser && !isSuper
+    });
 
     // Fetch all experiences for admin view (backend-filtered)
     const { data: adminExpsData, isLoading: isAdminExpsLoading, isError: isAdminExpsError, error: adminExpsErr } = useAdminExperiences({
         userId: developerFilter === 'all' ? undefined : developerFilter,
         search: debouncedSearch || undefined,
         limit: 1000,
+    }, {
+        enabled: !!currentUser && isSuper
     });
 
     const experiencesList = isSuper ? (adminExpsData || []) : (myExpsData || []);
@@ -124,7 +136,7 @@ export const AdminExperiences: React.FC<AdminExperiencesProps> = ({ currentUser,
             return;
         }
 
-        const payload = {
+        const payloadData = {
             company: company.trim(),
             position: position.trim(),
             description: description.trim() || undefined,
@@ -137,21 +149,19 @@ export const AdminExperiences: React.FC<AdminExperiencesProps> = ({ currentUser,
         if (editingExp) {
             updateMutation.mutate({
                 id: editingExp.id,
-                ...payload
+                ...payloadData
             }, {
                 onSuccess: () => {
                     setIsModalOpen(false);
-                    if (onRefreshDB) onRefreshDB();
                 },
                 onError: (err) => {
                     setError(err.response?.data?.message || err.message || 'Failed to update experience.');
                 }
             });
         } else {
-            createMutation.mutate(payload, {
+            createMutation.mutate(payloadData, {
                 onSuccess: () => {
                     setIsModalOpen(false);
-                    if (onRefreshDB) onRefreshDB();
                 },
                 onError: (err) => {
                     setError(err.response?.data?.message || err.message || 'Failed to create experience.');
@@ -163,9 +173,6 @@ export const AdminExperiences: React.FC<AdminExperiencesProps> = ({ currentUser,
     const handleDelete = (id: string) => {
         if (window.confirm('Are you sure you want to delete this career history entry?')) {
             deleteMutation.mutate(id, {
-                onSuccess: () => {
-                    if (onRefreshDB) onRefreshDB();
-                },
                 onError: (err) => {
                     setError(err.response?.data?.message || err.message || 'Failed to delete experience.');
                 }
@@ -212,8 +219,26 @@ export const AdminExperiences: React.FC<AdminExperiencesProps> = ({ currentUser,
         }
     };
 
+    if (!currentUser) {
+        return (
+            <div className="flex flex-col items-center justify-center py-20 text-slate-450">
+                <Loader2 className="h-10 w-10 animate-spin text-slate-500 mb-3" />
+                <p className="font-sans text-sm">Verifying session...</p>
+            </div>
+        );
+    }
+
     return (
         <div className="space-y-6">
+            {/* Self-contained header display */}
+            <div className="mb-6 border-b border-slate-100 pb-4">
+                <h2 className="font-sans text-lg font-extrabold tracking-tight text-neutral-900 uppercase">
+                    {isSuper ? 'Career Experience Directories' : 'My Career Milestones'}
+                </h2>
+                <p className="font-sans text-xs text-neutral-450 mt-1">
+                    {isSuper ? 'Review and filter employee experiences.' : 'Maintain your full-cycle career history, company logs, and visibility status.'}
+                </p>
+            </div>
 
             {/* View Information banner for Superadmins */}
             {isSuper && (
@@ -410,7 +435,7 @@ export const AdminExperiences: React.FC<AdminExperiencesProps> = ({ currentUser,
                                                     Owner: {expOwner?.profile?.fullName || expOwner?.email || 'System Account'}
                                                 </span>
                                             ) : (
-                                                <span className="font-sans text-[10px] text-slate-450 font-bold uppercase tracking-wider">
+                                                <span className="font-sans text-[10px] text-slate-455 font-bold uppercase tracking-wider">
                                                     Self Resource
                                                 </span>
                                             )}

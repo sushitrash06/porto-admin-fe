@@ -4,8 +4,8 @@
  */
 
 import React, { useState, useMemo, useEffect } from 'react';
-import type { User, Project } from '../types';
-import { ProjectType, Role } from '../types';
+import type { User, Project } from '../../types';
+import { ProjectType, Role } from '../../types';
 import { 
   useMyProjects, 
   useAdminProjects, 
@@ -15,20 +15,16 @@ import {
   useUploadProjectThumbnail,
   useUploadProjectImage,
   useDeleteProjectImage 
-} from '../hooks/useProjects';
-import { useMyExperiences } from '../hooks/useExperiences';
-import { useUsers } from '../hooks/useUsers';
+} from '../../hooks/useProjects';
+import { useMyExperiences } from '../../hooks/useExperiences';
+import { useUsers } from '../../hooks/useUsers';
+import { getSessionPayload } from '../../lib/auth';
 import { 
   FolderGit2, Search, Plus, Edit, Trash2, Globe, Github, ShieldAlert, 
   Code2, Info, Grid, List, Loader2, Camera, X, ImageIcon, PlusCircle 
 } from 'lucide-react';
 
-interface AdminProjectsProps {
-    currentUser: User;
-    onRefreshDB?: () => void;
-}
-
-export const AdminProjects: React.FC<AdminProjectsProps> = ({ currentUser, onRefreshDB }) => {
+export const AdminProjects: React.FC = () => {
     // Search & Filter state
     const [searchQuery, setSearchQuery] = useState<string>('');
     const [debouncedSearch, setDebouncedSearch] = useState<string>('');
@@ -41,7 +37,19 @@ export const AdminProjects: React.FC<AdminProjectsProps> = ({ currentUser, onRef
     const [currentPage, setCurrentPage] = useState<number>(1);
     const ITEMS_PER_PAGE = 6;
 
-    const isSuper = currentUser.role === Role.SUPER_ADMIN;
+    const payload = getSessionPayload();
+    const currentUser = useMemo<User | null>(() => {
+        if (!payload) return null;
+        return {
+            id: payload.sub,
+            email: payload.email,
+            role: payload.role,
+            createdAt: '',
+            updatedAt: '',
+        };
+    }, [payload]);
+
+    const isSuper = currentUser?.role === Role.SUPER_ADMIN;
 
     // Debounce search
     useEffect(() => {
@@ -63,17 +71,23 @@ export const AdminProjects: React.FC<AdminProjectsProps> = ({ currentUser, onRef
     const usersList = usersData?.data || [];
 
     // Fetch user's own experiences for linking dropdown
-    const { data: myExpsData } = useMyExperiences();
+    const { data: myExpsData } = useMyExperiences({
+        enabled: !!currentUser && !isSuper
+    });
     const ownExperiences = myExpsData || [];
 
     // Fetch projects (either standard own, or admin-filtered)
-    const { data: myProjectsData, isLoading: isMyProjsLoading, isError: isMyProjsError, error: myProjsErr } = useMyProjects();
+    const { data: myProjectsData, isLoading: isMyProjsLoading, isError: isMyProjsError, error: myProjsErr } = useMyProjects({
+        enabled: !!currentUser && !isSuper
+    });
 
     const { data: adminProjectsData, isLoading: isAdminProjsLoading, isError: isAdminProjsError, error: adminProjsErr } = useAdminProjects({
         userId: developerFilter === 'all' ? undefined : developerFilter,
         type: typeFilter === 'all' ? undefined : typeFilter,
         search: debouncedSearch || undefined,
         limit: 1000,
+    }, {
+        enabled: !!currentUser && isSuper
     });
 
     const projectsList = isSuper ? (adminProjectsData || []) : (myProjectsData || []);
@@ -154,7 +168,7 @@ export const AdminProjects: React.FC<AdminProjectsProps> = ({ currentUser, onRef
             .map(tag => tag.trim())
             .filter(tag => tag.length > 0);
 
-        const payload = {
+        const payloadData = {
             title: title.trim(),
             description: description.trim() || undefined,
             type: type,
@@ -169,23 +183,21 @@ export const AdminProjects: React.FC<AdminProjectsProps> = ({ currentUser, onRef
         if (editingProject) {
             updateMutation.mutate({
                 id: editingProject.id,
-                ...payload
+                ...payloadData
             }, {
                 onSuccess: () => {
                     setSuccess('Project details saved successfully!');
                     setIsModalOpen(false);
-                    if (onRefreshDB) onRefreshDB();
                 },
                 onError: (err) => {
                     setError(err.response?.data?.message || err.message || 'Failed to update project.');
                 }
             });
         } else {
-            createMutation.mutate(payload, {
+            createMutation.mutate(payloadData, {
                 onSuccess: () => {
                     setSuccess('Project created successfully!');
                     setIsModalOpen(false);
-                    if (onRefreshDB) onRefreshDB();
                 },
                 onError: (err) => {
                     setError(err.response?.data?.message || err.message || 'Failed to create project.');
@@ -197,9 +209,6 @@ export const AdminProjects: React.FC<AdminProjectsProps> = ({ currentUser, onRef
     const handleDelete = (id: string) => {
         if (window.confirm('Are you sure you want to delete this project?')) {
             deleteMutation.mutate(id, {
-                onSuccess: () => {
-                    if (onRefreshDB) onRefreshDB();
-                },
                 onError: (err) => {
                     setError(err.response?.data?.message || err.message || 'Failed to delete project.');
                 }
@@ -278,8 +287,26 @@ export const AdminProjects: React.FC<AdminProjectsProps> = ({ currentUser, onRef
     const totalPages = Math.ceil(filteredProjects.length / ITEMS_PER_PAGE);
     const activePage = Math.max(1, Math.min(currentPage, totalPages || 1));
 
+    if (!currentUser) {
+        return (
+            <div className="flex flex-col items-center justify-center py-20 text-slate-450">
+                <Loader2 className="h-10 w-10 animate-spin text-slate-500 mb-3" />
+                <p className="font-sans text-sm">Verifying session...</p>
+            </div>
+        );
+    }
+
     return (
         <div className="space-y-6">
+            {/* Self-contained header display */}
+            <div className="mb-6 border-b border-slate-100 pb-4">
+                <h2 className="font-sans text-lg font-extrabold tracking-tight text-neutral-900 uppercase">
+                    {isSuper ? 'Global Project Portfolios' : 'My Project Repositories'}
+                </h2>
+                <p className="font-sans text-xs text-neutral-450 mt-1">
+                    {isSuper ? 'Audit, filter, and inspect project details submitted by active platform users.' : 'Document your open-source projects, link relevant jobs, and customize stack tags.'}
+                </p>
+            </div>
 
             {/* Superadmin Information Banner */}
             {isSuper && (
@@ -512,7 +539,7 @@ export const AdminProjects: React.FC<AdminProjectsProps> = ({ currentUser, onRef
                                                     <button
                                                         id={`delete-project-${proj.id}-btn`}
                                                         onClick={() => handleDelete(proj.id)}
-                                                        className="rounded-md border border-slate-200 bg-white p-1.5 text-slate-500 hover:border-red-200 hover:text-red-600 hover:bg-red-50 transition cursor-pointer"
+                                                        className="rounded-md border border-slate-200 bg-white p-1.5 text-slate-500 hover:border-red-200 hover:text-red-650 hover:bg-red-50 transition cursor-pointer"
                                                         title="Delete project"
                                                     >
                                                         <Trash2 className="h-3 w-3" />
@@ -600,7 +627,7 @@ export const AdminProjects: React.FC<AdminProjectsProps> = ({ currentUser, onRef
                                                         {proj.techStacks.map((stack, idx) => (
                                                             <span
                                                                 key={idx}
-                                                                className="inline-flex items-center space-x-0.5 rounded px-2 py-0.5 font-mono text-[8px] font-bold bg-slate-50 text-slate-550 border border-slate-150"
+                                                                className="inline-flex items-center space-x-0.5 rounded px-2 py-0.5 font-mono text-[8px] font-bold bg-slate-50 text-slate-550 border border-slate-155"
                                                             >
                                                                 {stack}
                                                             </span>
@@ -736,7 +763,7 @@ export const AdminProjects: React.FC<AdminProjectsProps> = ({ currentUser, onRef
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         {/* Thumbnail Upload */}
                                         <div className="space-y-2">
-                                            <span className="block font-sans text-[10px] font-bold text-slate-500 uppercase tracking-wider">Project Thumbnail</span>
+                                            <span className="block font-sans text-[10px] font-bold text-slate-505 uppercase tracking-wider">Project Thumbnail</span>
                                             <div className="flex items-center space-x-4">
                                                 {editingProject.thumbnail ? (
                                                     <img
@@ -765,10 +792,16 @@ export const AdminProjects: React.FC<AdminProjectsProps> = ({ currentUser, onRef
 
                                         {/* Screenshot Upload */}
                                         <div className="space-y-2">
-                                            <span className="block font-sans text-[10px] font-bold text-slate-500 uppercase tracking-wider">Extra Screenshots ({editingProject.images?.length || 0})</span>
-                                            <label className="inline-flex px-3 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 rounded-md font-sans text-[10px] font-bold uppercase tracking-wider text-slate-650 cursor-pointer items-center space-x-1.5 transition">
-                                                {uploadImageMutation.isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : <PlusCircle className="h-3 w-3" />}
-                                                <span>Add Screenshot</span>
+                                            <span className="block font-sans text-[10px] font-bold text-slate-505 uppercase tracking-wider">Add Screenshot</span>
+                                            <label className="px-4 py-3 bg-white border border-dashed border-slate-300 hover:border-slate-400 rounded-md font-sans text-[10px] text-slate-500 cursor-pointer flex flex-col items-center justify-center space-y-1 transition h-[50px]">
+                                                {uploadImageMutation.isPending ? (
+                                                    <Loader2 className="h-4 w-4 animate-spin text-slate-400" />
+                                                ) : (
+                                                    <>
+                                                        <PlusCircle className="h-4 w-4 text-slate-400" />
+                                                        <span className="font-bold uppercase tracking-wider text-[8px]">Upload Screen Image</span>
+                                                    </>
+                                                )}
                                                 <input
                                                     type="file"
                                                     accept="image/*"
@@ -780,27 +813,28 @@ export const AdminProjects: React.FC<AdminProjectsProps> = ({ currentUser, onRef
                                         </div>
                                     </div>
 
-                                    {/* Screenshots Gallery List */}
+                                    {/* Screenshots Gallery view */}
                                     {editingProject.images && editingProject.images.length > 0 && (
-                                        <div className="flex flex-wrap gap-2.5 pt-2 border-t border-slate-200/60">
-                                            {editingProject.images.map((img, idx) => (
-                                                <div key={idx} className="relative group/image h-16 w-28 rounded-md overflow-hidden border border-slate-250">
-                                                    <img
-                                                        src={img}
-                                                        alt="Screenshot"
-                                                        className="h-full w-full object-cover"
-                                                    />
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => handleScreenshotDelete(editingProject.id, img)}
-                                                        disabled={deleteImageMutation.isPending}
-                                                        className="absolute top-1 right-1 bg-black/60 text-white rounded p-0.5 hover:bg-red-600 transition"
-                                                        title="Delete image"
-                                                    >
-                                                        <X className="h-3 w-3" />
-                                                    </button>
-                                                </div>
-                                            ))}
+                                        <div className="pt-2">
+                                            <span className="block font-sans text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Screenshots Gallery ({editingProject.images.length})</span>
+                                            <div className="flex flex-wrap gap-2">
+                                                {editingProject.images.map((imgUrl, idx) => (
+                                                    <div key={idx} className="relative group/img h-14 w-24 rounded-md overflow-hidden border border-slate-205">
+                                                        <img
+                                                            src={imgUrl}
+                                                            alt={`Screenshot ${idx}`}
+                                                            className="h-full w-full object-cover"
+                                                        />
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => handleScreenshotDelete(editingProject.id, imgUrl)}
+                                                            className="absolute inset-0 bg-black/55 text-white flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition duration-150 cursor-pointer text-xs"
+                                                        >
+                                                            <X className="h-4 w-4" />
+                                                        </button>
+                                                    </div>
+                                                ))}
+                                            </div>
                                         </div>
                                     )}
                                 </div>

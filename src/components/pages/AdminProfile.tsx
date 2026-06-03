@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { useProfile, useUpdateProfile, useUploadProfileImage } from '../hooks/useProfile';
+import { useProfile, useUpdateProfile, useUploadProfileImage } from '../../hooks/useProfile';
 import { UserCheck, ShieldAlert, Loader2, Camera, Mail, Phone, MapPin, Sparkles, Tag, Plus, X, Globe, EyeOff } from 'lucide-react';
 
 export const AdminProfile: React.FC = () => {
@@ -120,7 +120,7 @@ export const AdminProfile: React.FC = () => {
 
     if (isLoading) {
         return (
-            <div className="flex flex-col items-center justify-center py-20 text-slate-400">
+            <div className="flex flex-col items-center justify-center py-20 text-slate-450">
                 <Loader2 className="h-10 w-10 animate-spin text-slate-500 mb-3" />
                 <p className="font-sans text-sm">Querying developer profile...</p>
             </div>
@@ -140,7 +140,17 @@ export const AdminProfile: React.FC = () => {
     }
 
     return (
-        <div className="space-y-8">
+        <div className="space-y-6">
+            {/* Self-contained header display */}
+            <div className="mb-6 border-b border-slate-100 pb-4">
+                <h2 className="font-sans text-lg font-extrabold tracking-tight text-neutral-900 uppercase">
+                    My Developer Profile Settings
+                </h2>
+                <p className="font-sans text-xs text-neutral-450 mt-1">
+                    Modify your identity fields, biography summary, skill sets, and visibility status.
+                </p>
+            </div>
+
             <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
 
                 {/* Left Profile card/Avatar editor (4 columns) */}
@@ -228,7 +238,7 @@ export const AdminProfile: React.FC = () => {
                         </div>
                     )}
                     {errorMsg && (
-                        <div className="flex items-start space-x-2 rounded-md border border-red-100 bg-red-50 p-4 text-xs font-sans text-red-600 font-bold">
+                        <div className="flex items-start space-x-2 rounded-md border border-red-100 bg-red-50 p-4 text-xs font-sans text-red-650 font-bold">
                             <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0" />
                             <span>{errorMsg}</span>
                         </div>
@@ -393,7 +403,7 @@ export const AdminProfile: React.FC = () => {
                                             <button
                                                 type="button"
                                                 onClick={() => handleRemoveSkill(skill)}
-                                                className="hover:text-red-600 transition ml-1"
+                                                className="hover:text-red-650 transition ml-1"
                                             >
                                                 <X className="h-3 w-3" />
                                             </button>
@@ -438,7 +448,7 @@ export const AdminProfile: React.FC = () => {
                                             <button
                                                 type="button"
                                                 onClick={() => handleRemoveService(service)}
-                                                className="hover:text-red-600 transition ml-1"
+                                                className="hover:text-red-650 transition ml-1"
                                             >
                                                 <X className="h-3 w-3" />
                                             </button>
