@@ -1,0 +1,738 @@
+{
+	"info": {
+		"_postman_id": "porto-dev-backend-collection",
+		"name": "Porto Dev Backend API",
+		"description": "Portfolio Management Backend API - Complete Collection",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:3000",
+			"type": "string"
+		},
+		{
+			"key": "token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "userId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "experienceId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "projectId",
+			"value": "",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"const res = pm.response.json();",
+									"if (res.access_token) {",
+									"    pm.collectionVariables.set('token', res.access_token);",
+									"}",
+									"if (res.userId) {",
+									"    pm.collectionVariables.set('userId', res.userId);",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"user@example.com\",\n    \"password\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/login",
+							"host": ["{{baseUrl}}"],
+							"path": ["auth", "login"]
+						}
+					}
+				},
+				{
+					"name": "Get Current User",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/auth/me",
+							"host": ["{{baseUrl}}"],
+							"path": ["auth", "me"]
+						}
+					}
+				},
+				{
+					"name": "Admin Only Check",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/auth/admin",
+							"host": ["{{baseUrl}}"],
+							"path": ["auth", "admin"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Profiles",
+			"item": [
+				{
+					"name": "Get My Profile",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/profiles/me",
+							"host": ["{{baseUrl}}"],
+							"path": ["profiles", "me"]
+						}
+					}
+				},
+				{
+					"name": "Update My Profile",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"fullName\": \"John Doe\",\n    \"headline\": \"Full Stack Developer\",\n    \"bio\": \"Passionate developer with 5+ years experience\",\n    \"skills\": [\"TypeScript\", \"React\", \"NestJS\", \"PostgreSQL\"],\n    \"services\": [\"Web Development\", \"API Design\"],\n    \"contactEmail\": \"john@example.com\",\n    \"phoneNumber\": \"+62812345678\",\n    \"location\": \"Jakarta, Indonesia\",\n    \"isPublic\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/profiles/me",
+							"host": ["{{baseUrl}}"],
+							"path": ["profiles", "me"]
+						}
+					}
+				},
+				{
+					"name": "Upload Profile Image",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": ""
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/profiles/me/image",
+							"host": ["{{baseUrl}}"],
+							"path": ["profiles", "me", "image"]
+						}
+					}
+				},
+				{
+					"name": "Get Public Profile (by userId)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/profiles/{{userId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["profiles", "{{userId}}"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Experiences",
+			"item": [
+				{
+					"name": "Create Experience",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"const res = pm.response.json();",
+									"if (res.id) {",
+									"    pm.collectionVariables.set('experienceId', res.id);",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"company\": \"PT Example Indonesia\",\n    \"position\": \"Senior Backend Developer\",\n    \"description\": \"Building scalable microservices and APIs\",\n    \"startDate\": \"2023-01-01\",\n    \"endDate\": \"2024-06-30\",\n    \"companyLogo\": \"\",\n    \"isPublic\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/experiences",
+							"host": ["{{baseUrl}}"],
+							"path": ["experiences"]
+						}
+					}
+				},
+				{
+					"name": "Get My Experiences",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/experiences/me",
+							"host": ["{{baseUrl}}"],
+							"path": ["experiences", "me"]
+						}
+					}
+				},
+				{
+					"name": "Get My Experience Detail",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/experiences/me/{{experienceId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["experiences", "me", "{{experienceId}}"]
+						}
+					}
+				},
+				{
+					"name": "Update Experience",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"position\": \"Lead Backend Developer\",\n    \"description\": \"Leading a team of 5 engineers\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/experiences/{{experienceId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["experiences", "{{experienceId}}"]
+						}
+					}
+				},
+				{
+					"name": "Delete Experience",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/experiences/{{experienceId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["experiences", "{{experienceId}}"]
+						}
+					}
+				},
+				{
+					"name": "Get Public Experiences (by userId)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/experiences/public/{{userId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["experiences", "public", "{{userId}}"]
+						}
+					}
+				},
+				{
+					"name": "Get Public Experience Detail",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/experiences/public/{{userId}}/{{experienceId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["experiences", "public", "{{userId}}", "{{experienceId}}"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Projects",
+			"item": [
+				{
+					"name": "Create Project",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"const res = pm.response.json();",
+									"if (res.id) {",
+									"    pm.collectionVariables.set('projectId', res.id);",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"Portfolio Website\",\n    \"description\": \"A modern portfolio website built with Next.js\",\n    \"type\": \"PERSONAL\",\n    \"experienceId\": \"\",\n    \"thumbnail\": \"\",\n    \"images\": [],\n    \"techStacks\": [\"Next.js\", \"TypeScript\", \"TailwindCSS\"],\n    \"projectUrl\": \"https://example.com\",\n    \"githubUrl\": \"https://github.com/example/portfolio\",\n    \"role\": \"Full Stack Developer\",\n    \"isPublic\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/projects",
+							"host": ["{{baseUrl}}"],
+							"path": ["projects"]
+						}
+					}
+				},
+				{
+					"name": "Get My Projects",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/projects/me",
+							"host": ["{{baseUrl}}"],
+							"path": ["projects", "me"]
+						}
+					}
+				},
+				{
+					"name": "Get My Project Detail",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/projects/me/{{projectId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["projects", "me", "{{projectId}}"]
+						}
+					}
+				},
+				{
+					"name": "Update Project",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"Portfolio Website v2\",\n    \"description\": \"Updated portfolio with new features\",\n    \"techStacks\": [\"Next.js\", \"TypeScript\", \"TailwindCSS\", \"Prisma\"]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/projects/{{projectId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["projects", "{{projectId}}"]
+						}
+					}
+				},
+				{
+					"name": "Upload Project Thumbnail",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": ""
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/projects/{{projectId}}/thumbnail",
+							"host": ["{{baseUrl}}"],
+							"path": ["projects", "{{projectId}}", "thumbnail"]
+						}
+					}
+				},
+				{
+					"name": "Upload Project Image",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": ""
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/projects/{{projectId}}/images",
+							"host": ["{{baseUrl}}"],
+							"path": ["projects", "{{projectId}}", "images"]
+						}
+					}
+				},
+				{
+					"name": "Remove Project Image",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"imageUrl\": \"https://res.cloudinary.com/xxx/image/upload/v123/profiles/abc.jpg\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/projects/{{projectId}}/images",
+							"host": ["{{baseUrl}}"],
+							"path": ["projects", "{{projectId}}", "images"]
+						}
+					}
+				},
+				{
+					"name": "Delete Project",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/projects/{{projectId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["projects", "{{projectId}}"]
+						}
+					}
+				},
+				{
+					"name": "Get Public Projects (by userId)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/projects/public/{{userId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["projects", "public", "{{userId}}"]
+						}
+					}
+				},
+				{
+					"name": "Get Public Project Detail",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/projects/public/{{userId}}/{{projectId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["projects", "public", "{{userId}}", "{{projectId}}"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Portfolio (Public)",
+			"item": [
+				{
+					"name": "Get Full Public Portfolio",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/portfolio/{{userId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["portfolio", "{{userId}}"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Admin",
+			"item": [
+				{
+					"name": "Users",
+					"item": [
+						{
+							"name": "Create User",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"email\": \"newuser@example.com\",\n    \"password\": \"password123\",\n    \"role\": \"USER\"\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/users",
+									"host": ["{{baseUrl}}"],
+									"path": ["users"]
+								}
+							}
+						},
+						{
+							"name": "Get All Users",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/users?page=1&limit=10&search=",
+									"host": ["{{baseUrl}}"],
+									"path": ["users"],
+									"query": [
+										{
+											"key": "page",
+											"value": "1"
+										},
+										{
+											"key": "limit",
+											"value": "10"
+										},
+										{
+											"key": "search",
+											"value": ""
+										}
+									]
+								}
+							}
+						}
+					]
+				},
+				{
+					"name": "Experiences",
+					"item": [
+						{
+							"name": "Get All Experiences (Admin)",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/admin/experiences?page=1&limit=10&userId=&company=&search=",
+									"host": ["{{baseUrl}}"],
+									"path": ["admin", "experiences"],
+									"query": [
+										{
+											"key": "page",
+											"value": "1"
+										},
+										{
+											"key": "limit",
+											"value": "10"
+										},
+										{
+											"key": "userId",
+											"value": ""
+										},
+										{
+											"key": "company",
+											"value": ""
+										},
+										{
+											"key": "search",
+											"value": ""
+										}
+									]
+								}
+							}
+						}
+					]
+				},
+				{
+					"name": "Projects",
+					"item": [
+						{
+							"name": "Get All Projects (Admin)",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/admin/projects?page=1&limit=10&userId=&type=&search=",
+									"host": ["{{baseUrl}}"],
+									"path": ["admin", "projects"],
+									"query": [
+										{
+											"key": "page",
+											"value": "1"
+										},
+										{
+											"key": "limit",
+											"value": "10"
+										},
+										{
+											"key": "userId",
+											"value": ""
+										},
+										{
+											"key": "type",
+											"value": ""
+										},
+										{
+											"key": "search",
+											"value": ""
+										}
+									]
+								}
+							}
+						}
+					]
+				}
+			]
+		}
+	]
+}
