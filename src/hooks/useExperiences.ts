@@ -63,6 +63,22 @@ export function useAdminExperiences(params: AdminExperiencesParams, options?: { 
 }
 
 /**
+ * Hook to retrieve a single experience detail for the logged-in user.
+ * Hits GET /experiences/me/:id
+ */
+export function useExperienceDetail(id: string | undefined, options?: { enabled?: boolean }) {
+  return useQuery<Experience, AxiosError<{ message?: string }>>({
+    queryKey: ['experiences', 'me', id],
+    queryFn: async () => {
+      const { data } = await api.get<Experience>(`/experiences/me/${id}`);
+      return data;
+    },
+    enabled: !!id && (options?.enabled !== false),
+    ...options,
+  });
+}
+
+/**
  * Hook to create a new experience.
  * Hits POST /experiences
  */

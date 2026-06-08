@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useMemo, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import type { User, Project } from '../../types';
 import { ProjectType, Role } from '../../types';
 import { 
@@ -19,12 +20,14 @@ import {
 import { useMyExperiences } from '../../hooks/useExperiences';
 import { useUsers } from '../../hooks/useUsers';
 import { getSessionPayload } from '../../lib/auth';
+import { Dialog, DialogPanel, DialogTitle, DialogBackdrop, Listbox, ListboxButton, ListboxOptions, ListboxOption } from '@headlessui/react';
 import { 
   FolderGit2, Search, Plus, Edit, Trash2, Globe, Github, ShieldAlert, 
-  Code2, Info, Grid, List, Loader2, Camera, X, ImageIcon, PlusCircle 
+  Code2, Info, Grid, List, Loader2, Camera, X, ImageIcon, PlusCircle, Eye, ChevronDown, Check
 } from 'lucide-react';
 
 export const AdminProjects: React.FC = () => {
+    const navigate = useNavigate();
     // Search & Filter state
     const [searchQuery, setSearchQuery] = useState<string>('');
     const [debouncedSearch, setDebouncedSearch] = useState<string>('');
@@ -287,6 +290,22 @@ export const AdminProjects: React.FC = () => {
     const totalPages = Math.ceil(filteredProjects.length / ITEMS_PER_PAGE);
     const activePage = Math.max(1, Math.min(currentPage, totalPages || 1));
 
+    const selectedDevUser = useMemo(() => usersList.find(u => u.id === developerFilter), [usersList, developerFilter]);
+    const developerFilterLabel = useMemo(() => {
+        if (developerFilter === 'all') return 'Creators: All Users';
+        return `Creator: ${selectedDevUser?.profile?.fullName || selectedDevUser?.email || developerFilter}`;
+    }, [developerFilter, selectedDevUser]);
+
+    const typeFilterLabel = useMemo(() => {
+        if (typeFilter === 'all') return 'Types: All Projects';
+        return typeFilter === 'PERSONAL' ? 'Types: 📍 Personal' : 'Types: 💼 Work Products';
+    }, [typeFilter]);
+
+    const publicFilterLabel = useMemo(() => {
+        if (publicFilter === 'all') return 'Status: All Records';
+        return publicFilter === 'public' ? 'Status: 🌐 Published' : 'Status: 🔒 Hidden';
+    }, [publicFilter]);
+
     if (!currentUser) {
         return (
             <div className="flex flex-col items-center justify-center py-20 text-slate-450">
@@ -336,47 +355,197 @@ export const AdminProjects: React.FC = () => {
                     </div>
 
                     <div className="flex flex-wrap items-center gap-2">
-
                         {/* Developer Filter (Super admin only) */}
                         {isSuper && (
-                            <select
-                                id="proj-developer-select"
-                                value={developerFilter}
-                                onChange={(e) => setDeveloperFilter(e.target.value)}
-                                className="rounded-md border border-slate-200 bg-slate-50 px-3 py-2 font-sans text-xs focus:border-slate-400 focus:bg-white focus:outline-hidden text-slate-750"
-                            >
-                                <option value="all">Creators: All Users</option>
-                                {usersList.filter(u => u.role !== Role.SUPER_ADMIN).map(u => (
-                                    <option key={u.id} value={u.id}>
-                                        Creator: {u.profile?.fullName || u.email}
-                                    </option>
-                                ))}
-                            </select>
+                            <Listbox value={developerFilter} onChange={setDeveloperFilter}>
+                                <div className="relative">
+                                    <ListboxButton
+                                        id="proj-developer-select"
+                                        className="relative rounded-md border border-slate-200 bg-slate-50 py-2 pr-8 pl-3 text-left font-sans text-xs focus:border-slate-400 focus:bg-white focus:outline-hidden text-slate-700 cursor-pointer min-w-[160px]"
+                                    >
+                                        <span className="block truncate">{developerFilterLabel}</span>
+                                        <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+                                            <ChevronDown className="h-3.5 w-3.5 text-slate-400" />
+                                        </span>
+                                    </ListboxButton>
+                                    <ListboxOptions className="absolute z-30 mt-1 max-h-60 w-56 overflow-auto rounded-md bg-white py-1 text-xs shadow-lg ring-1 ring-black/5 focus:outline-hidden font-sans border border-slate-200">
+                                        <ListboxOption
+                                            value="all"
+                                            className="relative cursor-pointer select-none py-1.5 pr-8 pl-3 text-slate-900 data-[focus]:bg-slate-50"
+                                        >
+                                            {({ selected }) => (
+                                                <>
+                                                    <span className={`block truncate ${selected ? 'font-bold' : 'font-normal'}`}>
+                                                        Creators: All Users
+                                                    </span>
+                                                    {selected && (
+                                                        <span className="absolute inset-y-0 right-0 flex items-center pr-2 text-black">
+                                                            <Check className="h-3 w-3" />
+                                                        </span>
+                                                    )}
+                                                </>
+                                            )}
+                                        </ListboxOption>
+                                        {usersList.filter(u => u.role !== Role.SUPER_ADMIN).map(u => (
+                                            <ListboxOption
+                                                key={u.id}
+                                                value={u.id}
+                                                className="relative cursor-pointer select-none py-1.5 pr-8 pl-3 text-slate-900 data-[focus]:bg-slate-50"
+                                            >
+                                                {({ selected }) => (
+                                                    <>
+                                                        <span className={`block truncate ${selected ? 'font-bold' : 'font-normal'}`}>
+                                                            {u.profile?.fullName || u.email}
+                                                        </span>
+                                                        {selected && (
+                                                            <span className="absolute inset-y-0 right-0 flex items-center pr-2 text-black">
+                                                                <Check className="h-3 w-3" />
+                                                            </span>
+                                                        )}
+                                                    </>
+                                                )}
+                                            </ListboxOption>
+                                        ))}
+                                    </ListboxOptions>
+                                </div>
+                            </Listbox>
                         )}
 
                         {/* Type constraint */}
-                        <select
-                            id="proj-type-select"
-                            value={typeFilter}
-                            onChange={(e) => setTypeFilter(e.target.value)}
-                            className="rounded-md border border-slate-200 bg-slate-50 px-3 py-2 font-sans text-xs focus:border-slate-400 focus:bg-white focus:outline-hidden text-slate-755"
-                        >
-                            <option value="all">Types: All Projects</option>
-                            <option value="PERSONAL">📍 Personal</option>
-                            <option value="WORK">💼 Work Products</option>
-                        </select>
+                        <Listbox value={typeFilter} onChange={setTypeFilter}>
+                            <div className="relative">
+                                <ListboxButton
+                                    id="proj-type-select"
+                                    className="relative rounded-md border border-slate-200 bg-slate-50 py-2 pr-8 pl-3 text-left font-sans text-xs focus:border-slate-400 focus:bg-white focus:outline-hidden text-slate-700 cursor-pointer min-w-[150px]"
+                                >
+                                    <span className="block truncate">{typeFilterLabel}</span>
+                                    <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+                                        <ChevronDown className="h-3.5 w-3.5 text-slate-400" />
+                                    </span>
+                                </ListboxButton>
+                                <ListboxOptions className="absolute z-30 mt-1 max-h-60 w-44 overflow-auto rounded-md bg-white py-1 text-xs shadow-lg ring-1 ring-black/5 focus:outline-hidden font-sans border border-slate-200">
+                                    <ListboxOption
+                                        value="all"
+                                        className="relative cursor-pointer select-none py-1.5 pr-8 pl-3 text-slate-900 data-[focus]:bg-slate-50"
+                                    >
+                                        {({ selected }) => (
+                                            <>
+                                                <span className={`block truncate ${selected ? 'font-bold' : 'font-normal'}`}>
+                                                    Types: All Projects
+                                                </span>
+                                                {selected && (
+                                                    <span className="absolute inset-y-0 right-0 flex items-center pr-2 text-black">
+                                                        <Check className="h-3 w-3" />
+                                                    </span>
+                                                )}
+                                            </>
+                                        )}
+                                    </ListboxOption>
+                                    <ListboxOption
+                                        value="PERSONAL"
+                                        className="relative cursor-pointer select-none py-1.5 pr-8 pl-3 text-slate-900 data-[focus]:bg-slate-50"
+                                    >
+                                        {({ selected }) => (
+                                            <>
+                                                <span className={`block truncate ${selected ? 'font-bold' : 'font-normal'}`}>
+                                                    📍 Personal
+                                                </span>
+                                                {selected && (
+                                                    <span className="absolute inset-y-0 right-0 flex items-center pr-2 text-black">
+                                                        <Check className="h-3 w-3" />
+                                                    </span>
+                                                )}
+                                            </>
+                                        )}
+                                    </ListboxOption>
+                                    <ListboxOption
+                                        value="WORK"
+                                        className="relative cursor-pointer select-none py-1.5 pr-8 pl-3 text-slate-900 data-[focus]:bg-slate-50"
+                                    >
+                                        {({ selected }) => (
+                                            <>
+                                                <span className={`block truncate ${selected ? 'font-bold' : 'font-normal'}`}>
+                                                    💼 Work Products
+                                                </span>
+                                                {selected && (
+                                                    <span className="absolute inset-y-0 right-0 flex items-center pr-2 text-black">
+                                                        <Check className="h-3 w-3" />
+                                                    </span>
+                                                )}
+                                            </>
+                                        )}
+                                    </ListboxOption>
+                                </ListboxOptions>
+                            </div>
+                        </Listbox>
 
                         {/* Public status */}
-                        <select
-                            id="proj-public-select"
-                            value={publicFilter}
-                            onChange={(e) => setPublicFilter(e.target.value)}
-                            className="rounded-md border border-slate-200 bg-slate-50 px-3 py-2 font-sans text-xs focus:border-slate-400 focus:bg-white focus:outline-hidden text-slate-750"
-                        >
-                            <option value="all">Status: All Records</option>
-                            <option value="public">🌐 Published</option>
-                            <option value="private">🔒 Hidden</option>
-                        </select>
+                        <Listbox value={publicFilter} onChange={setPublicFilter}>
+                            <div className="relative">
+                                <ListboxButton
+                                    id="proj-public-select"
+                                    className="relative rounded-md border border-slate-200 bg-slate-50 py-2 pr-8 pl-3 text-left font-sans text-xs focus:border-slate-400 focus:bg-white focus:outline-hidden text-slate-700 cursor-pointer min-w-[140px]"
+                                >
+                                    <span className="block truncate">{publicFilterLabel}</span>
+                                    <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+                                        <ChevronDown className="h-3.5 w-3.5 text-slate-400" />
+                                    </span>
+                                </ListboxButton>
+                                <ListboxOptions className="absolute z-30 mt-1 max-h-60 w-40 overflow-auto rounded-md bg-white py-1 text-xs shadow-lg ring-1 ring-black/5 focus:outline-hidden font-sans border border-slate-200">
+                                    <ListboxOption
+                                        value="all"
+                                        className="relative cursor-pointer select-none py-1.5 pr-8 pl-3 text-slate-900 data-[focus]:bg-slate-50"
+                                    >
+                                        {({ selected }) => (
+                                            <>
+                                                <span className={`block truncate ${selected ? 'font-bold' : 'font-normal'}`}>
+                                                    Status: All Records
+                                                </span>
+                                                {selected && (
+                                                    <span className="absolute inset-y-0 right-0 flex items-center pr-2 text-black">
+                                                        <Check className="h-3 w-3" />
+                                                    </span>
+                                                )}
+                                            </>
+                                        )}
+                                    </ListboxOption>
+                                    <ListboxOption
+                                        value="public"
+                                        className="relative cursor-pointer select-none py-1.5 pr-8 pl-3 text-slate-900 data-[focus]:bg-slate-50"
+                                    >
+                                        {({ selected }) => (
+                                            <>
+                                                <span className={`block truncate ${selected ? 'font-bold' : 'font-normal'}`}>
+                                                    🌐 Published
+                                                </span>
+                                                {selected && (
+                                                    <span className="absolute inset-y-0 right-0 flex items-center pr-2 text-black">
+                                                        <Check className="h-3 w-3" />
+                                                    </span>
+                                                )}
+                                            </>
+                                        )}
+                                    </ListboxOption>
+                                    <ListboxOption
+                                        value="private"
+                                        className="relative cursor-pointer select-none py-1.5 pr-8 pl-3 text-slate-900 data-[focus]:bg-slate-50"
+                                    >
+                                        {({ selected }) => (
+                                            <>
+                                                <span className={`block truncate ${selected ? 'font-bold' : 'font-normal'}`}>
+                                                    🔒 Hidden
+                                                </span>
+                                                {selected && (
+                                                    <span className="absolute inset-y-0 right-0 flex items-center pr-2 text-black">
+                                                        <Check className="h-3 w-3" />
+                                                    </span>
+                                                )}
+                                            </>
+                                        )}
+                                    </ListboxOption>
+                                </ListboxOptions>
+                            </div>
+                        </Listbox>
 
                         {/* View Mode Switcher */}
                         <div className="flex rounded-md border border-slate-200 bg-slate-105 p-0.5">
@@ -526,51 +695,61 @@ export const AdminProjects: React.FC = () => {
                                                 {proj.isPublic ? '🌐 Public Web' : '🔒 Hidden'}
                                             </span>
 
-                                            {!isSuper ? (
-                                                <div className="flex items-center space-x-1.5">
-                                                    <button
-                                                        id={`edit-project-${proj.id}-btn`}
-                                                        onClick={() => handleOpenEdit(proj)}
-                                                        className="rounded-md border border-slate-200 bg-white p-1.5 text-slate-500 hover:border-slate-400 hover:text-black transition cursor-pointer"
-                                                        title="Edit Project"
-                                                    >
-                                                        <Edit className="h-3 w-3" />
-                                                    </button>
-                                                    <button
-                                                        id={`delete-project-${proj.id}-btn`}
-                                                        onClick={() => handleDelete(proj.id)}
-                                                        className="rounded-md border border-slate-200 bg-white p-1.5 text-slate-500 hover:border-red-200 hover:text-red-650 hover:bg-red-50 transition cursor-pointer"
-                                                        title="Delete project"
-                                                    >
-                                                        <Trash2 className="h-3 w-3" />
-                                                    </button>
-                                                </div>
-                                            ) : (
-                                                <div className="flex items-center space-x-2">
-                                                    {proj.projectUrl && (
-                                                        <a
-                                                            href={proj.projectUrl}
-                                                            target="_blank"
-                                                            rel="noopener noreferrer"
-                                                            className="text-slate-400 hover:text-black"
-                                                            title="View Live Webpage"
+                                            <div className="flex items-center space-x-1.5">
+                                                <button
+                                                    id={`view-project-${proj.id}-btn`}
+                                                    onClick={() => navigate(`/admin/projects/${proj.id}`)}
+                                                    className="rounded-md border border-slate-200 bg-white p-1.5 text-slate-500 hover:border-slate-400 hover:text-black transition cursor-pointer"
+                                                    title="View Detail"
+                                                >
+                                                    <Eye className="h-3 w-3" />
+                                                </button>
+                                                {!isSuper ? (
+                                                    <>
+                                                        <button
+                                                            id={`edit-project-${proj.id}-btn`}
+                                                            onClick={() => handleOpenEdit(proj)}
+                                                            className="rounded-md border border-slate-200 bg-white p-1.5 text-slate-500 hover:border-slate-400 hover:text-black transition cursor-pointer"
+                                                            title="Edit Project"
                                                         >
-                                                            <Globe className="h-3.5 w-3.5" />
-                                                        </a>
-                                                    )}
-                                                    {proj.githubUrl && (
-                                                        <a
-                                                            href={proj.githubUrl}
-                                                            target="_blank"
-                                                            rel="noopener noreferrer"
-                                                            className="text-slate-400 hover:text-black"
-                                                            title="Review repository link"
+                                                            <Edit className="h-3 w-3" />
+                                                        </button>
+                                                        <button
+                                                            id={`delete-project-${proj.id}-btn`}
+                                                            onClick={() => handleDelete(proj.id)}
+                                                            className="rounded-md border border-slate-200 bg-white p-1.5 text-slate-500 hover:border-red-200 hover:text-red-650 hover:bg-red-50 transition cursor-pointer"
+                                                            title="Delete project"
                                                         >
-                                                            <Github className="h-3.5 w-3.5" />
-                                                        </a>
-                                                    )}
-                                                </div>
-                                            )}
+                                                            <Trash2 className="h-3 w-3" />
+                                                        </button>
+                                                    </>
+                                                ) : (
+                                                    <div className="flex items-center space-x-1.5">
+                                                        {proj.projectUrl && (
+                                                            <a
+                                                                href={proj.projectUrl}
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                className="text-slate-400 hover:text-black"
+                                                                title="View Live Webpage"
+                                                            >
+                                                                <Globe className="h-3.5 w-3.5" />
+                                                            </a>
+                                                        )}
+                                                        {proj.githubUrl && (
+                                                            <a
+                                                                href={proj.githubUrl}
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                className="text-slate-400 hover:text-black"
+                                                                title="Review repository link"
+                                                            >
+                                                                <Github className="h-3.5 w-3.5" />
+                                                            </a>
+                                                        )}
+                                                    </div>
+                                                )}
+                                            </div>
                                         </div>
 
                                     </div>
@@ -667,24 +846,34 @@ export const AdminProjects: React.FC = () => {
                                                             )}
                                                         </div>
 
-                                                        {!isSuper ? (
-                                                            <div className="flex items-center space-x-1 border-l border-slate-200 pl-3">
-                                                                <button
-                                                                    onClick={() => handleOpenEdit(proj)}
-                                                                    className="rounded-md border border-slate-200 bg-white p-1 text-slate-500 hover:border-slate-400 hover:text-black transition cursor-pointer"
-                                                                >
-                                                                    <Edit className="h-3 w-3" />
-                                                                </button>
-                                                                <button
-                                                                    onClick={() => handleDelete(proj.id)}
-                                                                    className="rounded-md border border-slate-200 bg-white p-1 text-slate-500 hover:border-red-200 hover:text-red-650 hover:bg-red-50 transition cursor-pointer"
-                                                                >
-                                                                    <Trash2 className="h-3 w-3" />
-                                                                </button>
-                                                            </div>
-                                                        ) : (
-                                                            <span className="text-[10px] italic text-slate-400">Read-Only</span>
-                                                        )}
+                                                        <div className="flex items-center space-x-1 border-l border-slate-200 pl-3">
+                                                            <button
+                                                                id={`view-project-tbl-${proj.id}-btn`}
+                                                                onClick={() => navigate(`/admin/projects/${proj.id}`)}
+                                                                className="rounded-md border border-slate-200 bg-white p-1 text-slate-500 hover:border-slate-400 hover:text-black transition cursor-pointer"
+                                                                title="View Detail"
+                                                            >
+                                                                <Eye className="h-3 w-3" />
+                                                            </button>
+                                                            {!isSuper && (
+                                                                <>
+                                                                    <button
+                                                                        onClick={() => handleOpenEdit(proj)}
+                                                                        className="rounded-md border border-slate-200 bg-white p-1 text-slate-500 hover:border-slate-400 hover:text-black transition cursor-pointer"
+                                                                        title="Edit Project"
+                                                                    >
+                                                                        <Edit className="h-3 w-3" />
+                                                                    </button>
+                                                                    <button
+                                                                        onClick={() => handleDelete(proj.id)}
+                                                                        className="rounded-md border border-slate-200 bg-white p-1 text-slate-500 hover:border-red-200 hover:text-red-650 hover:bg-red-50 transition cursor-pointer"
+                                                                        title="Delete Project"
+                                                                    >
+                                                                        <Trash2 className="h-3 w-3" />
+                                                                    </button>
+                                                                </>
+                                                            )}
+                                                        </div>
                                                     </div>
                                                 </td>
                                             </tr>
@@ -724,15 +913,18 @@ export const AdminProjects: React.FC = () => {
             )}
 
             {/* Creation / Edit Modal */}
-            {isModalOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs">
-                    <div className="w-full max-w-2xl overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg animate-in fade-in-50 zoom-in-95 duration-200">
+            <Dialog open={isModalOpen} onClose={() => setIsModalOpen(false)} className="relative z-50">
+                <DialogBackdrop className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs transition-opacity" />
+
+                <div className="fixed inset-0 flex w-screen items-center justify-center p-4">
+                    <DialogPanel className="w-full max-w-2xl overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg animate-in fade-in-50 zoom-in-95 duration-200">
 
                         <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
-                            <h3 className="font-sans text-sm font-bold uppercase tracking-wider text-slate-800">
+                            <DialogTitle className="font-sans text-sm font-bold uppercase tracking-wider text-slate-800">
                                 {editingProject ? 'Modify Project Parameters' : 'Introduce Project Portfolio'}
-                            </h3>
+                            </DialogTitle>
                             <button
+                                type="button"
                                 onClick={() => setIsModalOpen(false)}
                                 className="h-8 w-8 text-slate-400 hover:text-slate-700 flex items-center justify-center rounded-md hover:bg-slate-50 font-sans text-lg cursor-pointer"
                             >
@@ -862,14 +1054,57 @@ export const AdminProjects: React.FC = () => {
                                         <label className="block font-sans text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
                                             ProjectType Classification
                                         </label>
-                                        <select
-                                            value={type}
-                                            onChange={(e) => setType(e.target.value as ProjectType)}
-                                            className="w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 font-sans text-xs focus:border-slate-400 focus:bg-white focus:outline-hidden text-slate-900"
-                                        >
-                                            <option value={ProjectType.PERSONAL}>Personal / Hobby Node</option>
-                                            <option value={ProjectType.WORK}>Work Product Assignment</option>
-                                        </select>
+                                        <Listbox value={type} onChange={setType}>
+                                            <div className="relative">
+                                                <ListboxButton
+                                                    id="modal-project-type"
+                                                    className="relative w-full rounded-md border border-slate-200 bg-slate-50 py-2 pr-10 pl-3 text-left font-sans text-xs focus:border-slate-400 focus:bg-white focus:outline-hidden text-slate-900 cursor-pointer"
+                                                >
+                                                    <span className="block truncate text-left">
+                                                        {type === ProjectType.PERSONAL ? 'Personal / Hobby Node' : 'Work Product Assignment'}
+                                                    </span>
+                                                    <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                                                        <ChevronDown className="h-4 w-4 text-slate-400" />
+                                                    </span>
+                                                </ListboxButton>
+                                                <ListboxOptions className="absolute z-60 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-xs shadow-lg ring-1 ring-black/5 focus:outline-hidden font-sans border border-slate-200">
+                                                    <ListboxOption
+                                                        value={ProjectType.PERSONAL}
+                                                        className="relative cursor-pointer select-none py-2 pr-10 pl-3 text-slate-900 data-[focus]:bg-slate-50"
+                                                    >
+                                                        {({ selected }) => (
+                                                            <>
+                                                                <span className={`block truncate ${selected ? 'font-bold' : 'font-normal'}`}>
+                                                                    Personal / Hobby Node
+                                                                </span>
+                                                                {selected && (
+                                                                    <span className="absolute inset-y-0 right-0 flex items-center pr-3 text-black">
+                                                                        <Check className="h-3.5 w-3.5" />
+                                                                    </span>
+                                                                )}
+                                                            </>
+                                                        )}
+                                                    </ListboxOption>
+                                                    <ListboxOption
+                                                        value={ProjectType.WORK}
+                                                        className="relative cursor-pointer select-none py-2 pr-10 pl-3 text-slate-900 data-[focus]:bg-slate-50"
+                                                    >
+                                                        {({ selected }) => (
+                                                            <>
+                                                                <span className={`block truncate ${selected ? 'font-bold' : 'font-normal'}`}>
+                                                                    Work Product Assignment
+                                                                </span>
+                                                                {selected && (
+                                                                    <span className="absolute inset-y-0 right-0 flex items-center pr-3 text-black">
+                                                                        <Check className="h-3.5 w-3.5" />
+                                                                    </span>
+                                                                )}
+                                                            </>
+                                                        )}
+                                                    </ListboxOption>
+                                                </ListboxOptions>
+                                            </div>
+                                        </Listbox>
                                     </div>
                                 </div>
 
@@ -879,18 +1114,63 @@ export const AdminProjects: React.FC = () => {
                                         <label className="block font-sans text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
                                             Affiliated Company Career
                                         </label>
-                                        <select
-                                            value={experienceId}
-                                            onChange={(e) => setExperienceId(e.target.value)}
-                                            className="w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 font-sans text-xs focus:border-slate-400 focus:bg-white focus:outline-hidden text-slate-900"
-                                        >
-                                            <option value="">Independent (No Company Association)</option>
-                                            {ownExperiences.map(exp => (
-                                                <option key={exp.id} value={exp.id}>
-                                                    {exp.position} at {exp.company}
-                                                </option>
-                                            ))}
-                                        </select>
+                                        <Listbox value={experienceId} onChange={setExperienceId}>
+                                            <div className="relative">
+                                                <ListboxButton
+                                                    id="modal-experience"
+                                                    className="relative w-full rounded-md border border-slate-200 bg-slate-50 py-2 pr-10 pl-3 text-left font-sans text-xs focus:border-slate-400 focus:bg-white focus:outline-hidden text-slate-900 cursor-pointer"
+                                                >
+                                                    <span className="block truncate text-left">
+                                                        {(() => {
+                                                            const selectedExp = ownExperiences.find(e => e.id === experienceId);
+                                                            return selectedExp ? `${selectedExp.position} at ${selectedExp.company}` : 'Independent (No Company Association)';
+                                                        })()}
+                                                    </span>
+                                                    <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                                                        <ChevronDown className="h-4 w-4 text-slate-400" />
+                                                    </span>
+                                                </ListboxButton>
+                                                <ListboxOptions className="absolute z-60 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-xs shadow-lg ring-1 ring-black/5 focus:outline-hidden font-sans border border-slate-200">
+                                                    <ListboxOption
+                                                        value=""
+                                                        className="relative cursor-pointer select-none py-2 pr-10 pl-3 text-slate-900 data-[focus]:bg-slate-50"
+                                                    >
+                                                        {({ selected }) => (
+                                                            <>
+                                                                <span className={`block truncate ${selected ? 'font-bold' : 'font-normal'}`}>
+                                                                    Independent (No Company Association)
+                                                                </span>
+                                                                {selected && (
+                                                                    <span className="absolute inset-y-0 right-0 flex items-center pr-3 text-black">
+                                                                        <Check className="h-3.5 w-3.5" />
+                                                                    </span>
+                                                                )}
+                                                            </>
+                                                        )}
+                                                    </ListboxOption>
+                                                    {ownExperiences.map(exp => (
+                                                        <ListboxOption
+                                                            key={exp.id}
+                                                            value={exp.id}
+                                                            className="relative cursor-pointer select-none py-2 pr-10 pl-3 text-slate-900 data-[focus]:bg-slate-50"
+                                                        >
+                                                            {({ selected }) => (
+                                                                <>
+                                                                    <span className={`block truncate ${selected ? 'font-bold' : 'font-normal'}`}>
+                                                                        {exp.position} at {exp.company}
+                                                                    </span>
+                                                                    {selected && (
+                                                                        <span className="absolute inset-y-0 right-0 flex items-center pr-3 text-black">
+                                                                            <Check className="h-3.5 w-3.5" />
+                                                                        </span>
+                                                                    )}
+                                                                </>
+                                                            )}
+                                                        </ListboxOption>
+                                                    ))}
+                                                </ListboxOptions>
+                                            </div>
+                                        </Listbox>
                                     </div>
 
                                     {/* Role */}
@@ -1006,9 +1286,9 @@ export const AdminProjects: React.FC = () => {
 
                             </form>
                         </div>
-                    </div>
+                    </DialogPanel>
                 </div>
-            )}
+            </Dialog>
 
         </div>
     );

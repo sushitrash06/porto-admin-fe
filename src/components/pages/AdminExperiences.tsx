@@ -4,14 +4,20 @@
  */
 
 import React, { useState, useMemo, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import type { User, Experience } from '../../types';
 import { Role } from '../../types';
 import { useMyExperiences, useAdminExperiences, useCreateExperience, useUpdateExperience, useDeleteExperience } from '../../hooks/useExperiences';
 import { useUsers } from '../../hooks/useUsers';
 import { getSessionPayload } from '../../lib/auth';
-import { Briefcase, Search, Plus, Edit, Trash2, Calendar, Info, ShieldAlert, Grid, List, Loader2 } from 'lucide-react';
+import { Dialog, DialogPanel, DialogTitle, DialogBackdrop, Listbox, ListboxButton, ListboxOptions, ListboxOption } from '@headlessui/react';
+import {
+    Briefcase, Search, Plus, Edit, Trash2, ShieldAlert,
+    Calendar, Loader2, Eye, ChevronDown, Check, Info, Grid, List
+} from 'lucide-react';
 
 export const AdminExperiences: React.FC = () => {
+    const navigate = useNavigate();
     const [searchQuery, setSearchQuery] = useState<string>('');
     const [debouncedSearch, setDebouncedSearch] = useState<string>('');
     const [developerFilter, setDeveloperFilter] = useState<string>('all');
@@ -219,6 +225,17 @@ export const AdminExperiences: React.FC = () => {
         }
     };
 
+    const selectedDevUser = useMemo(() => usersList.find(u => u.id === developerFilter), [usersList, developerFilter]);
+    const developerFilterLabel = useMemo(() => {
+        if (developerFilter === 'all') return 'Creators: All Users';
+        return `Creator: ${selectedDevUser?.profile?.fullName || selectedDevUser?.email || developerFilter}`;
+    }, [developerFilter, selectedDevUser]);
+
+    const publicFilterLabel = useMemo(() => {
+        if (publicFilter === 'all') return 'Status: All Records';
+        return publicFilter === 'public' ? 'Status: 🌐 Published' : 'Status: 🔒 Hidden';
+    }, [publicFilter]);
+
     if (!currentUser) {
         return (
             <div className="flex flex-col items-center justify-center py-20 text-slate-450">
@@ -271,32 +288,127 @@ export const AdminExperiences: React.FC = () => {
 
                         {/* Developer Filter (Super admin exclusive) */}
                         {isSuper && (
-                            <select
-                                id="developer-select-filter"
-                                value={developerFilter}
-                                onChange={(e) => setDeveloperFilter(e.target.value)}
-                                className="rounded-md border border-slate-200 bg-slate-50 px-3 py-2 font-sans text-xs focus:border-slate-400 focus:bg-white focus:outline-hidden text-slate-700"
-                            >
-                                <option value="all">Creators: All Users</option>
-                                {usersList.filter(u => u.role !== Role.SUPER_ADMIN).map(u => (
-                                    <option key={u.id} value={u.id}>
-                                        Creator: {u.profile?.fullName || u.email}
-                                    </option>
-                                ))}
-                            </select>
+                            <Listbox value={developerFilter} onChange={setDeveloperFilter}>
+                                <div className="relative">
+                                    <ListboxButton
+                                        id="developer-select-filter"
+                                        className="relative rounded-md border border-slate-200 bg-slate-50 py-2 pr-8 pl-3 text-left font-sans text-xs focus:border-slate-400 focus:bg-white focus:outline-hidden text-slate-700 cursor-pointer min-w-[160px]"
+                                    >
+                                        <span className="block truncate">{developerFilterLabel}</span>
+                                        <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+                                            <ChevronDown className="h-3.5 w-3.5 text-slate-400" />
+                                        </span>
+                                    </ListboxButton>
+                                    <ListboxOptions className="absolute z-30 mt-1 max-h-60 w-56 overflow-auto rounded-md bg-white py-1 text-xs shadow-lg ring-1 ring-black/5 focus:outline-hidden font-sans border border-slate-200">
+                                        <ListboxOption
+                                            value="all"
+                                            className="relative cursor-pointer select-none py-1.5 pr-8 pl-3 text-slate-900 data-[focus]:bg-slate-50"
+                                        >
+                                            {({ selected }) => (
+                                                <>
+                                                    <span className={`block truncate ${selected ? 'font-bold' : 'font-normal'}`}>
+                                                        Creators: All Users
+                                                    </span>
+                                                    {selected && (
+                                                        <span className="absolute inset-y-0 right-0 flex items-center pr-2 text-black">
+                                                            <Check className="h-3 w-3" />
+                                                        </span>
+                                                    )}
+                                                </>
+                                            )}
+                                        </ListboxOption>
+                                        {usersList.filter(u => u.role !== Role.SUPER_ADMIN).map(u => (
+                                            <ListboxOption
+                                                key={u.id}
+                                                value={u.id}
+                                                className="relative cursor-pointer select-none py-1.5 pr-8 pl-3 text-slate-900 data-[focus]:bg-slate-50"
+                                            >
+                                                {({ selected }) => (
+                                                    <>
+                                                        <span className={`block truncate ${selected ? 'font-bold' : 'font-normal'}`}>
+                                                            {u.profile?.fullName || u.email}
+                                                        </span>
+                                                        {selected && (
+                                                            <span className="absolute inset-y-0 right-0 flex items-center pr-2 text-black">
+                                                                <Check className="h-3 w-3" />
+                                                            </span>
+                                                        )}
+                                                    </>
+                                                )}
+                                            </ListboxOption>
+                                        ))}
+                                    </ListboxOptions>
+                                </div>
+                            </Listbox>
                         )}
 
                         {/* Public/Private filter */}
-                        <select
-                            id="ispublic-select-filter"
-                            value={publicFilter}
-                            onChange={(e) => setPublicFilter(e.target.value)}
-                            className="rounded-md border border-slate-200 bg-slate-50 px-3 py-2 font-sans text-xs focus:border-slate-400 focus:bg-white focus:outline-hidden text-slate-700"
-                        >
-                            <option value="all">Status: All Records</option>
-                            <option value="public">🌐 Published</option>
-                            <option value="private">🔒 Hidden</option>
-                        </select>
+                        <Listbox value={publicFilter} onChange={setPublicFilter}>
+                            <div className="relative">
+                                <ListboxButton
+                                    id="ispublic-select-filter"
+                                    className="relative rounded-md border border-slate-200 bg-slate-50 py-2 pr-8 pl-3 text-left font-sans text-xs focus:border-slate-400 focus:bg-white focus:outline-hidden text-slate-700 cursor-pointer min-w-[140px]"
+                                >
+                                    <span className="block truncate">{publicFilterLabel}</span>
+                                    <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+                                        <ChevronDown className="h-3.5 w-3.5 text-slate-400" />
+                                    </span>
+                                </ListboxButton>
+                                <ListboxOptions className="absolute z-30 mt-1 max-h-60 w-40 overflow-auto rounded-md bg-white py-1 text-xs shadow-lg ring-1 ring-black/5 focus:outline-hidden font-sans border border-slate-200">
+                                    <ListboxOption
+                                        value="all"
+                                        className="relative cursor-pointer select-none py-1.5 pr-8 pl-3 text-slate-900 data-[focus]:bg-slate-50"
+                                    >
+                                        {({ selected }) => (
+                                            <>
+                                                <span className={`block truncate ${selected ? 'font-bold' : 'font-normal'}`}>
+                                                    Status: All Records
+                                                </span>
+                                                {selected && (
+                                                    <span className="absolute inset-y-0 right-0 flex items-center pr-2 text-black">
+                                                        <Check className="h-3 w-3" />
+                                                    </span>
+                                                )}
+                                            </>
+                                        )}
+                                    </ListboxOption>
+                                    <ListboxOption
+                                        value="public"
+                                        className="relative cursor-pointer select-none py-1.5 pr-8 pl-3 text-slate-900 data-[focus]:bg-slate-50"
+                                    >
+                                        {({ selected }) => (
+                                            <>
+                                                <span className={`block truncate ${selected ? 'font-bold' : 'font-normal'}`}>
+                                                    🌐 Published
+                                                </span>
+                                                {selected && (
+                                                    <span className="absolute inset-y-0 right-0 flex items-center pr-2 text-black">
+                                                        <Check className="h-3 w-3" />
+                                                    </span>
+                                                )}
+                                            </>
+                                        )}
+                                    </ListboxOption>
+                                    <ListboxOption
+                                        value="private"
+                                        className="relative cursor-pointer select-none py-1.5 pr-8 pl-3 text-slate-900 data-[focus]:bg-slate-50"
+                                    >
+                                        {({ selected }) => (
+                                            <>
+                                                <span className={`block truncate ${selected ? 'font-bold' : 'font-normal'}`}>
+                                                    🔒 Hidden
+                                                </span>
+                                                {selected && (
+                                                    <span className="absolute inset-y-0 right-0 flex items-center pr-2 text-black">
+                                                        <Check className="h-3 w-3" />
+                                                    </span>
+                                                )}
+                                            </>
+                                        )}
+                                    </ListboxOption>
+                                </ListboxOptions>
+                            </div>
+                        </Listbox>
 
                         {/* View Mode Switcher */}
                         <div className="flex rounded-md border border-slate-200 bg-slate-105 p-0.5">
@@ -440,27 +552,37 @@ export const AdminExperiences: React.FC = () => {
                                                 </span>
                                             )}
 
-                                            {!isSuper && (
-                                                <div className="flex items-center space-x-1.5">
-                                                    <button
-                                                        id={`edit-exp-${exp.id}-btn`}
-                                                        onClick={() => handleOpenEdit(exp)}
-                                                        className="rounded-md border border-slate-200 bg-white p-1.5 text-slate-500 hover:border-slate-400 hover:text-black transition cursor-pointer"
-                                                        title="Modify parameters"
-                                                    >
-                                                        <Edit className="h-3 w-3" />
-                                                    </button>
-                                                    <button
-                                                        id={`delete-exp-${exp.id}-btn`}
-                                                        onClick={() => handleDelete(exp.id)}
-                                                        disabled={deleteMutation.isPending}
-                                                        className="rounded-md border border-slate-200 bg-white p-1.5 text-slate-500 hover:border-red-200 hover:text-red-600 hover:bg-red-50 transition cursor-pointer disabled:opacity-50"
-                                                        title="Delete entry"
-                                                    >
-                                                        <Trash2 className="h-3 w-3" />
-                                                    </button>
-                                                </div>
-                                            )}
+                                            <div className="flex items-center space-x-1.5">
+                                                <button
+                                                    id={`view-exp-${exp.id}-btn`}
+                                                    onClick={() => navigate(`/admin/experiences/${exp.id}`)}
+                                                    className="rounded-md border border-slate-200 bg-white p-1.5 text-slate-500 hover:border-slate-400 hover:text-black transition cursor-pointer"
+                                                    title="View detail"
+                                                >
+                                                    <Eye className="h-3 w-3" />
+                                                </button>
+                                                {!isSuper && (
+                                                    <>
+                                                        <button
+                                                            id={`edit-exp-${exp.id}-btn`}
+                                                            onClick={() => handleOpenEdit(exp)}
+                                                            className="rounded-md border border-slate-200 bg-white p-1.5 text-slate-500 hover:border-slate-400 hover:text-black transition cursor-pointer"
+                                                            title="Modify parameters"
+                                                        >
+                                                            <Edit className="h-3 w-3" />
+                                                        </button>
+                                                        <button
+                                                            id={`delete-exp-${exp.id}-btn`}
+                                                            onClick={() => handleDelete(exp.id)}
+                                                            disabled={deleteMutation.isPending}
+                                                            className="rounded-md border border-slate-200 bg-white p-1.5 text-slate-500 hover:border-red-200 hover:text-red-600 hover:bg-red-50 transition cursor-pointer disabled:opacity-50"
+                                                            title="Delete entry"
+                                                        >
+                                                            <Trash2 className="h-3 w-3" />
+                                                        </button>
+                                                    </>
+                                                )}
+                                            </div>
                                         </div>
 
                                     </div>
@@ -477,7 +599,7 @@ export const AdminExperiences: React.FC = () => {
                                         <th className="px-6 py-4">Position Title</th>
                                         <th className="px-6 py-4">Timeline Calendar</th>
                                         <th className="px-6 py-4 text-center">Status</th>
-                                        {!isSuper && <th className="px-6 py-4 text-right">Actions</th>}
+                                        <th className="px-6 py-4 text-right">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-100 text-slate-600">
@@ -527,27 +649,36 @@ export const AdminExperiences: React.FC = () => {
                                                         {exp.isPublic ? 'Public' : 'Hidden'}
                                                     </span>
                                                 </td>
-                                                {!isSuper && (
-                                                    <td className="px-6 py-4 text-right">
-                                                        <div className="flex items-center justify-end space-x-1.5">
-                                                            <button
-                                                                id={`edit-exp-tbl-${exp.id}-btn`}
-                                                                onClick={() => handleOpenEdit(exp)}
-                                                                className="rounded-md border border-slate-200 bg-white p-1.5 text-slate-500 hover:border-slate-400 hover:text-black transition cursor-pointer"
-                                                            >
-                                                                <Edit className="h-3 w-3" />
-                                                            </button>
-                                                            <button
-                                                                id={`delete-exp-tbl-${exp.id}-btn`}
-                                                                onClick={() => handleDelete(exp.id)}
-                                                                disabled={deleteMutation.isPending}
-                                                                className="rounded-md border border-slate-200 bg-white p-1.5 text-slate-500 hover:border-red-200 hover:text-red-600 hover:bg-red-50 transition cursor-pointer disabled:opacity-50"
-                                                            >
-                                                                <Trash2 className="h-3 w-3" />
-                                                            </button>
-                                                        </div>
-                                                    </td>
-                                                )}
+                                                <td className="px-6 py-4 text-right">
+                                                    <div className="flex items-center justify-end space-x-1.5">
+                                                        <button
+                                                            id={`view-exp-tbl-${exp.id}-btn`}
+                                                            onClick={() => navigate(`/admin/experiences/${exp.id}`)}
+                                                            className="rounded-md border border-slate-200 bg-white p-1.5 text-slate-500 hover:border-slate-400 hover:text-black transition cursor-pointer"
+                                                        >
+                                                            <Eye className="h-3 w-3" />
+                                                        </button>
+                                                        {!isSuper && (
+                                                            <>
+                                                                <button
+                                                                    id={`edit-exp-tbl-${exp.id}-btn`}
+                                                                    onClick={() => handleOpenEdit(exp)}
+                                                                    className="rounded-md border border-slate-200 bg-white p-1.5 text-slate-500 hover:border-slate-400 hover:text-black transition cursor-pointer"
+                                                                >
+                                                                    <Edit className="h-3 w-3" />
+                                                                </button>
+                                                                <button
+                                                                    id={`delete-exp-tbl-${exp.id}-btn`}
+                                                                    onClick={() => handleDelete(exp.id)}
+                                                                    disabled={deleteMutation.isPending}
+                                                                    className="rounded-md border border-slate-200 bg-white p-1.5 text-slate-500 hover:border-red-200 hover:text-red-600 hover:bg-red-50 transition cursor-pointer disabled:opacity-50"
+                                                                >
+                                                                    <Trash2 className="h-3 w-3" />
+                                                                </button>
+                                                            </>
+                                                        )}
+                                                    </div>
+                                                </td>
                                             </tr>
                                         );
                                     })}
@@ -583,17 +714,19 @@ export const AdminExperiences: React.FC = () => {
                     )}
                 </>
             )}
+                          {/* Integration modal sheet */}
+            <Dialog open={isModalOpen} onClose={() => setIsModalOpen(false)} className="relative z-50">
+                <DialogBackdrop className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs transition-opacity" />
 
-            {/* Integration modal sheet */}
-            {isModalOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs">
-                    <div className="w-full max-w-lg overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg animate-in fade-in-50 zoom-in-95 duration-200">
+                <div className="fixed inset-0 flex w-screen items-center justify-center p-4">
+                    <DialogPanel className="w-full max-w-lg overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg animate-in fade-in-50 zoom-in-95 duration-200">
 
                         <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
-                            <h3 className="font-sans text-sm font-bold uppercase tracking-wider text-slate-800">
+                            <DialogTitle className="font-sans text-sm font-bold uppercase tracking-wider text-slate-800">
                                 {editingExp ? 'Modify Experience Variables' : 'Introduce Career Experience'}
-                            </h3>
+                            </DialogTitle>
                             <button
+                                type="button"
                                 id="close-exp-modal-top-btn"
                                 onClick={() => setIsModalOpen(false)}
                                 className="h-8 w-8 text-slate-400 hover:text-slate-700 flex items-center justify-center rounded-md hover:bg-slate-50 font-sans text-lg cursor-pointer"
@@ -606,8 +739,8 @@ export const AdminExperiences: React.FC = () => {
                             <div className="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
 
                                 {error && (
-                                    <div className="flex items-start space-x-2 rounded-md border border-red-100 bg-red-50 p-3 text-xs text-red-600 font-sans font-medium">
-                                        <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0 text-red-600" />
+                                    <div className="flex items-start space-x-2 rounded-md border border-red-100 bg-red-50 p-3 text-xs text-red-655 font-sans font-medium">
+                                        <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0 text-red-650" />
                                         <span>{error}</span>
                                     </div>
                                 )}
@@ -616,7 +749,7 @@ export const AdminExperiences: React.FC = () => {
                                     {/* Job Position */}
                                     <div>
                                         <label className="block font-sans text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
-                                            Position Title <span className="text-red-500">*</span>
+                                            Position Title <span className="text-red-550">*</span>
                                         </label>
                                         <input
                                             id="modal-exp-position"
@@ -632,7 +765,7 @@ export const AdminExperiences: React.FC = () => {
                                     {/* Company Name */}
                                     <div>
                                         <label className="block font-sans text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
-                                            Company / Organization <span className="text-red-500">*</span>
+                                            Company / Organization <span className="text-red-550">*</span>
                                         </label>
                                         <input
                                             id="modal-exp-company"
@@ -650,7 +783,7 @@ export const AdminExperiences: React.FC = () => {
                                     {/* Start Date */}
                                     <div>
                                         <label className="block font-sans text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
-                                            Start Date <span className="text-red-500">*</span>
+                                            Start Date <span className="text-red-550">*</span>
                                         </label>
                                         <input
                                             id="modal-exp-startdate"
@@ -710,7 +843,7 @@ export const AdminExperiences: React.FC = () => {
                                 <div className="rounded-md border border-slate-200 bg-slate-50 p-3.5">
                                     <div className="flex items-center justify-between">
                                         <div>
-                                            <h4 className="font-sans text-xs font-bold text-slate-950">Published Visibility Status</h4>
+                                            <h4 className="font-sans text-xs font-bold text-slate-955">Published Visibility Status</h4>
                                             <p className="font-sans text-[11px] text-slate-400">Controls if this record is discoverable on the main public landing showcase page.</p>
                                         </div>
                                         <label className="relative inline-flex items-center cursor-pointer">
@@ -765,10 +898,9 @@ export const AdminExperiences: React.FC = () => {
                             </div>
 
                         </form>
-                    </div>
+                    </DialogPanel>
                 </div>
-            )}
-
+            </Dialog>
         </div>
     );
 };

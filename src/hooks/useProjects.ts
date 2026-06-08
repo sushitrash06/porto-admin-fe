@@ -67,6 +67,22 @@ export function useAdminProjects(params: AdminProjectsParams, options?: { enable
 }
 
 /**
+ * Hook to retrieve a single project detail for the logged-in user.
+ * Hits GET /projects/me/:id
+ */
+export function useProjectDetail(id: string | undefined, options?: { enabled?: boolean }) {
+  return useQuery<Project, AxiosError<{ message?: string }>>({
+    queryKey: ['projects', 'me', id],
+    queryFn: async () => {
+      const { data } = await api.get<Project>(`/projects/me/${id}`);
+      return data;
+    },
+    enabled: !!id && (options?.enabled !== false),
+    ...options,
+  });
+}
+
+/**
  * Hook to create a new project.
  * Hits POST /projects
  */

@@ -15,6 +15,8 @@ import { AdminExperiences } from './components/pages/AdminExperiences';
 import { AdminProjects } from './components/pages/AdminProjects';
 import { AdminProfile } from './components/pages/AdminProfile';
 import { AdminDiagnostics } from './components/pages/AdminDiagnostics';
+import { AdminExperienceDetail } from './components/pages/AdminExperienceDetail';
+import { AdminProjectDetail } from './components/pages/AdminProjectDetail';
 import { ProtectedLayout } from './components/templates/ProtectedLayout';
 import { AdminLayout } from './components/templates/AdminLayout';
 import { getSessionPayload, clearAccessToken } from './lib/auth';
@@ -97,7 +99,9 @@ export default function App() {
 
                 <Route path="/admin/profile" element={<AdminProfile />} />
                 <Route path="/admin/experiences" element={<AdminExperiences />} />
+                <Route path="/admin/experiences/:id" element={<AdminExperienceDetail />} />
                 <Route path="/admin/projects" element={<AdminProjects />} />
+                <Route path="/admin/projects/:id" element={<AdminProjectDetail />} />
 
                 {/* Admin Users table restricted to SUPER_ADMIN */}
                 <Route

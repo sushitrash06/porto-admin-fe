@@ -69,8 +69,13 @@
 						},
 						"url": {
 							"raw": "{{baseUrl}}/auth/login",
-							"host": ["{{baseUrl}}"],
-							"path": ["auth", "login"]
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
 						}
 					}
 				},
@@ -86,8 +91,13 @@
 						],
 						"url": {
 							"raw": "{{baseUrl}}/auth/me",
-							"host": ["{{baseUrl}}"],
-							"path": ["auth", "me"]
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"me"
+							]
 						}
 					}
 				},
@@ -103,8 +113,13 @@
 						],
 						"url": {
 							"raw": "{{baseUrl}}/auth/admin",
-							"host": ["{{baseUrl}}"],
-							"path": ["auth", "admin"]
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"admin"
+							]
 						}
 					}
 				}
@@ -125,8 +140,13 @@
 						],
 						"url": {
 							"raw": "{{baseUrl}}/profiles/me",
-							"host": ["{{baseUrl}}"],
-							"path": ["profiles", "me"]
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"profiles",
+								"me"
+							]
 						}
 					}
 				},
@@ -150,8 +170,13 @@
 						},
 						"url": {
 							"raw": "{{baseUrl}}/profiles/me",
-							"host": ["{{baseUrl}}"],
-							"path": ["profiles", "me"]
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"profiles",
+								"me"
+							]
 						}
 					}
 				},
@@ -177,8 +202,14 @@
 						},
 						"url": {
 							"raw": "{{baseUrl}}/profiles/me/image",
-							"host": ["{{baseUrl}}"],
-							"path": ["profiles", "me", "image"]
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"profiles",
+								"me",
+								"image"
+							]
 						}
 					}
 				},
@@ -189,8 +220,13 @@
 						"header": [],
 						"url": {
 							"raw": "{{baseUrl}}/profiles/{{userId}}",
-							"host": ["{{baseUrl}}"],
-							"path": ["profiles", "{{userId}}"]
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"profiles",
+								"{{userId}}"
+							]
 						}
 					}
 				}
@@ -233,8 +269,12 @@
 						},
 						"url": {
 							"raw": "{{baseUrl}}/experiences",
-							"host": ["{{baseUrl}}"],
-							"path": ["experiences"]
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"experiences"
+							]
 						}
 					}
 				},
@@ -250,8 +290,13 @@
 						],
 						"url": {
 							"raw": "{{baseUrl}}/experiences/me",
-							"host": ["{{baseUrl}}"],
-							"path": ["experiences", "me"]
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"experiences",
+								"me"
+							]
 						}
 					}
 				},
@@ -267,8 +312,14 @@
 						],
 						"url": {
 							"raw": "{{baseUrl}}/experiences/me/{{experienceId}}",
-							"host": ["{{baseUrl}}"],
-							"path": ["experiences", "me", "{{experienceId}}"]
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"experiences",
+								"me",
+								"{{experienceId}}"
+							]
 						}
 					}
 				},
@@ -292,8 +343,13 @@
 						},
 						"url": {
 							"raw": "{{baseUrl}}/experiences/{{experienceId}}",
-							"host": ["{{baseUrl}}"],
-							"path": ["experiences", "{{experienceId}}"]
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"experiences",
+								"{{experienceId}}"
+							]
 						}
 					}
 				},
@@ -309,8 +365,13 @@
 						],
 						"url": {
 							"raw": "{{baseUrl}}/experiences/{{experienceId}}",
-							"host": ["{{baseUrl}}"],
-							"path": ["experiences", "{{experienceId}}"]
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"experiences",
+								"{{experienceId}}"
+							]
 						}
 					}
 				},
@@ -321,8 +382,14 @@
 						"header": [],
 						"url": {
 							"raw": "{{baseUrl}}/experiences/public/{{userId}}",
-							"host": ["{{baseUrl}}"],
-							"path": ["experiences", "public", "{{userId}}"]
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"experiences",
+								"public",
+								"{{userId}}"
+							]
 						}
 					}
 				},
@@ -333,8 +400,15 @@
 						"header": [],
 						"url": {
 							"raw": "{{baseUrl}}/experiences/public/{{userId}}/{{experienceId}}",
-							"host": ["{{baseUrl}}"],
-							"path": ["experiences", "public", "{{userId}}", "{{experienceId}}"]
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"experiences",
+								"public",
+								"{{userId}}",
+								"{{experienceId}}"
+							]
 						}
 					}
 				}
@@ -377,8 +451,12 @@
 						},
 						"url": {
 							"raw": "{{baseUrl}}/projects",
-							"host": ["{{baseUrl}}"],
-							"path": ["projects"]
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"projects"
+							]
 						}
 					}
 				},
@@ -394,8 +472,13 @@
 						],
 						"url": {
 							"raw": "{{baseUrl}}/projects/me",
-							"host": ["{{baseUrl}}"],
-							"path": ["projects", "me"]
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"projects",
+								"me"
+							]
 						}
 					}
 				},
@@ -411,8 +494,14 @@
 						],
 						"url": {
 							"raw": "{{baseUrl}}/projects/me/{{projectId}}",
-							"host": ["{{baseUrl}}"],
-							"path": ["projects", "me", "{{projectId}}"]
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"projects",
+								"me",
+								"{{projectId}}"
+							]
 						}
 					}
 				},
@@ -436,8 +525,13 @@
 						},
 						"url": {
 							"raw": "{{baseUrl}}/projects/{{projectId}}",
-							"host": ["{{baseUrl}}"],
-							"path": ["projects", "{{projectId}}"]
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"projects",
+								"{{projectId}}"
+							]
 						}
 					}
 				},
@@ -463,8 +557,14 @@
 						},
 						"url": {
 							"raw": "{{baseUrl}}/projects/{{projectId}}/thumbnail",
-							"host": ["{{baseUrl}}"],
-							"path": ["projects", "{{projectId}}", "thumbnail"]
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"projects",
+								"{{projectId}}",
+								"thumbnail"
+							]
 						}
 					}
 				},
@@ -490,8 +590,14 @@
 						},
 						"url": {
 							"raw": "{{baseUrl}}/projects/{{projectId}}/images",
-							"host": ["{{baseUrl}}"],
-							"path": ["projects", "{{projectId}}", "images"]
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"projects",
+								"{{projectId}}",
+								"images"
+							]
 						}
 					}
 				},
@@ -515,8 +621,14 @@
 						},
 						"url": {
 							"raw": "{{baseUrl}}/projects/{{projectId}}/images",
-							"host": ["{{baseUrl}}"],
-							"path": ["projects", "{{projectId}}", "images"]
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"projects",
+								"{{projectId}}",
+								"images"
+							]
 						}
 					}
 				},
@@ -532,8 +644,13 @@
 						],
 						"url": {
 							"raw": "{{baseUrl}}/projects/{{projectId}}",
-							"host": ["{{baseUrl}}"],
-							"path": ["projects", "{{projectId}}"]
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"projects",
+								"{{projectId}}"
+							]
 						}
 					}
 				},
@@ -544,8 +661,14 @@
 						"header": [],
 						"url": {
 							"raw": "{{baseUrl}}/projects/public/{{userId}}",
-							"host": ["{{baseUrl}}"],
-							"path": ["projects", "public", "{{userId}}"]
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"projects",
+								"public",
+								"{{userId}}"
+							]
 						}
 					}
 				},
@@ -556,8 +679,15 @@
 						"header": [],
 						"url": {
 							"raw": "{{baseUrl}}/projects/public/{{userId}}/{{projectId}}",
-							"host": ["{{baseUrl}}"],
-							"path": ["projects", "public", "{{userId}}", "{{projectId}}"]
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"projects",
+								"public",
+								"{{userId}}",
+								"{{projectId}}"
+							]
 						}
 					}
 				}
@@ -573,8 +703,13 @@
 						"header": [],
 						"url": {
 							"raw": "{{baseUrl}}/portfolio/{{userId}}",
-							"host": ["{{baseUrl}}"],
-							"path": ["portfolio", "{{userId}}"]
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"portfolio",
+								"{{userId}}"
+							]
 						}
 					}
 				}
@@ -606,8 +741,12 @@
 								},
 								"url": {
 									"raw": "{{baseUrl}}/users",
-									"host": ["{{baseUrl}}"],
-									"path": ["users"]
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"users"
+									]
 								}
 							}
 						},
@@ -623,8 +762,12 @@
 								],
 								"url": {
 									"raw": "{{baseUrl}}/users?page=1&limit=10&search=",
-									"host": ["{{baseUrl}}"],
-									"path": ["users"],
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"users"
+									],
 									"query": [
 										{
 											"key": "page",
@@ -659,8 +802,13 @@
 								],
 								"url": {
 									"raw": "{{baseUrl}}/admin/experiences?page=1&limit=10&userId=&company=&search=",
-									"host": ["{{baseUrl}}"],
-									"path": ["admin", "experiences"],
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"admin",
+										"experiences"
+									],
 									"query": [
 										{
 											"key": "page",
@@ -703,8 +851,13 @@
 								],
 								"url": {
 									"raw": "{{baseUrl}}/admin/projects?page=1&limit=10&userId=&type=&search=",
-									"host": ["{{baseUrl}}"],
-									"path": ["admin", "projects"],
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"admin",
+										"projects"
+									],
 									"query": [
 										{
 											"key": "page",

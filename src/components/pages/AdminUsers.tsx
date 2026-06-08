@@ -6,7 +6,8 @@
 import React, { useState } from 'react';
 import { Role } from '../../types';
 import { useUsers, useCreateUser } from '../../hooks/useUsers';
-import { Plus, ShieldAlert, Users, Search, UserCheck, Loader2, Calendar, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Dialog, DialogPanel, DialogTitle, DialogBackdrop, Listbox, ListboxButton, ListboxOptions, ListboxOption } from '@headlessui/react';
+import { Plus, ShieldAlert, Users, Search, UserCheck, Loader2, Calendar, ChevronLeft, ChevronRight, ChevronDown, Check } from 'lucide-react';
 
 export const AdminUsers: React.FC = () => {
     const [searchQuery, setSearchQuery] = useState<string>('');
@@ -240,15 +241,18 @@ export const AdminUsers: React.FC = () => {
             </div>
 
             {/* Creation Modal Dialog */}
-            {isModalOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs">
-                    <div className="w-full max-w-md overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg animate-in fade-in-50 zoom-in-95 duration-200">
+            {/* Creation Modal Dialog */}
+            <Dialog open={isModalOpen} onClose={() => setIsModalOpen(false)} className="relative z-50">
+                <DialogBackdrop className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs transition-opacity" />
 
+                <div className="fixed inset-0 flex w-screen items-center justify-center p-4">
+                    <DialogPanel className="w-full max-w-md overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg animate-in fade-in-50 zoom-in-95 duration-200">
                         <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
-                            <h3 className="font-sans text-sm font-bold uppercase tracking-wider text-slate-800">
+                            <DialogTitle className="font-sans text-sm font-bold uppercase tracking-wider text-slate-800">
                                 Configure New User Node
-                            </h3>
+                            </DialogTitle>
                             <button
+                                type="button"
                                 id="close-user-modal-top-btn"
                                 onClick={() => setIsModalOpen(false)}
                                 className="h-8 w-8 text-slate-400 hover:text-slate-700 flex items-center justify-center rounded-md hover:bg-slate-50 font-sans text-lg cursor-pointer"
@@ -259,9 +263,8 @@ export const AdminUsers: React.FC = () => {
 
                         <form onSubmit={handleSave}>
                             <div className="p-6 space-y-4">
-
                                 {error && (
-                                    <div className="flex items-start space-x-2 rounded-md border border-red-100 bg-red-50 p-3 text-xs text-red-650 font-sans font-medium">
+                                    <div className="flex items-start space-x-2 rounded-md border border-red-100 bg-red-50 p-3 text-xs text-red-655 font-sans font-medium">
                                         <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0" />
                                         <span>{error}</span>
                                     </div>
@@ -304,15 +307,57 @@ export const AdminUsers: React.FC = () => {
                                     <label className="block font-sans text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
                                         Role Privilege
                                     </label>
-                                    <select
-                                        id="modal-role"
-                                        value={role}
-                                        onChange={(e) => setRole(e.target.value as Role)}
-                                        className="w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 font-sans text-xs focus:border-slate-400 focus:bg-white focus:outline-hidden text-slate-900"
-                                    >
-                                        <option value={Role.USER}>Regular Business User</option>
-                                        <option value={Role.SUPER_ADMIN}>Super Administrator</option>
-                                    </select>
+                                    <Listbox value={role} onChange={setRole}>
+                                        <div className="relative">
+                                            <ListboxButton
+                                                id="modal-role"
+                                                className="relative w-full rounded-md border border-slate-200 bg-slate-50 py-2 pr-10 pl-3 text-left font-sans text-xs focus:border-slate-400 focus:bg-white focus:outline-hidden text-slate-900 cursor-pointer"
+                                            >
+                                                <span className="block truncate">
+                                                    {role === Role.SUPER_ADMIN ? 'Super Administrator' : 'Regular Business User'}
+                                                </span>
+                                                <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                                                    <ChevronDown className="h-4 w-4 text-slate-400" />
+                                                </span>
+                                            </ListboxButton>
+                                            <ListboxOptions className="absolute z-60 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-xs shadow-lg ring-1 ring-black/5 focus:outline-hidden font-sans border border-slate-200">
+                                                <ListboxOption
+                                                    value={Role.USER}
+                                                    className="relative cursor-pointer select-none py-2 pr-10 pl-3 text-slate-900 data-[focus]:bg-slate-50"
+                                                >
+                                                    {({ selected }) => (
+                                                        <>
+                                                            <span className={`block truncate ${selected ? 'font-bold' : 'font-normal'}`}>
+                                                                Regular Business User
+                                                            </span>
+                                                            {selected && (
+                                                                <span className="absolute inset-y-0 right-0 flex items-center pr-3 text-black">
+                                                                    <Check className="h-3.5 w-3.5" />
+                                                                </span>
+                                                            )}
+                                                        </>
+                                                    )}
+                                                </ListboxOption>
+                                                <ListboxOption
+                                                    value={Role.SUPER_ADMIN}
+                                                    className="relative cursor-pointer select-none py-2 pr-10 pl-3 text-slate-900 data-[focus]:bg-slate-50"
+                                                >
+                                                    {({ selected }) => (
+                                                        <>
+                                                            <span className={`block truncate ${selected ? 'font-bold' : 'font-normal'}`}>
+                                                                Super Administrator
+                                                            </span>
+                                                            {selected && (
+                                                                <span className="absolute inset-y-0 right-0 flex items-center pr-3 text-black">
+                                                                    <Check className="h-3.5 w-3.5" />
+                                                                </span>
+                                                            )}
+                                                        </>
+                                                    )}
+                                                </ListboxOption>
+                                            </ListboxOptions>
+                                        </div>
+                                    </Listbox>
                                 </div>
 
                             </div>
@@ -338,9 +383,9 @@ export const AdminUsers: React.FC = () => {
                             </div>
 
                         </form>
-                    </div>
+                    </DialogPanel>
                 </div>
-            )}
+            </Dialog>
 
         </div>
     );
