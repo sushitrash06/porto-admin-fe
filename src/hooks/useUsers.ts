@@ -50,3 +50,48 @@ export function useCreateUser() {
     },
   });
 }
+
+/**
+ * Hook to fetch user detail by ID (for SUPER_ADMIN only)
+ */
+export function useUserDetail(id: string, options?: { enabled?: boolean }) {
+  return useQuery<User, AxiosError<{ message?: string }>>({
+    queryKey: ['users', id],
+    queryFn: async () => {
+      const { data } = await api.get<User>(`/users/${id}`);
+      return data;
+    },
+    ...options,
+  });
+}
+
+/**
+ * Hook to update a user (for SUPER_ADMIN only)
+ */
+export function useUpdateUser() {
+  const queryClient = useQueryClient();
+  return useMutation<User, AxiosError<{ message?: string }>, { id: string; email?: string; role?: string }>({
+    mutationFn: async ({ id, ...payload }) => {
+      const { data } = await api.patch<User>(`/users/${id}`, payload);
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+    },
+  });
+}
+
+/**
+ * Hook to delete a user (for SUPER_ADMIN only)
+ */
+export function useDeleteUser() {
+  const queryClient = useQueryClient();
+  return useMutation<void, AxiosError<{ message?: string }>, string>({
+    mutationFn: async (id) => {
+      await api.delete(`/users/${id}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+    },
+  });
+}

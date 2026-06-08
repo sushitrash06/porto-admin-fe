@@ -18,10 +18,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentUser, profile }) => {
   const isSuper = currentUser.role === Role.SUPER_ADMIN;
 
   const linkStyle = ({ isActive }: { isActive: boolean }) =>
-    `flex w-full items-center space-x-2.5 rounded-lg px-4 py-3 font-sans text-xs font-semibold tracking-wide transition-all ${
-      isActive
-        ? 'bg-neutral-900 text-white shadow-sm font-bold'
-        : 'text-neutral-600 hover:bg-white hover:text-neutral-900 border border-transparent hover:border-neutral-200/50'
+    `flex w-full items-center space-x-2.5 rounded-lg px-4 py-3 font-sans text-xs font-semibold tracking-wide transition-all ${isActive
+      ? 'bg-neutral-900 text-white shadow-sm font-bold'
+      : 'text-neutral-600 hover:bg-white hover:text-neutral-900 border border-transparent hover:border-neutral-200/50'
     }`;
 
   return (
@@ -58,7 +57,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentUser, profile }) => {
           <p className="flex items-center justify-between text-neutral-500 py-1 font-sans">
             <span className="font-medium">Privilege:</span>
             <span className="font-semibold text-neutral-800 text-right">
-              {isSuper ? 'Management & Audit' : 'Read/Write CRUD'}
+              {isSuper ? 'Management & Audit' : 'Read/Write'}
             </span>
           </p>
         </div>
@@ -71,7 +70,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentUser, profile }) => {
           <>
             <NavLink id="tab-users-btn" to="/admin/users" className={linkStyle}>
               <Users className="h-4 w-4" />
-              <span>User Management (CRUD)</span>
+              <span>User Management</span>
             </NavLink>
 
             <NavLink id="tab-experiences-btn" to="/admin/experiences" className={linkStyle}>
@@ -99,23 +98,23 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentUser, profile }) => {
           <>
             <NavLink id="tab-experiences-btn-user" to="/admin/experiences" className={linkStyle}>
               <Briefcase className="h-4 w-4" />
-              <span>My Experiences (CRUD)</span>
+              <span>My Experiences</span>
             </NavLink>
 
             <NavLink id="tab-projects-btn-user" to="/admin/projects" className={linkStyle}>
               <FolderGit2 className="h-4 w-4" />
-              <span>My Projects (CRUD)</span>
+              <span>My Projects</span>
             </NavLink>
-            
+
             <NavLink id="tab-profile-btn-user" to="/admin/profile" className={linkStyle}>
               <UserCheck className="h-4 w-4" />
               <span>My Profile Settings</span>
             </NavLink>
 
-            <NavLink id="tab-diagnostics-btn-user" to="/admin/diagnostics" className={linkStyle}>
+            {/* <NavLink id="tab-diagnostics-btn-user" to="/admin/diagnostics" className={linkStyle}>
               <Shield className="h-4 w-4" />
               <span>System Diagnostics</span>
-            </NavLink>
+            </NavLink> */}
           </>
         )}
       </nav>

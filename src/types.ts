@@ -23,6 +23,8 @@ export type ProjectType =
 export interface Profile {
   fullName: string;
   profileImage?: string;
+  bannerImage?: string;
+  cvUrl?: string;
   headline?: string;
   bio?: string;
   skills?: string[];

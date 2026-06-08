@@ -4,13 +4,16 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { useProfile, useUpdateProfile, useUploadProfileImage } from '../../hooks/useProfile';
-import { UserCheck, ShieldAlert, Loader2, Camera, Mail, Phone, MapPin, Sparkles, Tag, Plus, X, Globe, EyeOff } from 'lucide-react';
-
+import { useProfile, useUpdateProfile, useUploadProfileImage, useUploadProfileBanner, useUploadProfileCV } from '../../hooks/useProfile';
+import { useChangePassword } from '../../hooks/useLogin';
+import { UserCheck, ShieldAlert, Loader2, Camera, Mail, Phone, MapPin, Sparkles, Tag, Plus, X, Globe, EyeOff, Lock, FileText, Upload, ExternalLink, Download, Image as ImageIcon } from 'lucide-react';
 export const AdminProfile: React.FC = () => {
     const { data: profile, isLoading, isError, error: fetchError } = useProfile();
     const updateProfileMutation = useUpdateProfile();
     const uploadImageMutation = useUploadProfileImage();
+    const uploadBannerMutation = useUploadProfileBanner();
+    const uploadCVMutation = useUploadProfileCV();
+    const changePasswordMutation = useChangePassword();
 
     // Fields State
     const [fullName, setFullName] = useState<string>('');
@@ -30,6 +33,11 @@ export const AdminProfile: React.FC = () => {
     // Messages
     const [successMsg, setSuccessMsg] = useState<string>('');
     const [errorMsg, setErrorMsg] = useState<string>('');
+    const [isDownloadingCV, setIsDownloadingCV] = useState<boolean>(false);
+
+    // Change password fields state
+    const [oldPassword, setOldPassword] = useState<string>('');
+    const [newPassword, setNewPassword] = useState<string>('');
 
     // Populate form fields once profile data is loaded
     useEffect(() => {
@@ -86,6 +94,107 @@ export const AdminProfile: React.FC = () => {
                 }
             });
         }
+    };
+
+    const handleBannerChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            setErrorMsg('');
+            setSuccessMsg('');
+            uploadBannerMutation.mutate(file, {
+                onSuccess: () => {
+                    setSuccessMsg('Profile banner updated successfully!');
+                },
+                onError: (err) => {
+                    setErrorMsg(err.response?.data?.message || err.message || 'Banner upload failed.');
+                }
+            });
+        }
+    };
+
+    const handleCVChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            setErrorMsg('');
+            setSuccessMsg('');
+            uploadCVMutation.mutate(file, {
+                onSuccess: () => {
+                    setSuccessMsg('CV document updated successfully!');
+                },
+                onError: (err) => {
+                    setErrorMsg(err.response?.data?.message || err.message || 'CV upload failed.');
+                }
+            });
+        }
+    };
+
+    const handleDownloadCV = async () => {
+        if (!profile?.cvUrl) return;
+        setIsDownloadingCV(true);
+        setErrorMsg('');
+        setSuccessMsg('');
+        try {
+            const response = await fetch(profile.cvUrl);
+            if (!response.ok) throw new Error('Failed to fetch CV file.');
+            const blob = await response.blob();
+
+            // Detect extension from content type
+            let extension = 'pdf'; // default fallback
+            const contentType = response.headers.get('Content-Type');
+            if (contentType) {
+                if (contentType.includes('pdf')) {
+                    extension = 'pdf';
+                } else if (contentType.includes('wordprocessingml') || contentType.includes('docx')) {
+                    extension = 'docx';
+                } else if (contentType.includes('msword') || contentType.includes('doc')) {
+                    extension = 'doc';
+                }
+            }
+
+            const nameSlug = profile.fullName ? profile.fullName.trim().replace(/\s+/g, '_') : 'Profile';
+            const fileName = `CV_${nameSlug}.${extension}`;
+
+            const blobUrl = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = blobUrl;
+            link.download = fileName;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(blobUrl);
+        } catch (error: any) {
+            console.error('Failed to download CV:', error);
+            setErrorMsg('Failed to download CV. Please try viewing it directly instead.');
+            // Fallback opening in new tab
+            window.open(profile.cvUrl, '_blank', 'noopener,noreferrer');
+        } finally {
+            setIsDownloadingCV(false);
+        }
+    };
+
+    const handleChangePassword = (e: React.FormEvent) => {
+        e.preventDefault();
+        setErrorMsg('');
+        setSuccessMsg('');
+
+        if (newPassword.length < 6) {
+            setErrorMsg('New password must be at least 6 characters long.');
+            return;
+        }
+
+        changePasswordMutation.mutate({
+            oldPassword,
+            newPassword
+        }, {
+            onSuccess: () => {
+                setSuccessMsg('Password changed successfully!');
+                setOldPassword('');
+                setNewPassword('');
+            },
+            onError: (err) => {
+                setErrorMsg(err.response?.data?.message || err.message || 'Failed to change password.');
+            }
+        });
     };
 
     const handleSaveProfile = (e: React.FormEvent) => {
@@ -155,19 +264,34 @@ export const AdminProfile: React.FC = () => {
 
                 {/* Left Profile card/Avatar editor (4 columns) */}
                 <div className="lg:col-span-4 space-y-6">
-                    <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-3xs flex flex-col items-center text-center">
-                        
+                    <div className="relative rounded-xl border border-slate-200 bg-white shadow-3xs overflow-hidden flex flex-col items-center text-center pb-5">
+
+                        {/* Card Banner Background */}
+                        <div className="w-full h-24 bg-slate-100 border-b border-slate-200 relative">
+                            {profile?.bannerImage ? (
+                                <img
+                                    src={profile.bannerImage}
+                                    alt="Banner Background"
+                                    className="w-full h-full object-cover"
+                                />
+                            ) : (
+                                <div className="w-full h-full bg-linear-to-r from-slate-50 to-slate-100 flex items-center justify-center text-slate-300">
+                                    <ImageIcon className="h-6 w-6 stroke-1" />
+                                </div>
+                            )}
+                        </div>
+
                         {/* Avatar container */}
-                        <div className="relative group">
+                        <div className="relative group -mt-12">
                             <img
                                 src={profile?.profileImage || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200'}
                                 alt={fullName || 'Avatar'}
-                                className="h-28 w-28 rounded-full object-cover border border-slate-200 shadow-2xs group-hover:opacity-85 transition"
+                                className="h-24 w-24 rounded-full object-cover border-4 border-white shadow-2xs group-hover:opacity-85 transition"
                             />
-                            
+
                             {/* Upload overlay */}
                             <label className="absolute inset-0 flex items-center justify-center bg-black/40 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
-                                <Camera className="h-6 w-6" />
+                                <Camera className="h-5 w-5" />
                                 <input
                                     type="file"
                                     accept="image/*"
@@ -179,7 +303,7 @@ export const AdminProfile: React.FC = () => {
 
                             {uploadImageMutation.isPending && (
                                 <div className="absolute inset-0 flex items-center justify-center bg-black/60 text-white rounded-full">
-                                    <Loader2 className="h-6 w-6 animate-spin" />
+                                    <Loader2 className="h-5 w-5 animate-spin" />
                                 </div>
                             )}
                         </div>
@@ -205,7 +329,7 @@ export const AdminProfile: React.FC = () => {
                             )}
                         </div>
 
-                        <div className="mt-5 w-full border-t border-slate-100 pt-4 text-left space-y-2.5 font-sans text-xs text-slate-500">
+                        <div className="m-5 w-full border-t border-slate-100 p-4 text-left space-y-2.5 font-sans text-xs text-slate-500">
                             {location && (
                                 <div className="flex items-center space-x-2">
                                     <MapPin className="h-4 w-4 text-slate-400 shrink-0" />
@@ -222,6 +346,102 @@ export const AdminProfile: React.FC = () => {
                                 <div className="flex items-center space-x-2">
                                     <Phone className="h-4 w-4 text-slate-400 shrink-0" />
                                     <span className="truncate">{phoneNumber}</span>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Media Assets (Banner & CV) */}
+                    <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-3xs space-y-5">
+                        <h4 className="font-sans text-xs font-bold uppercase tracking-wider text-slate-800 flex items-center space-x-2">
+                            <ImageIcon className="h-4 w-4 text-slate-500" />
+                            <span>Media & Documents</span>
+                        </h4>
+
+                        {/* Banner Image */}
+                        <div className="space-y-2">
+                            <span className="block font-sans text-[10px] font-bold text-slate-455 uppercase tracking-wider">Profile Banner</span>
+                            <div className="relative group/banner rounded-md overflow-hidden border border-slate-200 bg-slate-50 h-24 flex items-center justify-center">
+                                {profile?.bannerImage ? (
+                                    <img
+                                        src={profile.bannerImage}
+                                        alt="Profile Banner"
+                                        className="h-full w-full object-cover"
+                                    />
+                                ) : (
+                                    <div className="text-slate-350 flex flex-col items-center text-center p-2">
+                                        <ImageIcon className="h-6 w-6 stroke-1 mb-1" />
+                                        <span className="font-sans text-[8px] uppercase tracking-wider">No Banner Image</span>
+                                    </div>
+                                )}
+                                <label className="absolute inset-0 bg-black/40 text-white flex items-center justify-center opacity-0 group-hover/banner:opacity-100 transition duration-150 cursor-pointer">
+                                    <Camera className="h-5 w-5 mr-1.5" />
+                                    <span className="font-sans text-[10px] font-bold uppercase tracking-wider">Change Banner</span>
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={handleBannerChange}
+                                        disabled={uploadBannerMutation.isPending}
+                                        className="sr-only"
+                                    />
+                                </label>
+                                {uploadBannerMutation.isPending && (
+                                    <div className="absolute inset-0 bg-black/60 text-white flex items-center justify-center">
+                                        <Loader2 className="h-5 w-5 animate-spin" />
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Curriculum Vitae (CV) */}
+                        <div className="space-y-2">
+                            <span className="block font-sans text-[10px] font-bold text-slate-455 uppercase tracking-wider">Curriculum Vitae (CV)</span>
+                            <div className="flex items-center justify-between p-3 rounded-lg border border-slate-200 bg-slate-50">
+                                <div className="flex items-center space-x-2 min-w-0">
+                                    <FileText className="h-6 w-6 text-red-500 shrink-0" />
+                                    <div className="min-w-0">
+                                        <p className="font-sans text-[10px] font-bold text-slate-700 truncate">
+                                            {profile?.cvUrl ? 'CV Document Uploaded' : 'No CV Uploaded'}
+                                        </p>
+                                        <p className="font-sans text-[8px] text-slate-400">
+                                            {profile?.cvUrl ? 'PDF format available' : 'Upload PDF file'}
+                                        </p>
+                                    </div>
+                                </div>
+                                <div className="flex items-center space-x-1 shrink-0">
+                                    {profile?.cvUrl && (
+                                        <>
+                                            <button
+                                                type="button"
+                                                onClick={handleDownloadCV}
+                                                disabled={isDownloadingCV}
+                                                className="p-1.5 hover:bg-slate-200 rounded text-slate-500 hover:text-black transition relative disabled:opacity-50"
+                                                title="Download CV"
+                                            >
+                                                {isDownloadingCV ? (
+                                                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                                                ) : (
+                                                    <Download className="h-3.5 w-3.5" />
+                                                )}
+                                            </button>
+                                        </>
+                                    )}
+                                    <label className="p-1.5 hover:bg-slate-200 rounded text-slate-500 hover:text-black transition cursor-pointer relative">
+                                        <Upload className="h-3.5 w-3.5" />
+                                        <input
+                                            type="file"
+                                            accept=".pdf,.doc,.docx"
+                                            onChange={handleCVChange}
+                                            disabled={uploadCVMutation.isPending}
+                                            className="sr-only"
+                                        />
+                                    </label>
+                                </div>
+                            </div>
+                            {uploadCVMutation.isPending && (
+                                <div className="flex items-center space-x-2 text-[10px] text-slate-500 font-sans">
+                                    <Loader2 className="h-3.5 w-3.5 animate-spin text-slate-400" />
+                                    <span>Uploading CV document...</span>
                                 </div>
                             )}
                         </div>
@@ -456,6 +676,56 @@ export const AdminProfile: React.FC = () => {
                                     ))
                                 )}
                             </div>
+                        </div>
+                    </div>
+
+                    {/* Password change card */}
+                    <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-3xs space-y-5">
+                        <h4 className="font-sans text-sm font-bold uppercase tracking-wider text-slate-800 flex items-center space-x-2 border-b border-slate-100 pb-3">
+                            <Lock className="h-4 w-4 text-slate-500" />
+                            <span>Security Credentials</span>
+                        </h4>
+
+                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                            {/* Old Password */}
+                            <div>
+                                <label className="block font-sans text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                                    Current Password
+                                </label>
+                                <input
+                                    type="password"
+                                    value={oldPassword}
+                                    onChange={(e) => setOldPassword(e.target.value)}
+                                    placeholder="••••••••"
+                                    className="w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 font-sans text-xs focus:border-slate-400 focus:bg-white focus:outline-hidden text-slate-900"
+                                />
+                            </div>
+
+                            {/* New Password */}
+                            <div>
+                                <label className="block font-sans text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                                    New Password
+                                </label>
+                                <input
+                                    type="password"
+                                    value={newPassword}
+                                    onChange={(e) => setNewPassword(e.target.value)}
+                                    placeholder="Min 6 characters"
+                                    className="w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 font-sans text-xs focus:border-slate-400 focus:bg-white focus:outline-hidden text-slate-900"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="flex justify-end pt-1">
+                            <button
+                                type="button"
+                                onClick={handleChangePassword}
+                                disabled={changePasswordMutation.isPending || !oldPassword || !newPassword}
+                                className="flex items-center space-x-2 rounded-md bg-black px-5 py-2 font-sans text-[10px] font-bold uppercase tracking-wider text-white shadow-3xs hover:bg-slate-800 transition active:scale-[0.98] disabled:opacity-50 cursor-pointer"
+                            >
+                                {changePasswordMutation.isPending && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                                <span>Update Password</span>
+                            </button>
                         </div>
                     </div>
 

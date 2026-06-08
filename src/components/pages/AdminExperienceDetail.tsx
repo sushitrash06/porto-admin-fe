@@ -7,6 +7,7 @@ import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useExperienceDetail, useUpdateExperience, useDeleteExperience } from '../../hooks/useExperiences';
 import { useMyProjects } from '../../hooks/useProjects';
+import { DatePicker } from '../atoms/DatePicker';
 import {
   ArrowLeft, Calendar, Briefcase, Building2, Globe, Lock,
   Edit, Trash2, Save, X, Loader2, ShieldAlert, FolderGit2, ExternalLink
@@ -265,15 +266,12 @@ export const AdminExperienceDetail: React.FC = () => {
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
                 <label className="block font-sans text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
-                  Start Date <span className="text-red-500">*</span>
+                  Start Date <span className="text-red-555">*</span>
                 </label>
-                <input
+                <DatePicker
                   id="edit-exp-startdate"
-                  type="date"
-                  required
                   value={editStartDate}
-                  onChange={(e) => setEditStartDate(e.target.value)}
-                  className="w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 font-mono text-xs focus:border-slate-400 focus:bg-white focus:outline-hidden text-slate-900"
+                  onChange={(val) => setEditStartDate(val)}
                 />
               </div>
               <div>
@@ -290,13 +288,11 @@ export const AdminExperienceDetail: React.FC = () => {
                     <span className="font-sans text-[10px] font-bold text-slate-500">Present</span>
                   </label>
                 </div>
-                <input
+                <DatePicker
                   id="edit-exp-enddate"
-                  type="date"
                   disabled={editIsPresent}
                   value={editEndDate}
-                  onChange={(e) => setEditEndDate(e.target.value)}
-                  className="w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 font-mono text-xs focus:border-slate-400 focus:bg-white focus:outline-hidden text-slate-900 disabled:bg-slate-100 disabled:text-slate-400"
+                  onChange={(val) => setEditEndDate(val)}
                 />
               </div>
             </div>

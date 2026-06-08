@@ -5,9 +5,10 @@
 
 import React, { useState } from 'react';
 import { Role } from '../../types';
-import { useUsers, useCreateUser } from '../../hooks/useUsers';
+import { useUsers, useCreateUser, useUpdateUser, useDeleteUser } from '../../hooks/useUsers';
 import { Dialog, DialogPanel, DialogTitle, DialogBackdrop, Listbox, ListboxButton, ListboxOptions, ListboxOption } from '@headlessui/react';
-import { Plus, ShieldAlert, Users, Search, UserCheck, Loader2, Calendar, ChevronLeft, ChevronRight, ChevronDown, Check } from 'lucide-react';
+import { Plus, ShieldAlert, Users, Search, UserCheck, Loader2, Calendar, ChevronLeft, ChevronRight, ChevronDown, Check, Edit, Trash2 } from 'lucide-react';
+import { getSessionPayload } from '../../lib/auth';
 
 export const AdminUsers: React.FC = () => {
     const [searchQuery, setSearchQuery] = useState<string>('');
@@ -15,8 +16,12 @@ export const AdminUsers: React.FC = () => {
     const [page, setPage] = useState<number>(1);
     const limit = 10;
 
+    const payload = getSessionPayload();
+    const currentUserId = payload?.sub;
+
     // Modals/Forms State
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+    const [editingUser, setEditingUser] = useState<any | null>(null);
     const [email, setEmail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
     const [role, setRole] = useState<Role>(Role.USER);
@@ -30,6 +35,8 @@ export const AdminUsers: React.FC = () => {
     });
 
     const createUserMutation = useCreateUser();
+    const updateUserMutation = useUpdateUser();
+    const deleteUserMutation = useDeleteUser();
 
     // Debounce search input
     React.useEffect(() => {
@@ -42,42 +49,85 @@ export const AdminUsers: React.FC = () => {
 
     const handleOpenCreate = () => {
         setError('');
+        setEditingUser(null);
         setEmail('');
         setPassword('');
         setRole(Role.USER);
         setIsModalOpen(true);
     };
 
+    const handleOpenEdit = (user: any) => {
+        setError('');
+        setEditingUser(user);
+        setEmail(user.email);
+        setPassword('');
+        setRole(user.role);
+        setIsModalOpen(true);
+    };
+
+    const handleDeleteUser = (userId: string) => {
+        if (confirm('Are you sure you want to delete this user?')) {
+            deleteUserMutation.mutate(userId, {
+                onError: (err) => {
+                    alert(err.response?.data?.message || err.message || 'Failed to delete user.');
+                }
+            });
+        }
+    };
+
     const handleSave = (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
 
-        if (!email.trim() || !password.trim()) {
-            setError('Email and Password must not be blank.');
+        if (!email.trim()) {
+            setError('Email must not be blank.');
             return;
         }
 
-        if (password.length < 6) {
-            setError('Password must be at least 6 characters long.');
-            return;
-        }
-
-        createUserMutation.mutate(
-            {
-                email: email.trim(),
-                password: password,
-                role: role,
-            },
-            {
-                onSuccess: () => {
-                    setIsModalOpen(false);
+        if (editingUser) {
+            updateUserMutation.mutate(
+                {
+                    id: editingUser.id,
+                    email: email.trim(),
+                    role: role,
                 },
-                onError: (err) => {
-                    const msg = err.response?.data?.message || err.message || 'Failed to create user.';
-                    setError(typeof msg === 'string' ? msg : 'Validation error.');
-                },
+                {
+                    onSuccess: () => {
+                        setIsModalOpen(false);
+                    },
+                    onError: (err) => {
+                        const msg = err.response?.data?.message || err.message || 'Failed to update user.';
+                        setError(typeof msg === 'string' ? msg : 'Validation error.');
+                    },
+                }
+            );
+        } else {
+            if (!password.trim()) {
+                setError('Password is required for new users.');
+                return;
             }
-        );
+            if (password.length < 6) {
+                setError('Password must be at least 6 characters long.');
+                return;
+            }
+
+            createUserMutation.mutate(
+                {
+                    email: email.trim(),
+                    password: password,
+                    role: role,
+                },
+                {
+                    onSuccess: () => {
+                        setIsModalOpen(false);
+                    },
+                    onError: (err) => {
+                        const msg = err.response?.data?.message || err.message || 'Failed to create user.';
+                        setError(typeof msg === 'string' ? msg : 'Validation error.');
+                    },
+                }
+            );
+        }
     };
 
     const usersList = data?.data || [];
@@ -139,19 +189,20 @@ export const AdminUsers: React.FC = () => {
                                 <th className="px-6 py-4">Developer</th>
                                 <th className="px-6 py-4">Role Permission</th>
                                 <th className="px-6 py-4">Created At</th>
+                                <th className="px-6 py-4 text-right">Actions</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100 font-sans text-slate-600">
                             {isLoading ? (
                                 <tr>
-                                    <td colSpan={3} className="px-6 py-12 text-center text-slate-450">
+                                    <td colSpan={4} className="px-6 py-12 text-center text-slate-455">
                                         <Loader2 className="mx-auto h-8 w-8 animate-spin text-slate-400 mb-2" />
                                         <p className="font-sans text-xs">Querying system database...</p>
                                     </td>
                                 </tr>
                             ) : usersList.length === 0 ? (
                                 <tr>
-                                    <td colSpan={3} className="px-6 py-12 text-center text-slate-400">
+                                    <td colSpan={4} className="px-6 py-12 text-center text-slate-400">
                                         <Users className="mx-auto h-8 w-8 text-slate-355 mb-2" />
                                         <p className="font-sans text-xs">No users match your listing criteria.</p>
                                     </td>
@@ -204,6 +255,29 @@ export const AdminUsers: React.FC = () => {
                                             </div>
                                         </td>
 
+                                        {/* Actions */}
+                                        <td className="px-6 py-4 text-right">
+                                            <div className="flex items-center justify-end space-x-1.5">
+                                                <button
+                                                    onClick={() => handleOpenEdit(user)}
+                                                    className="rounded-md border border-slate-200 bg-white p-1.5 text-slate-500 hover:border-slate-400 hover:text-black transition cursor-pointer"
+                                                    title="Edit user role"
+                                                >
+                                                    <Edit className="h-3 w-3" />
+                                                </button>
+                                                {currentUserId !== user.id && (
+                                                    <button
+                                                        onClick={() => handleDeleteUser(user.id)}
+                                                        disabled={deleteUserMutation.isPending}
+                                                        className="rounded-md border border-slate-200 bg-white p-1.5 text-slate-500 hover:border-red-200 hover:text-red-600 hover:bg-red-50 transition cursor-pointer disabled:opacity-50"
+                                                        title="Delete user"
+                                                    >
+                                                        <Trash2 className="h-3 w-3" />
+                                                    </button>
+                                                )}
+                                            </div>
+                                        </td>
+
                                     </tr>
                                 ))
                             )}
@@ -249,7 +323,7 @@ export const AdminUsers: React.FC = () => {
                     <DialogPanel className="w-full max-w-md overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg animate-in fade-in-50 zoom-in-95 duration-200">
                         <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
                             <DialogTitle className="font-sans text-sm font-bold uppercase tracking-wider text-slate-800">
-                                Configure New User Node
+                                {editingUser ? 'Modify User Roles' : 'Introduce System User'}
                             </DialogTitle>
                             <button
                                 type="button"
@@ -264,16 +338,16 @@ export const AdminUsers: React.FC = () => {
                         <form onSubmit={handleSave}>
                             <div className="p-6 space-y-4">
                                 {error && (
-                                    <div className="flex items-start space-x-2 rounded-md border border-red-100 bg-red-50 p-3 text-xs text-red-655 font-sans font-medium">
+                                    <div className="flex items-start space-x-2 rounded-md border border-red-105 bg-red-50 p-3 text-xs text-red-600 font-sans font-medium">
                                         <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0" />
                                         <span>{error}</span>
                                     </div>
                                 )}
 
-                                {/* Email */}
+                                {/* Email Address */}
                                 <div>
                                     <label className="block font-sans text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
-                                        Email Address <span className="text-red-500">*</span>
+                                        System Email Address <span className="text-red-500">*</span>
                                     </label>
                                     <input
                                         id="modal-email"
@@ -281,26 +355,28 @@ export const AdminUsers: React.FC = () => {
                                         required
                                         value={email}
                                         onChange={(e) => setEmail(e.target.value)}
-                                        placeholder="jane@example.com"
+                                        placeholder="developer@workplace.com"
                                         className="w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 font-sans text-xs focus:border-slate-400 focus:bg-white focus:outline-hidden text-slate-900"
                                     />
                                 </div>
 
                                 {/* Password PIN */}
-                                <div>
-                                    <label className="block font-sans text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
-                                        Credential PIN <span className="text-red-500">*</span>
-                                    </label>
-                                    <input
-                                        id="modal-password"
-                                        type="password"
-                                        required
-                                        value={password}
-                                        onChange={(e) => setPassword(e.target.value)}
-                                        placeholder="Min 6 characters"
-                                        className="w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 font-mono text-xs focus:border-slate-400 focus:bg-white focus:outline-hidden text-slate-900"
-                                    />
-                                </div>
+                                {!editingUser && (
+                                    <div>
+                                        <label className="block font-sans text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                                            Temporary Pin Password <span className="text-red-500">*</span>
+                                        </label>
+                                        <input
+                                            id="modal-password"
+                                            type="password"
+                                            required
+                                            value={password}
+                                            onChange={(e) => setPassword(e.target.value)}
+                                            placeholder="Min 6 characters"
+                                            className="w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 font-mono text-xs focus:border-slate-400 focus:bg-white focus:outline-hidden text-slate-900"
+                                        />
+                                    </div>
+                                )}
 
                                 {/* Role */}
                                 <div>
@@ -374,11 +450,11 @@ export const AdminUsers: React.FC = () => {
                                 <button
                                     id="submit-save-user-btn"
                                     type="submit"
-                                    disabled={createUserMutation.isPending}
+                                    disabled={createUserMutation.isPending || updateUserMutation.isPending}
                                     className="flex items-center space-x-1.5 rounded-md bg-black px-4 py-2 font-sans text-[10px] font-bold uppercase tracking-wider text-white shadow-3xs hover:bg-slate-800 transition active:scale-95 cursor-pointer disabled:opacity-60"
                                 >
-                                    {createUserMutation.isPending && <Loader2 className="h-3 w-3 animate-spin" />}
-                                    <span>Create User</span>
+                                    {(createUserMutation.isPending || updateUserMutation.isPending) && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                                    <span>{editingUser ? 'Save Changes' : 'Create User'}</span>
                                 </button>
                             </div>
 

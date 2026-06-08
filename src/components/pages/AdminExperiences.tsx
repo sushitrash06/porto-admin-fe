@@ -11,6 +11,7 @@ import { useMyExperiences, useAdminExperiences, useCreateExperience, useUpdateEx
 import { useUsers } from '../../hooks/useUsers';
 import { getSessionPayload } from '../../lib/auth';
 import { Dialog, DialogPanel, DialogTitle, DialogBackdrop, Listbox, ListboxButton, ListboxOptions, ListboxOption } from '@headlessui/react';
+import { DatePicker } from '../atoms/DatePicker';
 import {
     Briefcase, Search, Plus, Edit, Trash2, ShieldAlert,
     Calendar, Loader2, Eye, ChevronDown, Check, Info, Grid, List
@@ -783,15 +784,12 @@ export const AdminExperiences: React.FC = () => {
                                     {/* Start Date */}
                                     <div>
                                         <label className="block font-sans text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
-                                            Start Date <span className="text-red-550">*</span>
+                                            Start Date <span className="text-red-555">*</span>
                                         </label>
-                                        <input
+                                        <DatePicker
                                             id="modal-exp-startdate"
-                                            type="date"
-                                            required
                                             value={startDate}
-                                            onChange={(e) => setStartDate(e.target.value)}
-                                            className="w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 font-mono text-xs focus:border-slate-400 focus:bg-white focus:outline-hidden text-slate-900"
+                                            onChange={(val) => setStartDate(val)}
                                         />
                                     </div>
 
@@ -813,13 +811,11 @@ export const AdminExperiences: React.FC = () => {
                                             </label>
                                         </div>
 
-                                        <input
+                                        <DatePicker
                                             id="modal-exp-enddate"
-                                            type="date"
                                             disabled={isPresent}
                                             value={endDate}
-                                            onChange={(e) => setEndDate(e.target.value)}
-                                            className="w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 font-mono text-xs focus:border-slate-400 focus:bg-white focus:outline-hidden text-slate-900 disabled:bg-slate-100 disabled:text-slate-400"
+                                            onChange={(val) => setEndDate(val)}
                                         />
                                     </div>
                                 </div>

@@ -54,3 +54,20 @@ export function useLogin() {
         mutationFn: loginFn,
     });
 }
+
+export interface ChangePasswordRequest {
+  oldPassword?: string;
+  newPassword?: string;
+}
+
+/**
+ * Hook to change password for logged-in user.
+ * Hits POST /auth/change-password
+ */
+export function useChangePassword() {
+  return useMutation<void, AxiosError<{ message?: string }>, ChangePasswordRequest>({
+    mutationFn: async (payload) => {
+      await api.post('/auth/change-password', payload);
+    },
+  });
+}

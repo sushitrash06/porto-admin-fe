@@ -77,3 +77,53 @@ export function useUploadProfileImage() {
     },
   });
 }
+
+/**
+ * Hook to upload/replace current user's profile banner.
+ * Hits POST /profiles/me/banner
+ */
+export function useUploadProfileBanner() {
+  const queryClient = useQueryClient();
+  return useMutation<Profile, AxiosError<{ message?: string }>, File>({
+    mutationFn: async (file) => {
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      const { data } = await api.post<Profile>('/profiles/me/banner', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['profile', 'me'] });
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+    },
+  });
+}
+
+/**
+ * Hook to upload/replace current user's profile CV.
+ * Hits POST /profiles/me/cv
+ */
+export function useUploadProfileCV() {
+  const queryClient = useQueryClient();
+  return useMutation<Profile, AxiosError<{ message?: string }>, File>({
+    mutationFn: async (file) => {
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      const { data } = await api.post<Profile>('/profiles/me/cv', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['profile', 'me'] });
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+    },
+  });
+}
