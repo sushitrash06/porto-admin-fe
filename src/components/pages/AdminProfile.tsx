@@ -6,7 +6,7 @@
 import React, { useState, useEffect } from 'react';
 import { useProfile, useUpdateProfile, useUploadProfileImage, useUploadProfileBanner, useUploadProfileCV } from '../../hooks/useProfile';
 import { useChangePassword } from '../../hooks/useLogin';
-import { UserCheck, ShieldAlert, Loader2, Camera, Mail, Phone, MapPin, Sparkles, Tag, Plus, X, Globe, EyeOff, Lock, FileText, Upload, ExternalLink, Download, Image as ImageIcon } from 'lucide-react';
+import { UserCheck, ShieldAlert, Loader2, Camera, Mail, Phone, MapPin, Sparkles, Tag, Plus, X, Globe, EyeOff, Lock, FileText, Upload, Download, Image as ImageIcon } from 'lucide-react';
 export const AdminProfile: React.FC = () => {
     const { data: profile, isLoading, isError, error: fetchError } = useProfile();
     const updateProfileMutation = useUpdateProfile();
