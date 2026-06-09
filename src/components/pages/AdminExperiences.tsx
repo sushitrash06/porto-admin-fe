@@ -16,6 +16,7 @@ import {
     Briefcase, Search, Plus, Edit, Trash2, ShieldAlert,
     Calendar, Loader2, Eye, ChevronDown, Check, Info, Grid, List
 } from 'lucide-react';
+import { ConfirmDialog } from '../molecules/ConfirmDialog';
 
 export const AdminExperiences: React.FC = () => {
     const navigate = useNavigate();
@@ -101,6 +102,23 @@ export const AdminExperiences: React.FC = () => {
 
     const [error, setError] = useState<string>('');
 
+    // Custom confirm dialog state
+    const [confirmState, setConfirmState] = useState<{
+        isOpen: boolean;
+        title: string;
+        message: string;
+        onConfirm: () => void;
+        variant?: 'danger' | 'info' | 'warning';
+        showCancel?: boolean;
+    }>({
+        isOpen: false,
+        title: '',
+        message: '',
+        onConfirm: () => {},
+        variant: 'danger',
+        showCancel: true,
+    });
+
     const formatDateForInput = (dateStr?: string | null) => {
         if (!dateStr) return '';
         return dateStr.substring(0, 10);
@@ -178,13 +196,20 @@ export const AdminExperiences: React.FC = () => {
     };
 
     const handleDelete = (id: string) => {
-        if (window.confirm('Are you sure you want to delete this career history entry?')) {
-            deleteMutation.mutate(id, {
-                onError: (err) => {
-                    setError(err.response?.data?.message || err.message || 'Failed to delete experience.');
-                }
-            });
-        }
+        setConfirmState({
+            isOpen: true,
+            title: 'Delete Career Experience',
+            message: 'Are you sure you want to delete this career history entry? This will permanently remove the record and dissociate any linked projects from this milestone.',
+            variant: 'danger',
+            showCancel: true,
+            onConfirm: () => {
+                deleteMutation.mutate(id, {
+                    onError: (err) => {
+                        setError(err.response?.data?.message || err.message || 'Failed to delete experience.');
+                    }
+                });
+            }
+        });
     };
 
     // Filter criteria logic (client side public status filter)
@@ -897,6 +922,17 @@ export const AdminExperiences: React.FC = () => {
                     </DialogPanel>
                 </div>
             </Dialog>
+
+            <ConfirmDialog
+                isOpen={confirmState.isOpen}
+                onClose={() => setConfirmState(prev => ({ ...prev, isOpen: false }))}
+                onConfirm={confirmState.onConfirm}
+                title={confirmState.title}
+                message={confirmState.message}
+                variant={confirmState.variant}
+                showCancel={confirmState.showCancel}
+            />
+
         </div>
     );
 };

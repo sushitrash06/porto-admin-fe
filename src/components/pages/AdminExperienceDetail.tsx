@@ -12,6 +12,7 @@ import {
   ArrowLeft, Calendar, Briefcase, Building2, Globe, Lock,
   Edit, Trash2, Save, X, Loader2, ShieldAlert, FolderGit2, ExternalLink
 } from 'lucide-react';
+import { ConfirmDialog } from '../molecules/ConfirmDialog';
 
 export const AdminExperienceDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -33,6 +34,23 @@ export const AdminExperienceDetail: React.FC = () => {
   const [editCompanyLogo, setEditCompanyLogo] = useState('');
   const [editIsPublic, setEditIsPublic] = useState(true);
   const [editError, setEditError] = useState('');
+
+  // Custom confirm dialog state
+  const [confirmState, setConfirmState] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    onConfirm: () => void;
+    variant?: 'danger' | 'info' | 'warning';
+    showCancel?: boolean;
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: () => {},
+    variant: 'danger',
+    showCancel: true,
+  });
 
   // Filter projects linked to this experience
   const linkedProjects = allProjects?.filter(p => p.experienceId === id) || [];
@@ -104,16 +122,23 @@ export const AdminExperienceDetail: React.FC = () => {
 
   const handleDelete = () => {
     if (!experience) return;
-    if (window.confirm('Are you sure you want to permanently delete this experience?')) {
-      deleteMutation.mutate(experience.id, {
-        onSuccess: () => {
-          navigate('/admin/experiences');
-        },
-        onError: (err) => {
-          setEditError(err.response?.data?.message || err.message || 'Failed to delete.');
-        },
-      });
-    }
+    setConfirmState({
+      isOpen: true,
+      title: 'Permanently Delete Experience',
+      message: 'Are you sure you want to permanently delete this experience? This action cannot be undone and will dissociate any linked projects from this milestone.',
+      variant: 'danger',
+      showCancel: true,
+      onConfirm: () => {
+        deleteMutation.mutate(experience.id, {
+          onSuccess: () => {
+            navigate('/admin/experiences');
+          },
+          onError: (err) => {
+            setEditError(err.response?.data?.message || err.message || 'Failed to delete.');
+          },
+        });
+      }
+    });
   };
 
   // Duration calculator
@@ -522,6 +547,17 @@ export const AdminExperienceDetail: React.FC = () => {
           </div>
         )}
       </div>
+
+      <ConfirmDialog
+        isOpen={confirmState.isOpen}
+        onClose={() => setConfirmState(prev => ({ ...prev, isOpen: false }))}
+        onConfirm={confirmState.onConfirm}
+        title={confirmState.title}
+        message={confirmState.message}
+        variant={confirmState.variant}
+        showCancel={confirmState.showCancel}
+      />
+
     </div>
   );
 };

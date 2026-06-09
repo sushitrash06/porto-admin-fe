@@ -95,57 +95,65 @@ export const LandingPage: React.FC = () => {
                     <span>Our Featured Creators</span>
                 </h2>
                 <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                    {publicUsers.filter(u => u.role !== Role.SUPER_ADMIN).map(user => {
-                        const userProjectsCount = publicProjects.filter(p => p.userId === user.id).length;
-                        const userExpsCount = publicExperiences.filter(e => e.userId === user.id).length;
-                        const isTarget = selectedUser === user.id;
+                    {publicUsers.filter(u => u.role !== Role.SUPER_ADMIN).length === 0 ? (
+                        <div className="col-span-full rounded-xl border border-dashed border-slate-200 bg-white p-12 text-center text-slate-450 font-sans">
+                            <Code2 className="mx-auto h-8 w-8 text-slate-350 mb-2 stroke-1" />
+                            <h3 className="text-xs font-bold text-slate-700">No Featured Creators</h3>
+                            <p className="text-[11px] text-slate-450 mt-1">There are no developer profiles published in the ecosystem yet.</p>
+                        </div>
+                    ) : (
+                        publicUsers.filter(u => u.role !== Role.SUPER_ADMIN).map(user => {
+                            const userProjectsCount = publicProjects.filter(p => p.userId === user.id).length;
+                            const userExpsCount = publicExperiences.filter(e => e.userId === user.id).length;
+                            const isTarget = selectedUser === user.id;
 
-                        return (
-                            <div
-                                key={user.id}
-                                onClick={() => setSelectedUser(isTarget ? 'all' : user.id)}
-                                className={`group relative flex cursor-pointer flex-col justify-between rounded-xl border p-5 transition-all duration-200 ${isTarget
-                                        ? 'border-black bg-white ring-2 ring-slate-950/5 shadow-sm'
-                                        : 'border-slate-200 bg-white hover:border-slate-300 hover:shadow-2xs'
-                                    }`}
-                            >
-                                <div className="flex items-start space-x-4">
-                                    <img
-                                        src={user.profile?.profileImage || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200'}
-                                        alt={user.profile?.fullName || user.email}
-                                        className="h-12 w-12 rounded-full object-cover border border-slate-200"
-                                    />
-                                    <div>
-                                        <h3 className="font-sans text-sm font-bold text-slate-900 group-hover:text-black">
-                                            {user.profile?.fullName || 'Full Account'}
-                                        </h3>
-                                        <p className="font-mono text-[9px] text-slate-400 font-bold uppercase tracking-wider">
-                                            {user.profile?.location || 'Indonesian Developer'}
-                                        </p>
-                                        <p className="mt-2 line-clamp-2 font-sans text-xs text-slate-500 leading-relaxed">
-                                            {user.profile?.bio || 'No personal biography configured yet.'}
-                                        </p>
+                            return (
+                                <div
+                                    key={user.id}
+                                    onClick={() => setSelectedUser(isTarget ? 'all' : user.id)}
+                                    className={`group relative flex cursor-pointer flex-col justify-between rounded-xl border p-5 transition-all duration-200 ${isTarget
+                                            ? 'border-black bg-white ring-2 ring-slate-950/5 shadow-sm'
+                                            : 'border-slate-200 bg-white hover:border-slate-300 hover:shadow-2xs'
+                                        }`}
+                                >
+                                    <div className="flex items-start space-x-4">
+                                        <img
+                                            src={user.profile?.profileImage || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200'}
+                                            alt={user.profile?.fullName || user.email}
+                                            className="h-12 w-12 rounded-full object-cover border border-slate-200"
+                                        />
+                                        <div>
+                                            <h3 className="font-sans text-sm font-bold text-slate-900 group-hover:text-black">
+                                                {user.profile?.fullName || 'Full Account'}
+                                            </h3>
+                                            <p className="font-mono text-[9px] text-slate-400 font-bold uppercase tracking-wider">
+                                                {user.profile?.location || 'Indonesian Developer'}
+                                            </p>
+                                            <p className="mt-2 line-clamp-2 font-sans text-xs text-slate-500 leading-relaxed">
+                                                {user.profile?.bio || 'No personal biography configured yet.'}
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-3 text-[11px]">
+                                        <div className="flex space-x-3 text-slate-400 font-medium">
+                                            <span className="flex items-center space-x-1 font-mono">
+                                                <Briefcase className="h-3 w-3" />
+                                                <span>{userExpsCount} exps</span>
+                                            </span>
+                                            <span className="flex items-center space-x-1 font-mono">
+                                                <FolderGit2 className="h-3 w-3" />
+                                                <span>{userProjectsCount} projects</span>
+                                            </span>
+                                        </div>
+                                        <span className={`font-sans font-bold uppercase tracking-wider text-[10px] ${isTarget ? 'text-black underline underline-offset-4' : 'text-slate-400 group-hover:text-slate-600'}`}>
+                                            {isTarget ? 'Filter Active' : 'Explore'}
+                                        </span>
                                     </div>
                                 </div>
-
-                                <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-3 text-[11px]">
-                                    <div className="flex space-x-3 text-slate-400 font-medium">
-                                        <span className="flex items-center space-x-1 font-mono">
-                                            <Briefcase className="h-3 w-3" />
-                                            <span>{userExpsCount} exps</span>
-                                        </span>
-                                        <span className="flex items-center space-x-1 font-mono">
-                                            <FolderGit2 className="h-3 w-3" />
-                                            <span>{userProjectsCount} projects</span>
-                                        </span>
-                                    </div>
-                                    <span className={`font-sans font-bold uppercase tracking-wider text-[10px] ${isTarget ? 'text-black underline underline-offset-4' : 'text-slate-400 group-hover:text-slate-600'}`}>
-                                        {isTarget ? 'Filter Active' : 'Explore'}
-                                    </span>
-                                </div>
-                            </div>
-                        );
-                    })}
+                            );
+                        })
+                    )}
                 </div>
             </section>
 

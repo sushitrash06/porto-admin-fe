@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import { getSessionPayload } from '../../lib/auth';
 import { Listbox, ListboxButton, ListboxOptions, ListboxOption } from '@headlessui/react';
+import { ConfirmDialog } from '../molecules/ConfirmDialog';
 
 export const AdminProjectDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -56,6 +57,23 @@ export const AdminProjectDetail: React.FC = () => {
   const [editIsPublic, setEditIsPublic] = useState(true);
   const [editExperienceId, setEditExperienceId] = useState('');
   const [editError, setEditError] = useState('');
+
+  // Custom confirm dialog state
+  const [confirmState, setConfirmState] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    onConfirm: () => void;
+    variant?: 'danger' | 'info' | 'warning';
+    showCancel?: boolean;
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: () => {},
+    variant: 'danger',
+    showCancel: true,
+  });
 
   // Find linked experience for viewing
   const linkedExperience = experiences.find(exp => exp.id === project?.experienceId);
@@ -117,16 +135,23 @@ export const AdminProjectDetail: React.FC = () => {
 
   const handleDelete = () => {
     if (!project) return;
-    if (window.confirm('Are you sure you want to permanently delete this project?')) {
-      deleteMutation.mutate(project.id, {
-        onSuccess: () => {
-          navigate('/admin/projects');
-        },
-        onError: (err) => {
-          setEditError(err.response?.data?.message || err.message || 'Failed to delete project.');
-        }
-      });
-    }
+    setConfirmState({
+      isOpen: true,
+      title: 'Permanently Delete Project',
+      message: 'Are you sure you want to permanently delete this project? This action cannot be undone and all data associated with it will be lost.',
+      variant: 'danger',
+      showCancel: true,
+      onConfirm: () => {
+        deleteMutation.mutate(project.id, {
+          onSuccess: () => {
+            navigate('/admin/projects');
+          },
+          onError: (err) => {
+            setEditError(err.response?.data?.message || err.message || 'Failed to delete project.');
+          }
+        });
+      }
+    });
   };
 
   const handleThumbnailUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -154,11 +179,20 @@ export const AdminProjectDetail: React.FC = () => {
   };
 
   const handleScreenshotDelete = (imageUrl: string) => {
-    if (project && window.confirm('Delete this screenshot?')) {
-      setEditError('');
-      deleteImageMutation.mutate({ id: project.id, imageUrl }, {
-        onError: (err) => {
-          setEditError(err.response?.data?.message || err.message || 'Failed to delete screenshot.');
+    if (project) {
+      setConfirmState({
+        isOpen: true,
+        title: 'Delete Screenshot Image',
+        message: 'Are you sure you want to delete this screenshot from the gallery?',
+        variant: 'danger',
+        showCancel: true,
+        onConfirm: () => {
+          setEditError('');
+          deleteImageMutation.mutate({ id: project.id, imageUrl }, {
+            onError: (err) => {
+              setEditError(err.response?.data?.message || err.message || 'Failed to delete screenshot.');
+            }
+          });
         }
       });
     }
@@ -787,6 +821,16 @@ export const AdminProjectDetail: React.FC = () => {
         </div>
 
       </div>
+
+      <ConfirmDialog
+        isOpen={confirmState.isOpen}
+        onClose={() => setConfirmState(prev => ({ ...prev, isOpen: false }))}
+        onConfirm={confirmState.onConfirm}
+        title={confirmState.title}
+        message={confirmState.message}
+        variant={confirmState.variant}
+        showCancel={confirmState.showCancel}
+      />
 
     </div>
   );

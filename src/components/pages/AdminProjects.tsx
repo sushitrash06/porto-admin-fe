@@ -25,6 +25,7 @@ import {
   FolderGit2, Search, Plus, Edit, Trash2, Globe, Github, ShieldAlert, 
   Code2, Info, Grid, List, Loader2, Camera, X, ImageIcon, PlusCircle, Eye, ChevronDown, Check
 } from 'lucide-react';
+import { ConfirmDialog } from '../molecules/ConfirmDialog';
 
 export const AdminProjects: React.FC = () => {
     const navigate = useNavigate();
@@ -124,6 +125,23 @@ export const AdminProjects: React.FC = () => {
     const [error, setError] = useState<string>('');
     const [success, setSuccess] = useState<string>('');
 
+    // Custom confirm dialog state
+    const [confirmState, setConfirmState] = useState<{
+        isOpen: boolean;
+        title: string;
+        message: string;
+        onConfirm: () => void;
+        variant?: 'danger' | 'info' | 'warning';
+        showCancel?: boolean;
+    }>({
+        isOpen: false,
+        title: '',
+        message: '',
+        onConfirm: () => {},
+        variant: 'danger',
+        showCancel: true,
+    });
+
     const handleOpenCreate = () => {
         setError('');
         setSuccess('');
@@ -210,13 +228,20 @@ export const AdminProjects: React.FC = () => {
     };
 
     const handleDelete = (id: string) => {
-        if (window.confirm('Are you sure you want to delete this project?')) {
-            deleteMutation.mutate(id, {
-                onError: (err) => {
-                    setError(err.response?.data?.message || err.message || 'Failed to delete project.');
-                }
-            });
-        }
+        setConfirmState({
+            isOpen: true,
+            title: 'Delete Project Repository',
+            message: 'Are you sure you want to delete this project? This will permanently remove the record and all uploaded screenshot attachments from the dashboard database.',
+            variant: 'danger',
+            showCancel: true,
+            onConfirm: () => {
+                deleteMutation.mutate(id, {
+                    onError: (err) => {
+                        setError(err.response?.data?.message || err.message || 'Failed to delete project.');
+                    }
+                });
+            }
+        });
     };
 
     const handleThumbnailUpload = (e: React.ChangeEvent<HTMLInputElement>, projectId: string) => {
@@ -250,17 +275,24 @@ export const AdminProjects: React.FC = () => {
     };
 
     const handleScreenshotDelete = (projectId: string, imageUrl: string) => {
-        if (window.confirm('Delete this screenshot?')) {
-            setError('');
-            deleteImageMutation.mutate({ id: projectId, imageUrl }, {
-                onSuccess: (updatedProj) => {
-                    if (editingProject) setEditingProject(updatedProj);
-                },
-                onError: (err) => {
-                    setError(err.response?.data?.message || err.message || 'Screenshot deletion failed.');
-                }
-            });
-        }
+        setConfirmState({
+            isOpen: true,
+            title: 'Delete Screenshot Image',
+            message: 'Are you sure you want to delete this screenshot from the project? This action cannot be reversed.',
+            variant: 'danger',
+            showCancel: true,
+            onConfirm: () => {
+                setError('');
+                deleteImageMutation.mutate({ id: projectId, imageUrl }, {
+                    onSuccess: (updatedProj) => {
+                        if (editingProject) setEditingProject(updatedProj);
+                    },
+                    onError: (err) => {
+                        setError(err.response?.data?.message || err.message || 'Screenshot deletion failed.');
+                    }
+                });
+            }
+        });
     };
 
     // Filter projects client-side for public Filter
@@ -1289,6 +1321,16 @@ export const AdminProjects: React.FC = () => {
                     </DialogPanel>
                 </div>
             </Dialog>
+
+            <ConfirmDialog
+                isOpen={confirmState.isOpen}
+                onClose={() => setConfirmState(prev => ({ ...prev, isOpen: false }))}
+                onConfirm={confirmState.onConfirm}
+                title={confirmState.title}
+                message={confirmState.message}
+                variant={confirmState.variant}
+                showCancel={confirmState.showCancel}
+            />
 
         </div>
     );

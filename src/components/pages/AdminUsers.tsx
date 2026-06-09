@@ -9,6 +9,7 @@ import { useUsers, useCreateUser, useUpdateUser, useDeleteUser } from '../../hoo
 import { Dialog, DialogPanel, DialogTitle, DialogBackdrop, Listbox, ListboxButton, ListboxOptions, ListboxOption } from '@headlessui/react';
 import { Plus, ShieldAlert, Users, Search, UserCheck, Loader2, Calendar, ChevronLeft, ChevronRight, ChevronDown, Check, Edit, Trash2 } from 'lucide-react';
 import { getSessionPayload } from '../../lib/auth';
+import { ConfirmDialog } from '../molecules/ConfirmDialog';
 
 export const AdminUsers: React.FC = () => {
     const [searchQuery, setSearchQuery] = useState<string>('');
@@ -18,6 +19,23 @@ export const AdminUsers: React.FC = () => {
 
     const payload = getSessionPayload();
     const currentUserId = payload?.sub;
+
+    // Custom confirm dialog state
+    const [confirmState, setConfirmState] = useState<{
+        isOpen: boolean;
+        title: string;
+        message: string;
+        onConfirm: () => void;
+        variant?: 'danger' | 'info' | 'warning';
+        showCancel?: boolean;
+    }>({
+        isOpen: false,
+        title: '',
+        message: '',
+        onConfirm: () => {},
+        variant: 'danger',
+        showCancel: true,
+    });
 
     // Modals/Forms State
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -66,13 +84,28 @@ export const AdminUsers: React.FC = () => {
     };
 
     const handleDeleteUser = (userId: string) => {
-        if (confirm('Are you sure you want to delete this user?')) {
-            deleteUserMutation.mutate(userId, {
-                onError: (err) => {
-                    alert(err.response?.data?.message || err.message || 'Failed to delete user.');
-                }
-            });
-        }
+        setConfirmState({
+            isOpen: true,
+            title: 'Delete User Account',
+            message: 'Are you sure you want to delete this user? This action cannot be undone and will permanently remove their profile data.',
+            variant: 'danger',
+            showCancel: true,
+            onConfirm: () => {
+                deleteUserMutation.mutate(userId, {
+                    onError: (err) => {
+                        const errMsg = err.response?.data?.message || err.message || 'Failed to delete user.';
+                        setConfirmState({
+                            isOpen: true,
+                            title: 'Failed to Delete User',
+                            message: typeof errMsg === 'string' ? errMsg : 'An unexpected error occurred.',
+                            variant: 'info',
+                            showCancel: false,
+                            onConfirm: () => {}
+                        });
+                    }
+                });
+            }
+        });
     };
 
     const handleSave = (e: React.FormEvent) => {
@@ -462,6 +495,16 @@ export const AdminUsers: React.FC = () => {
                     </DialogPanel>
                 </div>
             </Dialog>
+
+            <ConfirmDialog
+                isOpen={confirmState.isOpen}
+                onClose={() => setConfirmState(prev => ({ ...prev, isOpen: false }))}
+                onConfirm={confirmState.onConfirm}
+                title={confirmState.title}
+                message={confirmState.message}
+                variant={confirmState.variant}
+                showCancel={confirmState.showCancel}
+            />
 
         </div>
     );
