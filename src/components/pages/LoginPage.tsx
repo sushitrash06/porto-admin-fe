@@ -62,21 +62,12 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
         );
     };
 
-    const prefill = (role: 'super' | 'regular') => {
-        setError('');
-        if (role === 'super') {
-            setEmail('admin@porto.dev');
-            setPassword('admin123');
-        } else {
-            setEmail('user2@test.com');
-            setPassword('123456');
-        }
-    };
-
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs">
-            <div className="w-full max-w-md overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg animate-in fade-in-50 zoom-in-95 duration-200">
+        <div className="min-h-screen w-full flex items-center justify-center bg-linear-to-b from-neutral-50 to-neutral-100/50 p-4 relative overflow-hidden">
+            {/* Subtle light background mesh grid for premium aesthetic */}
+            <div className="absolute inset-0 bg-[linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] opacity-40 pointer-events-none"></div>
 
+            <div className="w-full max-w-md overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg animate-in fade-in-50 zoom-in-95 duration-200 z-10">
                 {/* Brand Line */}
                 <div className="h-1 bg-black"></div>
 
@@ -105,31 +96,6 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
                     <p className="mt-1 font-sans text-xs text-slate-400">
                         Enter secure credentials to administer directory databases.
                     </p>
-
-                    {/* Quick Prefill selection */}
-                    <div className="mt-5 rounded-md border border-slate-200 bg-slate-50 px-3.5 py-3">
-                        <span className="block font-mono text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-2">
-                            Autofill Credentials
-                        </span>
-                        <div className="flex flex-wrap gap-2">
-                            <button
-                                id="prefill-super-btn"
-                                type="button"
-                                onClick={() => prefill('super')}
-                                className="rounded-md bg-black px-3 py-1.5 font-sans text-[10px] font-bold uppercase tracking-wider text-white shadow-3xs hover:bg-slate-800 transition cursor-pointer"
-                            >
-                                Super Admin
-                            </button>
-                            <button
-                                id="prefill-user-btn"
-                                type="button"
-                                onClick={() => prefill('regular')}
-                                className="rounded-md border border-slate-200 bg-white px-3 py-1.5 font-sans text-[10px] font-bold uppercase tracking-wider text-slate-600 hover:bg-slate-50 transition cursor-pointer"
-                            >
-                                Regular User
-                            </button>
-                        </div>
-                    </div>
 
                     {/* Errors */}
                     {error && (
@@ -210,3 +176,4 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
         </div>
     );
 };
+

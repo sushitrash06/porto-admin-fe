@@ -125,6 +125,28 @@ export const AdminProjects: React.FC = () => {
     const [error, setError] = useState<string>('');
     const [success, setSuccess] = useState<string>('');
 
+    // New local state for create mode uploads
+    const [createThumbnailFile, setCreateThumbnailFile] = useState<File | null>(null);
+    const [createThumbnailPreview, setCreateThumbnailPreview] = useState<string>('');
+    const [createScreenshotFiles, setCreateScreenshotFiles] = useState<File[]>([]);
+    const [createScreenshotPreviews, setCreateScreenshotPreviews] = useState<string[]>([]);
+    const [isCreatingAndUploading, setIsCreatingAndUploading] = useState<boolean>(false);
+
+    const resetCreateMediaState = () => {
+        if (createThumbnailPreview) URL.revokeObjectURL(createThumbnailPreview);
+        createScreenshotPreviews.forEach(url => URL.revokeObjectURL(url));
+        setCreateThumbnailFile(null);
+        setCreateThumbnailPreview('');
+        setCreateScreenshotFiles([]);
+        setCreateScreenshotPreviews([]);
+    };
+
+    const handleCloseModal = () => {
+        resetCreateMediaState();
+        setIsModalOpen(false);
+    };
+
+
     // Custom confirm dialog state
     const [confirmState, setConfirmState] = useState<{
         isOpen: boolean;
@@ -155,6 +177,7 @@ export const AdminProjects: React.FC = () => {
         setRole('');
         setIsPublic(true);
         setExperienceId('');
+        resetCreateMediaState();
         setIsModalOpen(true);
     };
 
@@ -171,8 +194,10 @@ export const AdminProjects: React.FC = () => {
         setRole(proj.role || '');
         setIsPublic(proj.isPublic);
         setExperienceId(proj.experienceId || '');
+        resetCreateMediaState();
         setIsModalOpen(true);
     };
+
 
     const handleSave = (e: React.FormEvent) => {
         e.preventDefault();
@@ -208,20 +233,44 @@ export const AdminProjects: React.FC = () => {
             }, {
                 onSuccess: () => {
                     setSuccess('Project details saved successfully!');
-                    setIsModalOpen(false);
+                    handleCloseModal();
                 },
                 onError: (err) => {
                     setError(err.response?.data?.message || err.message || 'Failed to update project.');
                 }
             });
         } else {
+            setIsCreatingAndUploading(true);
             createMutation.mutate(payloadData, {
-                onSuccess: () => {
-                    setSuccess('Project created successfully!');
-                    setIsModalOpen(false);
+                onSuccess: async (newProj) => {
+                    try {
+                        // 1. Upload thumbnail if selected
+                        if (createThumbnailFile) {
+                            await uploadThumbnailMutation.mutateAsync({
+                                id: newProj.id,
+                                file: createThumbnailFile
+                            });
+                        }
+                        // 2. Upload screenshots if selected
+                        if (createScreenshotFiles.length > 0) {
+                            for (const file of createScreenshotFiles) {
+                                await uploadImageMutation.mutateAsync({
+                                    id: newProj.id,
+                                    file
+                                });
+                            }
+                        }
+                        setSuccess('Project created and assets uploaded successfully!');
+                        handleCloseModal();
+                    } catch (uploadErr: any) {
+                        setError(uploadErr.response?.data?.message || uploadErr.message || 'Project created, but asset upload failed.');
+                    } finally {
+                        setIsCreatingAndUploading(false);
+                    }
                 },
                 onError: (err) => {
                     setError(err.response?.data?.message || err.message || 'Failed to create project.');
+                    setIsCreatingAndUploading(false);
                 }
             });
         }
@@ -945,7 +994,7 @@ export const AdminProjects: React.FC = () => {
             )}
 
             {/* Creation / Edit Modal */}
-            <Dialog open={isModalOpen} onClose={() => setIsModalOpen(false)} className="relative z-50">
+            <Dialog open={isModalOpen} onClose={handleCloseModal} className="relative z-50">
                 <DialogBackdrop className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs transition-opacity" />
 
                 <div className="fixed inset-0 flex w-screen items-center justify-center p-4">
@@ -957,7 +1006,7 @@ export const AdminProjects: React.FC = () => {
                             </DialogTitle>
                             <button
                                 type="button"
-                                onClick={() => setIsModalOpen(false)}
+                                onClick={handleCloseModal}
                                 className="h-8 w-8 text-slate-400 hover:text-slate-700 flex items-center justify-center rounded-md hover:bg-slate-50 font-sans text-lg cursor-pointer"
                             >
                                 ×
@@ -1052,6 +1101,120 @@ export const AdminProjects: React.FC = () => {
                                                         <button
                                                             type="button"
                                                             onClick={() => handleScreenshotDelete(editingProject.id, imgUrl)}
+                                                            className="absolute inset-0 bg-black/55 text-white flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition duration-150 cursor-pointer text-xs"
+                                                        >
+                                                            <X className="h-4 w-4" />
+                                                        </button>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+
+                            {/* Assets Upload Section for Creation Mode */}
+                            {!editingProject && (
+                                <div className="p-4 rounded-lg bg-slate-50 border border-slate-200 space-y-4">
+                                    <h4 className="font-mono text-[9px] font-bold text-slate-400 uppercase tracking-widest">Project Media Assets (Optional)</h4>
+                                    
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        {/* Thumbnail Selection */}
+                                        <div className="space-y-2">
+                                            <span className="block font-sans text-[10px] font-bold text-slate-505 uppercase tracking-wider">Project Cover Thumbnail</span>
+                                            <div className="flex items-center space-x-4">
+                                                {createThumbnailPreview ? (
+                                                    <div className="relative group/thumb">
+                                                        <img
+                                                            src={createThumbnailPreview}
+                                                            alt="Thumbnail Preview"
+                                                            className="h-12 w-20 rounded-md object-cover border border-slate-200"
+                                                        />
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => {
+                                                                URL.revokeObjectURL(createThumbnailPreview);
+                                                                setCreateThumbnailFile(null);
+                                                                setCreateThumbnailPreview('');
+                                                            }}
+                                                            className="absolute -top-1.5 -right-1.5 h-4 w-4 bg-red-500 text-white rounded-full flex items-center justify-center text-[10px] hover:bg-red-650 cursor-pointer"
+                                                        >
+                                                            ×
+                                                        </button>
+                                                    </div>
+                                                ) : (
+                                                    <div className="h-12 w-20 rounded-md bg-slate-100 border border-slate-205 flex items-center justify-center text-slate-400">
+                                                        <ImageIcon className="h-5 w-5 stroke-1" />
+                                                    </div>
+                                                )}
+                                                <label className="px-3 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 rounded-md font-sans text-[10px] font-bold uppercase tracking-wider text-slate-650 cursor-pointer flex items-center space-x-1.5 transition">
+                                                    <Camera className="h-3 w-3" />
+                                                    <span>Select Cover</span>
+                                                    <input
+                                                        type="file"
+                                                        accept="image/*"
+                                                        onChange={(e) => {
+                                                            const file = e.target.files?.[0];
+                                                            if (file) {
+                                                                if (createThumbnailPreview) URL.revokeObjectURL(createThumbnailPreview);
+                                                                setCreateThumbnailFile(file);
+                                                                setCreateThumbnailPreview(URL.createObjectURL(file));
+                                                            }
+                                                        }}
+                                                        className="sr-only"
+                                                    />
+                                                </label>
+                                            </div>
+                                        </div>
+
+                                        {/* Screenshots Selection */}
+                                        <div className="space-y-2">
+                                            <span className="block font-sans text-[10px] font-bold text-slate-505 uppercase tracking-wider">Add Screenshots</span>
+                                            <label className="px-4 py-3 bg-white border border-dashed border-slate-300 hover:border-slate-400 rounded-md font-sans text-[10px] text-slate-500 cursor-pointer flex flex-col items-center justify-center space-y-1 transition h-[50px]">
+                                                <PlusCircle className="h-4 w-4 text-slate-400" />
+                                                <span className="font-bold uppercase tracking-wider text-[8px]">Choose Screenshots</span>
+                                                <input
+                                                    type="file"
+                                                    accept="image/*"
+                                                    multiple
+                                                    onChange={(e) => {
+                                                        const files = Array.from(e.target.files || []);
+                                                        if (files.length > 0) {
+                                                            const newFiles = [...createScreenshotFiles, ...files];
+                                                            const newPreviews = [...createScreenshotPreviews, ...files.map(f => URL.createObjectURL(f))];
+                                                            setCreateScreenshotFiles(newFiles);
+                                                            setCreateScreenshotPreviews(newPreviews);
+                                                        }
+                                                    }}
+                                                    className="sr-only"
+                                                />
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    {/* Screenshots Gallery Previews */}
+                                    {createScreenshotPreviews.length > 0 && (
+                                        <div className="pt-2">
+                                            <span className="block font-sans text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Selected Screenshots ({createScreenshotPreviews.length})</span>
+                                            <div className="flex flex-wrap gap-2">
+                                                {createScreenshotPreviews.map((url, idx) => (
+                                                    <div key={idx} className="relative group/img h-14 w-24 rounded-md overflow-hidden border border-slate-205">
+                                                        <img
+                                                            src={url}
+                                                            alt={`Preview ${idx}`}
+                                                            className="h-full w-full object-cover"
+                                                        />
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => {
+                                                                URL.revokeObjectURL(url);
+                                                                const updatedFiles = [...createScreenshotFiles];
+                                                                const updatedPreviews = [...createScreenshotPreviews];
+                                                                updatedFiles.splice(idx, 1);
+                                                                updatedPreviews.splice(idx, 1);
+                                                                setCreateScreenshotFiles(updatedFiles);
+                                                                setCreateScreenshotPreviews(updatedPreviews);
+                                                            }}
                                                             className="absolute inset-0 bg-black/55 text-white flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition duration-150 cursor-pointer text-xs"
                                                         >
                                                             <X className="h-4 w-4" />
@@ -1301,17 +1464,17 @@ export const AdminProjects: React.FC = () => {
                                 <div className="bg-slate-50 border-t border-slate-100 px-6 py-4 -mx-6 -mb-6 flex items-center justify-end space-x-2">
                                     <button
                                         type="button"
-                                        onClick={() => setIsModalOpen(false)}
+                                        onClick={handleCloseModal}
                                         className="rounded-md border border-slate-200 bg-white px-4 py-2 font-sans text-[10px] font-bold uppercase tracking-wider text-slate-500 hover:bg-slate-50 cursor-pointer"
                                     >
                                         Cancel
                                     </button>
                                     <button
                                         type="submit"
-                                        disabled={createMutation.isPending || updateMutation.isPending}
+                                        disabled={createMutation.isPending || updateMutation.isPending || isCreatingAndUploading}
                                         className="flex items-center space-x-1.5 rounded-md bg-black px-4 py-2 font-sans text-[10px] font-bold uppercase tracking-wider text-white shadow-3xs hover:bg-slate-800 transition active:scale-95 cursor-pointer disabled:opacity-60"
                                     >
-                                        {(createMutation.isPending || updateMutation.isPending) && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                                        {(createMutation.isPending || updateMutation.isPending || isCreatingAndUploading) && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
                                         <span>{editingProject ? 'Save Changes' : 'Create Project'}</span>
                                     </button>
                                 </div>

@@ -39,9 +39,12 @@ export const AdminProfile: React.FC = () => {
     const [oldPassword, setOldPassword] = useState<string>('');
     const [newPassword, setNewPassword] = useState<string>('');
 
+    // Tracks if form values have been initialized from the profile query
+    const [isInitialized, setIsInitialized] = useState<boolean>(false);
+
     // Populate form fields once profile data is loaded
     useEffect(() => {
-        if (profile) {
+        if (profile && !isInitialized) {
             setFullName(profile.fullName || '');
             setHeadline(profile.headline || '');
             setBio(profile.bio || '');
@@ -51,8 +54,10 @@ export const AdminProfile: React.FC = () => {
             setIsPublic(profile.isPublic ?? true);
             setSkills(profile.skills || []);
             setServices(profile.services || []);
+            setIsInitialized(true);
         }
-    }, [profile]);
+    }, [profile, isInitialized]);
+
 
     const handleAddSkill = (e: React.FormEvent) => {
         e.preventDefault();
