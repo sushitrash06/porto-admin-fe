@@ -7,23 +7,23 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { User, Project } from '../../types';
 import { ProjectType, Role } from '../../types';
-import { 
-  useMyProjects, 
-  useAdminProjects, 
-  useCreateProject, 
-  useUpdateProject, 
-  useDeleteProject,
-  useUploadProjectThumbnail,
-  useUploadProjectImage,
-  useDeleteProjectImage 
+import {
+    useMyProjects,
+    useAdminProjects,
+    useCreateProject,
+    useUpdateProject,
+    useDeleteProject,
+    useUploadProjectThumbnail,
+    useUploadProjectImage,
+    useDeleteProjectImage
 } from '../../hooks/useProjects';
 import { useMyExperiences } from '../../hooks/useExperiences';
 import { useUsers } from '../../hooks/useUsers';
 import { getSessionPayload } from '../../lib/auth';
 import { Dialog, DialogPanel, DialogTitle, DialogBackdrop, Listbox, ListboxButton, ListboxOptions, ListboxOption } from '@headlessui/react';
-import { 
-  FolderGit2, Search, Plus, Edit, Trash2, Globe, Github, ShieldAlert, 
-  Code2, Info, Grid, List, Loader2, Camera, X, ImageIcon, PlusCircle, Eye, ChevronDown, Check
+import {
+    FolderGit2, Search, Plus, Edit, Trash2, Globe, Github, ShieldAlert,
+    Code2, Info, Grid, List, Loader2, Camera, X, ImageIcon, PlusCircle, Eye, ChevronDown, Check
 } from 'lucide-react';
 import { ConfirmDialog } from '../molecules/ConfirmDialog';
 
@@ -115,7 +115,7 @@ export const AdminProjects: React.FC = () => {
     const [title, setTitle] = useState<string>('');
     const [description, setDescription] = useState<string>('');
     const [type, setType] = useState<ProjectType>(ProjectType.PERSONAL);
-    const [techStacksInput, setTechStacksInput] = useState<string>(''); 
+    const [techStacksInput, setTechStacksInput] = useState<string>('');
     const [projectUrl, setProjectUrl] = useState<string>('');
     const [githubUrl, setGithubUrl] = useState<string>('');
     const [role, setRole] = useState<string>('');
@@ -159,7 +159,7 @@ export const AdminProjects: React.FC = () => {
         isOpen: false,
         title: '',
         message: '',
-        onConfirm: () => {},
+        onConfirm: () => { },
         variant: 'danger',
         showCancel: true,
     });
@@ -634,8 +634,8 @@ export const AdminProjects: React.FC = () => {
                                 type="button"
                                 onClick={() => setViewMode('grid')}
                                 className={`rounded-md p-1.5 transition-all text-xs cursor-pointer flex items-center ${viewMode === 'grid'
-                                        ? 'bg-white text-slate-950 shadow-3xs'
-                                        : 'text-slate-400 hover:text-slate-700'
+                                    ? 'bg-white text-slate-950 shadow-3xs'
+                                    : 'text-slate-400 hover:text-slate-700'
                                     }`}
                                 title="Grid representation"
                             >
@@ -645,8 +645,8 @@ export const AdminProjects: React.FC = () => {
                                 type="button"
                                 onClick={() => setViewMode('table')}
                                 className={`rounded-md p-1.5 transition-all text-xs cursor-pointer flex items-center ${viewMode === 'table'
-                                        ? 'bg-white text-slate-950 shadow-3xs'
-                                        : 'text-slate-400 hover:text-slate-700'
+                                    ? 'bg-white text-slate-950 shadow-3xs'
+                                    : 'text-slate-400 hover:text-slate-700'
                                     }`}
                                 title="Table representation"
                             >
@@ -896,8 +896,8 @@ export const AdminProjects: React.FC = () => {
                                                 </td>
                                                 <td className="px-6 py-4 text-center">
                                                     <span className={`inline-block rounded-md px-1.5 py-0.5 font-mono text-[8px] font-bold uppercase tracking-wider ${proj.isPublic
-                                                            ? 'bg-slate-50 text-slate-500 border border-slate-200'
-                                                            : 'bg-slate-100 text-slate-450 border border-slate-200'
+                                                        ? 'bg-slate-50 text-slate-500 border border-slate-200'
+                                                        : 'bg-slate-100 text-slate-450 border border-slate-200'
                                                         }`}>
                                                         {proj.isPublic ? '🌐 Public' : '🔒 Hidden'}
                                                     </span>
@@ -1032,7 +1032,7 @@ export const AdminProjects: React.FC = () => {
                             {editingProject && (
                                 <div className="p-4 rounded-lg bg-slate-50 border border-slate-200 space-y-4">
                                     <h4 className="font-mono text-[9px] font-bold text-slate-400 uppercase tracking-widest">Project Media Assets</h4>
-                                    
+
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         {/* Thumbnail Upload */}
                                         <div className="space-y-2">
@@ -1117,7 +1117,7 @@ export const AdminProjects: React.FC = () => {
                             {!editingProject && (
                                 <div className="p-4 rounded-lg bg-slate-50 border border-slate-200 space-y-4">
                                     <h4 className="font-mono text-[9px] font-bold text-slate-400 uppercase tracking-widest">Project Media Assets (Optional)</h4>
-                                    
+
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         {/* Thumbnail Selection */}
                                         <div className="space-y-2">
@@ -1416,13 +1416,13 @@ export const AdminProjects: React.FC = () => {
                                 {/* Tech Stacks Comma Separated */}
                                 <div>
                                     <label className="block font-sans text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
-                                        Applied Technology Tools <span className="text-slate-400">(Comma separated values)</span>
+                                        Tags <span className="text-slate-400">(Comma separated values)</span>
                                     </label>
                                     <input
                                         type="text"
                                         value={techStacksInput}
                                         onChange={(e) => setTechStacksInput(e.target.value)}
-                                        placeholder="e.g. NextJS, TailwindCSS, PostgreSQL"
+                                        placeholder="insert project tags"
                                         className="w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 font-sans text-xs focus:border-slate-400 focus:bg-white focus:outline-hidden text-slate-900"
                                     />
                                 </div>
