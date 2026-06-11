@@ -6,9 +6,9 @@
 import React, { useState, useMemo } from 'react';
 import { ProjectType } from '../../types';
 import type { Project } from '../../types';
-import { 
-    Briefcase, FolderGit2, Search, Calendar, Github, GraduationCap, 
-    Sparkles, Code2, Globe, Loader2, X 
+import {
+    Briefcase, FolderGit2, Search, Calendar, Github, GraduationCap,
+    Sparkles, Code2, Globe, Loader2
 } from 'lucide-react';
 import { useProfile } from '../../hooks/useProfile';
 import { useMyExperiences } from '../../hooks/useExperiences';
@@ -107,7 +107,7 @@ export const LandingPage: React.FC = () => {
                             <Code2 className="h-4 w-4 text-slate-400" />
                             <span>Developer Profile Spotlight</span>
                         </h2>
-                        
+
                         <div className="max-w-xl">
                             {profile ? (
                                 <div className="group relative flex flex-col justify-between rounded-xl border border-slate-200 bg-white p-5 shadow-3xs hover:border-slate-300 transition">

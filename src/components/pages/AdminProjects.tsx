@@ -26,6 +26,7 @@ import {
     Code2, Info, Grid, List, Loader2, Camera, X, ImageIcon, PlusCircle, Eye, ChevronDown, Check
 } from 'lucide-react';
 import { ConfirmDialog } from '../molecules/ConfirmDialog';
+import { TagsInput } from '../atoms/TagsInput';
 
 export const AdminProjects: React.FC = () => {
     const navigate = useNavigate();
@@ -115,7 +116,7 @@ export const AdminProjects: React.FC = () => {
     const [title, setTitle] = useState<string>('');
     const [description, setDescription] = useState<string>('');
     const [type, setType] = useState<ProjectType>(ProjectType.PERSONAL);
-    const [techStacksInput, setTechStacksInput] = useState<string>('');
+    const [techStacks, setTechStacks] = useState<string[]>([]);
     const [projectUrl, setProjectUrl] = useState<string>('');
     const [githubUrl, setGithubUrl] = useState<string>('');
     const [role, setRole] = useState<string>('');
@@ -171,7 +172,7 @@ export const AdminProjects: React.FC = () => {
         setTitle('');
         setDescription('');
         setType(ProjectType.PERSONAL);
-        setTechStacksInput('');
+        setTechStacks([]);
         setProjectUrl('');
         setGithubUrl('');
         setRole('');
@@ -188,7 +189,7 @@ export const AdminProjects: React.FC = () => {
         setTitle(proj.title);
         setDescription(proj.description || '');
         setType(proj.type);
-        setTechStacksInput(proj.techStacks.join(', '));
+        setTechStacks(proj.techStacks);
         setProjectUrl(proj.projectUrl || '');
         setGithubUrl(proj.githubUrl || '');
         setRole(proj.role || '');
@@ -209,10 +210,7 @@ export const AdminProjects: React.FC = () => {
             return;
         }
 
-        const parsedTechStacks = techStacksInput
-            .split(',')
-            .map(tag => tag.trim())
-            .filter(tag => tag.length > 0);
+        const parsedTechStacks = techStacks;
 
         const payloadData = {
             title: title.trim(),
@@ -1413,17 +1411,15 @@ export const AdminProjects: React.FC = () => {
                                     </div>
                                 </div>
 
-                                {/* Tech Stacks Comma Separated */}
+                                {/* Tech Stacks Tags Input */}
                                 <div>
                                     <label className="block font-sans text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
-                                        Tags <span className="text-slate-400">(Comma separated values)</span>
+                                        Tags (Press Enter)
                                     </label>
-                                    <input
-                                        type="text"
-                                        value={techStacksInput}
-                                        onChange={(e) => setTechStacksInput(e.target.value)}
+                                    <TagsInput
+                                        tags={techStacks}
+                                        onChange={setTechStacks}
                                         placeholder="insert project tags"
-                                        className="w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 font-sans text-xs focus:border-slate-400 focus:bg-white focus:outline-hidden text-slate-900"
                                     />
                                 </div>
 

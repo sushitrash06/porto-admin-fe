@@ -23,6 +23,7 @@ import {
 import { getSessionPayload } from '../../lib/auth';
 import { Listbox, ListboxButton, ListboxOptions, ListboxOption } from '@headlessui/react';
 import { ConfirmDialog } from '../molecules/ConfirmDialog';
+import { TagsInput } from '../atoms/TagsInput';
 
 export const AdminProjectDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -50,7 +51,7 @@ export const AdminProjectDetail: React.FC = () => {
   const [editTitle, setEditTitle] = useState('');
   const [editDescription, setEditDescription] = useState('');
   const [editType, setEditType] = useState<ProjectType>(ProjectType.PERSONAL);
-  const [editTechStacksInput, setEditTechStacksInput] = useState('');
+  const [editTechStacks, setEditTechStacks] = useState<string[]>([]);
   const [editProjectUrl, setEditProjectUrl] = useState('');
   const [editGithubUrl, setEditGithubUrl] = useState('');
   const [editRole, setEditRole] = useState('');
@@ -70,7 +71,7 @@ export const AdminProjectDetail: React.FC = () => {
     isOpen: false,
     title: '',
     message: '',
-    onConfirm: () => {},
+    onConfirm: () => { },
     variant: 'danger',
     showCancel: true,
   });
@@ -83,7 +84,7 @@ export const AdminProjectDetail: React.FC = () => {
     setEditTitle(project.title);
     setEditDescription(project.description || '');
     setEditType(project.type);
-    setEditTechStacksInput(project.techStacks.join(', '));
+    setEditTechStacks(project.techStacks);
     setEditProjectUrl(project.projectUrl || '');
     setEditGithubUrl(project.githubUrl || '');
     setEditRole(project.role || '');
@@ -107,10 +108,7 @@ export const AdminProjectDetail: React.FC = () => {
       return;
     }
 
-    const parsedTechStacks = editTechStacksInput
-      .split(',')
-      .map(tag => tag.trim())
-      .filter(tag => tag.length > 0);
+    const parsedTechStacks = editTechStacks;
 
     updateMutation.mutate({
       id: project.id,
@@ -467,15 +465,12 @@ export const AdminProjectDetail: React.FC = () => {
 
             <div>
               <label className="block font-sans text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
-                Tech Stack / Tools (comma-separated)
+                Tags (Press Enter)
               </label>
-              <input
-                id="edit-proj-techstacks"
-                type="text"
-                placeholder="React, TypeScript, Tailwind, NestJS"
-                value={editTechStacksInput}
-                onChange={(e) => setEditTechStacksInput(e.target.value)}
-                className="w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 font-sans text-xs focus:border-slate-400 focus:bg-white focus:outline-hidden text-slate-900"
+              <TagsInput
+                tags={editTechStacks}
+                onChange={setEditTechStacks}
+                placeholder="insert project tags"
               />
             </div>
 
@@ -570,11 +565,10 @@ export const AdminProjectDetail: React.FC = () => {
                 </div>
               </div>
 
-              <span className={`inline-flex items-center space-x-1 rounded-md px-2 py-1 font-mono text-[9px] font-bold uppercase tracking-wider ${
-                project.isPublic
-                  ? 'bg-emerald-50 text-emerald-600 border border-emerald-200'
-                  : 'bg-slate-100 text-slate-400 border border-slate-200'
-              }`}>
+              <span className={`inline-flex items-center space-x-1 rounded-md px-2 py-1 font-mono text-[9px] font-bold uppercase tracking-wider ${project.isPublic
+                ? 'bg-emerald-50 text-emerald-600 border border-emerald-200'
+                : 'bg-slate-100 text-slate-400 border border-slate-200'
+                }`}>
                 {project.isPublic ? <Globe className="h-3 w-3" /> : <Lock className="h-3 w-3" />}
                 <span>{project.isPublic ? 'Public Showcase' : 'Hidden'}</span>
               </span>
@@ -609,7 +603,7 @@ export const AdminProjectDetail: React.FC = () => {
                   <Code2 className="h-4 w-4 text-slate-500" />
                 </div>
                 <div>
-                  <p className="font-sans text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Tech Stack & Tools</p>
+                  <p className="font-sans text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Tags</p>
                   <div className="flex flex-wrap gap-1.5">
                     {project.techStacks.map((stack, idx) => (
                       <span
@@ -694,7 +688,7 @@ export const AdminProjectDetail: React.FC = () => {
 
       {/* Media Management Section (Thumbnail & Screenshots) */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        
+
         {/* Thumbnail Display Column */}
         <div className="md:col-span-1 rounded-xl border border-slate-200 bg-white shadow-3xs overflow-hidden h-fit">
           <div className="border-b border-slate-100 px-5 py-4">
