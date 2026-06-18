@@ -17,11 +17,16 @@ import { AdminProfile } from './components/pages/AdminProfile';
 import { AdminDiagnostics } from './components/pages/AdminDiagnostics';
 import { AdminExperienceDetail } from './components/pages/AdminExperienceDetail';
 import { AdminProjectDetail } from './components/pages/AdminProjectDetail';
-import { ProtectedLayout } from './components/templates/ProtectedLayout';
 import { AdminLayout } from './components/templates/AdminLayout';
 import { getSessionPayload, clearAccessToken } from './lib/auth';
 import { initializeDB } from './utils/db';
 import { Cpu } from 'lucide-react';
+import { ProtectedLayout } from './components/templates/ProtectedLayout';
+import { BusinessDashboard } from './components/pages/BusinessDashboard';
+import { BusinessProfilePage } from './components/pages/BusinessProfile';
+import { BusinessServices } from './components/pages/BusinessServices';
+import { BusinessProjects } from './components/pages/BusinessProjects';
+import { BusinessProjectDetail } from './components/pages/BusinessProjectDetail';
 
 interface AppContentProps {
   currentUser: User | null;
@@ -55,7 +60,13 @@ function AppContent({ currentUser, handleLoginSuccess, handleLogout }: AppConten
             element={
               currentUser ? (
                 <Navigate
-                  to={currentUser.role === Role.SUPER_ADMIN ? '/admin/users' : '/admin/experiences'}
+                  to={
+                    currentUser.role === Role.SUPER_ADMIN
+                      ? '/admin/users'
+                      : currentUser.role === Role.BUSINESS
+                        ? '/admin/business/dashboard'
+                        : '/admin/experiences'
+                  }
                   replace
                 />
               ) : (
@@ -72,7 +83,13 @@ function AppContent({ currentUser, handleLoginSuccess, handleLogout }: AppConten
                 path="/admin"
                 element={
                   <Navigate
-                    to={currentUser?.role === Role.SUPER_ADMIN ? '/admin/users' : '/admin/profile'}
+                    to={
+                      currentUser?.role === Role.SUPER_ADMIN
+                        ? '/admin/users'
+                        : currentUser?.role === Role.BUSINESS
+                          ? '/admin/business/dashboard'
+                          : '/admin/profile'
+                    }
                     replace
                   />
                 }
@@ -83,6 +100,58 @@ function AppContent({ currentUser, handleLoginSuccess, handleLogout }: AppConten
               <Route path="/admin/experiences/:id" element={<AdminExperienceDetail />} />
               <Route path="/admin/projects" element={<AdminProjects />} />
               <Route path="/admin/projects/:id" element={<AdminProjectDetail />} />
+
+              {/* Business Portfolio routes, restricted to BUSINESS role */}
+              <Route
+                path="/admin/business/dashboard"
+                element={
+                  currentUser?.role === Role.BUSINESS ? (
+                    <BusinessDashboard />
+                  ) : (
+                    <Navigate to="/admin/profile" replace />
+                  )
+                }
+              />
+              <Route
+                path="/admin/business/profile"
+                element={
+                  currentUser?.role === Role.BUSINESS ? (
+                    <BusinessProfilePage />
+                  ) : (
+                    <Navigate to="/admin/profile" replace />
+                  )
+                }
+              />
+              <Route
+                path="/admin/business/services"
+                element={
+                  currentUser?.role === Role.BUSINESS ? (
+                    <BusinessServices />
+                  ) : (
+                    <Navigate to="/admin/profile" replace />
+                  )
+                }
+              />
+              <Route
+                path="/admin/business/projects"
+                element={
+                  currentUser?.role === Role.BUSINESS ? (
+                    <BusinessProjects />
+                  ) : (
+                    <Navigate to="/admin/profile" replace />
+                  )
+                }
+              />
+              <Route
+                path="/admin/business/projects/:id"
+                element={
+                  currentUser?.role === Role.BUSINESS ? (
+                    <BusinessProjectDetail />
+                  ) : (
+                    <Navigate to="/admin/profile" replace />
+                  )
+                }
+              />
 
               {/* Admin Users table restricted to SUPER_ADMIN */}
               <Route

@@ -1,13 +1,9 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
-
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import type { User, Profile } from '../../types';
 import { Role } from '../../types';
-import { Users, Briefcase, FolderGit2, ShieldCheck, UserCheck, Shield } from 'lucide-react';
+import { Users, Briefcase, FolderGit2, ShieldCheck, UserCheck, Shield, LayoutDashboard, Building2 } from 'lucide-react';
+import { useBusinessProfile } from '../../hooks/useBusinessProfile';
 
 interface SidebarProps {
   currentUser: User;
@@ -16,6 +12,12 @@ interface SidebarProps {
 
 export const Sidebar: React.FC<SidebarProps> = ({ currentUser, profile }) => {
   const isSuper = currentUser.role === Role.SUPER_ADMIN;
+  const isBusiness = currentUser.role === Role.BUSINESS;
+
+  // Fetch business profile if user is a BUSINESS role
+  const { data: businessProfile } = useBusinessProfile({
+    enabled: isBusiness,
+  });
 
   const linkStyle = ({ isActive }: { isActive: boolean }) =>
     `flex w-full items-center space-x-2.5 rounded-lg px-4 py-3 font-sans text-xs font-semibold tracking-wide transition-all ${isActive
@@ -23,20 +25,33 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentUser, profile }) => {
       : 'text-neutral-600 hover:bg-white hover:text-neutral-900 border border-transparent hover:border-neutral-200/50'
     }`;
 
+  // Resolve metadata for the Identity Card
+  const displayName = isBusiness
+    ? (businessProfile?.businessName || 'Business Owner')
+    : (profile?.fullName || 'Sandbox Member');
+
+  const displayImage = isBusiness
+    ? (businessProfile?.logo || 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=200')
+    : (profile?.profileImage || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200');
+
+  const displayLocation = isBusiness
+    ? businessProfile?.location
+    : profile?.location;
+
   return (
     <div className="space-y-6">
       {/* Account Identity Card */}
       <div className="rounded-xl border border-neutral-200 bg-white p-5 shadow-xs">
         <div className="flex flex-col items-center text-center">
           <img
-            src={profile?.profileImage || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200'}
-            alt={profile?.fullName || currentUser.email}
+            src={displayImage}
+            alt={displayName}
             className="h-16 w-16 rounded-full object-cover ring-2 ring-neutral-100 shadow-xs"
           />
           <h3 className="mt-3 font-sans text-sm font-bold text-neutral-900 leading-none">
-            {profile?.fullName || 'Sandbox Member'}
+            {displayName}
           </h3>
-          <p className="mt-1 font-sans text-xs text-neutral-400">
+          <p className="mt-1 font-sans text-xs text-neutral-450">
             {currentUser.email}
           </p>
 
@@ -47,17 +62,17 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentUser, profile }) => {
         </div>
 
         <div className="mt-5 border-t border-neutral-100 pt-4 text-xs">
-          {profile?.location && (
+          {displayLocation && (
             <p className="flex items-center justify-between text-neutral-500 py-1 font-sans">
-              <span className="font-medium">Station:</span>
-              <span className="font-semibold text-neutral-800">{profile.location}</span>
+              <span className="font-medium">Location:</span>
+              <span className="font-semibold text-neutral-800">{displayLocation}</span>
             </p>
           )}
 
           <p className="flex items-center justify-between text-neutral-500 py-1 font-sans">
             <span className="font-medium">Privilege:</span>
             <span className="font-semibold text-neutral-800 text-right">
-              {isSuper ? 'Management & Audit' : 'Read/Write'}
+              {isSuper ? 'Management & Audit' : isBusiness ? 'Business Catalog' : 'Read/Write'}
             </span>
           </p>
         </div>
@@ -93,6 +108,29 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentUser, profile }) => {
               <span>System Diagnostics</span>
             </NavLink>
           </>
+        ) : isBusiness ? (
+          /* Business options */
+          <>
+            <NavLink id="tab-business-dashboard-btn" to="/admin/business/dashboard" className={linkStyle}>
+              <LayoutDashboard className="h-4 w-4" />
+              <span>Business Dashboard</span>
+            </NavLink>
+
+            <NavLink id="tab-business-profile-btn" to="/admin/business/profile" className={linkStyle}>
+              <Building2 className="h-4 w-4" />
+              <span>Business Profile</span>
+            </NavLink>
+
+            <NavLink id="tab-business-services-btn" to="/admin/business/services" className={linkStyle}>
+              <Briefcase className="h-4 w-4" />
+              <span>Services Catalog</span>
+            </NavLink>
+
+            <NavLink id="tab-business-projects-btn" to="/admin/business/projects" className={linkStyle}>
+              <FolderGit2 className="h-4 w-4" />
+              <span>Business Projects</span>
+            </NavLink>
+          </>
         ) : (
           /* Standard User options */
           <>
@@ -110,14 +148,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentUser, profile }) => {
               <UserCheck className="h-4 w-4" />
               <span>My Profile Settings</span>
             </NavLink>
-
-            {/* <NavLink id="tab-diagnostics-btn-user" to="/admin/diagnostics" className={linkStyle}>
-              <Shield className="h-4 w-4" />
-              <span>System Diagnostics</span>
-            </NavLink> */}
           </>
         )}
       </nav>
     </div>
   );
 };
+

@@ -30,6 +30,16 @@
 			"key": "projectId",
 			"value": "",
 			"type": "string"
+		},
+		{
+			"key": "businessProjectId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "businessServiceId",
+			"value": "",
+			"type": "string"
 		}
 	],
 	"item": [
@@ -805,6 +815,607 @@
 							"path": [
 								"portfolio",
 								"{{userId}}"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Business Profiles",
+			"item": [
+				{
+					"name": "Get My Profile",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/business-profiles/me",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"business-profiles",
+								"me"
+							]
+						}
+					}
+				},
+				{
+					"name": "Update My Profile",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"businessName\": \"My Business Name\",\n    \"description\": \"A brief description of my business\",\n    \"contactEmail\": \"contact@mybusiness.com\",\n    \"phoneNumber\": \"+628123456789\",\n    \"location\": \"Jakarta, Indonesia\",\n    \"website\": \"https://mybusiness.com\",\n    \"isPublic\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/business-profiles/me",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"business-profiles",
+								"me"
+							]
+						}
+					}
+				},
+				{
+					"name": "Upload Logo",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": ""
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/business-profiles/me/logo",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"business-profiles",
+								"me",
+								"logo"
+							]
+						}
+					}
+				},
+				{
+					"name": "Upload Banner",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": ""
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/business-profiles/me/banner",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"business-profiles",
+								"me",
+								"banner"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Public Profile (by userId)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/business-profiles/{{userId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"business-profiles",
+								"{{userId}}"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Business Projects",
+			"item": [
+				{
+					"name": "Create Project",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"const res = pm.response.json();",
+									"if (res.id) {",
+									"    pm.collectionVariables.set('businessProjectId', res.id);",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"E-commerce Platform Project\",\n    \"location\": \"Jakarta, Indonesia\",\n    \"year\": 2026,\n    \"description\": \"A highly scalable e-commerce platform.\",\n    \"projectType\": \"SOFTWARE_DEVELOPMENT\",\n    \"clientName\": \"PT Client Name\",\n    \"thumbnail\": \"\",\n    \"images\": [],\n    \"isPublic\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/business-projects",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"business-projects"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get My Projects",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/business-projects/me",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"business-projects",
+								"me"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get My Project Detail",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/business-projects/me/{{businessProjectId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"business-projects",
+								"me",
+								"{{businessProjectId}}"
+							]
+						}
+					}
+				},
+				{
+					"name": "Update Project",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"E-commerce Platform Project v2\",\n    \"description\": \"Updated project description with new features.\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/business-projects/{{businessProjectId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"business-projects",
+								"{{businessProjectId}}"
+							]
+						}
+					}
+				},
+				{
+					"name": "Upload Project Thumbnail",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": ""
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/business-projects/{{businessProjectId}}/thumbnail",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"business-projects",
+								"{{businessProjectId}}",
+								"thumbnail"
+							]
+						}
+					}
+				},
+				{
+					"name": "Upload Project Image",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": ""
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/business-projects/{{businessProjectId}}/images",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"business-projects",
+								"{{businessProjectId}}",
+								"images"
+							]
+						}
+					}
+				},
+				{
+					"name": "Remove Project Image",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"imageUrl\": \"https://res.cloudinary.com/demo/image/upload/v1/projects/img1.jpg\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/business-projects/{{businessProjectId}}/images",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"business-projects",
+								"{{businessProjectId}}",
+								"images"
+							]
+						}
+					}
+				},
+				{
+					"name": "Delete Project",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/business-projects/{{businessProjectId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"business-projects",
+								"{{businessProjectId}}"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Public Projects (by userId)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/business-projects/public/{{userId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"business-projects",
+								"public",
+								"{{userId}}"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Public Project Detail",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/business-projects/public/{{userId}}/{{businessProjectId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"business-projects",
+								"public",
+								"{{userId}}",
+								"{{businessProjectId}}"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Business Services",
+			"item": [
+				{
+					"name": "Create Service",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"const res = pm.response.json();",
+									"if (res.id) {",
+									"    pm.collectionVariables.set('businessServiceId', res.id);",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Mobile App Development\",\n    \"description\": \"Custom mobile application built with Flutter or React Native.\",\n    \"priceStartFrom\": 15000000,\n    \"isPublic\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/business-services",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"business-services"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get My Services",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/business-services/me",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"business-services",
+								"me"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get My Service Detail",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/business-services/me/{{businessServiceId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"business-services",
+								"me",
+								"{{businessServiceId}}"
+							]
+						}
+					}
+				},
+				{
+					"name": "Update Service",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Mobile App Development v2\",\n    \"priceStartFrom\": 18000000\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/business-services/{{businessServiceId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"business-services",
+								"{{businessServiceId}}"
+							]
+						}
+					}
+				},
+				{
+					"name": "Delete Service",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/business-services/{{businessServiceId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"business-services",
+								"{{businessServiceId}}"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Public Services (by userId)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/business-services/public/{{userId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"business-services",
+								"public",
+								"{{userId}}"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Public Service Detail",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/business-services/public/{{userId}}/{{businessServiceId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"business-services",
+								"public",
+								"{{userId}}",
+								"{{businessServiceId}}"
 							]
 						}
 					}

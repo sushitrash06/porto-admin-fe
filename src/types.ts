@@ -8,6 +8,7 @@
 export const Role = {
   SUPER_ADMIN: 'SUPER_ADMIN',
   USER: 'USER',
+  BUSINESS: 'BUSINESS',
 } as const;
 
 export type Role = (typeof Role)[keyof typeof Role];
@@ -85,6 +86,49 @@ export interface Project {
   projectUrl?: string;
   githubUrl?: string;
   role?: string; // User role in the project
+  isPublic: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface BusinessProfile {
+  id: string;
+  userId: string;
+  businessName: string;
+  description?: string;
+  logo?: string;
+  bannerImage?: string;
+  contactEmail?: string;
+  phoneNumber?: string;
+  location?: string;
+  website?: string;
+  isPublic: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface BusinessService {
+  id: string;
+  userId: string;
+  name: string;
+  description?: string;
+  priceStartFrom?: number;
+  isPublic: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface BusinessProject {
+  id: string;
+  userId: string;
+  title: string;
+  location?: string;
+  year?: number;
+  description?: string;
+  projectType: string;
+  clientName?: string;
+  thumbnail?: string;
+  images?: string[];
   isPublic: boolean;
   createdAt: string;
   updatedAt: string;

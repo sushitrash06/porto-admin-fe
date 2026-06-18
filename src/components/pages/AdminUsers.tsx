@@ -4,7 +4,7 @@
  */
 
 import React, { useState } from 'react';
-import { Role } from '../../types';
+import { Role, type User } from '../../types';
 import { useUsers, useCreateUser, useUpdateUser, useDeleteUser } from '../../hooks/useUsers';
 import { Dialog, DialogPanel, DialogTitle, DialogBackdrop, Listbox, ListboxButton, ListboxOptions, ListboxOption } from '@headlessui/react';
 import { Plus, ShieldAlert, Users, Search, UserCheck, Loader2, Calendar, ChevronLeft, ChevronRight, ChevronDown, Check, Edit, Trash2 } from 'lucide-react';
@@ -39,7 +39,7 @@ export const AdminUsers: React.FC = () => {
 
     // Modals/Forms State
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-    const [editingUser, setEditingUser] = useState<any | null>(null);
+    const [editingUser, setEditingUser] = useState<User | null>(null);
     const [email, setEmail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
     const [role, setRole] = useState<Role>(Role.USER);
@@ -74,7 +74,7 @@ export const AdminUsers: React.FC = () => {
         setIsModalOpen(true);
     };
 
-    const handleOpenEdit = (user: any) => {
+    const handleOpenEdit = (user: User) => {
         setError('');
         setEditingUser(user);
         setEmail(user.email);
@@ -423,7 +423,11 @@ export const AdminUsers: React.FC = () => {
                                                 className="relative w-full rounded-md border border-slate-200 bg-slate-50 py-2 pr-10 pl-3 text-left font-sans text-xs focus:border-slate-400 focus:bg-white focus:outline-hidden text-slate-900 cursor-pointer"
                                             >
                                                 <span className="block truncate">
-                                                    {role === Role.SUPER_ADMIN ? 'Super Administrator' : 'Regular Business User'}
+                                                    {role === Role.SUPER_ADMIN
+                                                        ? 'Super Administrator'
+                                                        : role === Role.BUSINESS
+                                                        ? 'Regular Business User'
+                                                        : 'Regular Portfolio User'}
                                                 </span>
                                                 <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
                                                     <ChevronDown className="h-4 w-4 text-slate-400" />
@@ -432,6 +436,23 @@ export const AdminUsers: React.FC = () => {
                                             <ListboxOptions className="absolute z-60 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-xs shadow-lg ring-1 ring-black/5 focus:outline-hidden font-sans border border-slate-200">
                                                 <ListboxOption
                                                     value={Role.USER}
+                                                    className="relative cursor-pointer select-none py-2 pr-10 pl-3 text-slate-900 data-[focus]:bg-slate-50"
+                                                >
+                                                    {({ selected }) => (
+                                                        <>
+                                                            <span className={`block truncate ${selected ? 'font-bold' : 'font-normal'}`}>
+                                                                Regular Portfolio User
+                                                            </span>
+                                                            {selected && (
+                                                                <span className="absolute inset-y-0 right-0 flex items-center pr-3 text-black">
+                                                                    <Check className="h-3.5 w-3.5" />
+                                                                </span>
+                                                            )}
+                                                        </>
+                                                    )}
+                                                </ListboxOption>
+                                                <ListboxOption
+                                                    value={Role.BUSINESS}
                                                     className="relative cursor-pointer select-none py-2 pr-10 pl-3 text-slate-900 data-[focus]:bg-slate-50"
                                                 >
                                                     {({ selected }) => (
