@@ -10,6 +10,7 @@ import { Role } from './types';
 import { Navbar } from './components/organisms/Navbar';
 import { LandingPage } from './components/pages/LandingPage';
 import { LoginPage } from './components/pages/LoginPage';
+import { RegisterPage } from './components/pages/RegisterPage';
 import { AdminUsers } from './components/pages/AdminUsers';
 import { AdminExperiences } from './components/pages/AdminExperiences';
 import { AdminProjects } from './components/pages/AdminProjects';
@@ -37,11 +38,13 @@ interface AppContentProps {
 function AppContent({ currentUser, handleLoginSuccess, handleLogout }: AppContentProps) {
   const location = useLocation();
   const isLoginPage = location.pathname === '/login';
+  const isRegisterPage = location.pathname === '/register';
+  const isAuthPage = isLoginPage || isRegisterPage;
 
   return (
     <div className="flex min-h-screen flex-col bg-neutral-50/50">
       {/* Universal Navigation Header */}
-      {!isLoginPage && (
+      {!isAuthPage && (
         <Navbar
           currentUser={currentUser}
           onLogout={handleLogout}
@@ -71,6 +74,27 @@ function AppContent({ currentUser, handleLoginSuccess, handleLogout }: AppConten
                 />
               ) : (
                 <LoginPage onLoginSuccess={handleLoginSuccess} />
+              )
+            }
+          />
+
+          {/* Register View */}
+          <Route
+            path="/register"
+            element={
+              currentUser ? (
+                <Navigate
+                  to={
+                    currentUser.role === Role.SUPER_ADMIN
+                      ? '/admin/users'
+                      : currentUser.role === Role.BUSINESS
+                        ? '/admin/business/dashboard'
+                        : '/admin/experiences'
+                  }
+                  replace
+                />
+              ) : (
+                <RegisterPage onRegisterSuccess={handleLoginSuccess} />
               )
             }
           />
@@ -175,7 +199,7 @@ function AppContent({ currentUser, handleLoginSuccess, handleLogout }: AppConten
       </main>
 
       {/* Modern High Contrast Footer */}
-      {!isLoginPage && (
+      {!isAuthPage && (
         <footer className="border-t border-neutral-200 bg-white py-8">
           <div className="mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8">
             <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">

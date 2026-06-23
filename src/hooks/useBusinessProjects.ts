@@ -169,3 +169,23 @@ export function useDeleteBusinessProjectImage() {
     },
   });
 }
+
+/**
+ * Hook to convert a personal project into a business case study.
+ * Hits POST /business-projects/import-personal/:personalProjectId?deleteOriginal=true/false
+ */
+export function useConvertPersonalProject() {
+  const queryClient = useQueryClient();
+  return useMutation<BusinessProject, AxiosError<{ message?: string }>, { personalProjectId: string; deleteOriginal: boolean }>({
+    mutationFn: async ({ personalProjectId, deleteOriginal }) => {
+      const { data } = await api.post<BusinessProject>(
+        `/business-projects/import-personal/${personalProjectId}?deleteOriginal=${deleteOriginal}`
+      );
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['projects'] });
+      queryClient.invalidateQueries({ queryKey: ['business-projects'] });
+    },
+  });
+}

@@ -14,6 +14,7 @@ import {
   useDeleteProjectImage
 } from '../../hooks/useProjects';
 import { useMyExperiences } from '../../hooks/useExperiences';
+import { useConvertPersonalProject } from '../../hooks/useBusinessProjects';
 import { ProjectType } from '../../types';
 import {
   ArrowLeft, FolderGit2, Globe, Github, Edit, Trash2, Save, X, Loader2,
@@ -31,9 +32,11 @@ export const AdminProjectDetail: React.FC = () => {
 
   const payload = getSessionPayload();
   const isSuper = payload?.role === 'SUPER_ADMIN';
+  const isBusiness = payload?.role === 'BUSINESS' || payload?.role === 'SUPER_ADMIN';
 
   // Hook queries
   const { data: project, isLoading, isError, error } = useProjectDetail(id);
+  const convertMutation = useConvertPersonalProject();
   const { data: myExpsData } = useMyExperiences({
     enabled: !isSuper
   });
@@ -78,6 +81,38 @@ export const AdminProjectDetail: React.FC = () => {
 
   // Find linked experience for viewing
   const linkedExperience = experiences.find(exp => exp.id === project?.experienceId);
+
+  const handleConvertProject = () => {
+    if (!project) return;
+    setEditError('');
+    convertMutation.mutate({
+      personalProjectId: project.id,
+      deleteOriginal: false
+    }, {
+      onSuccess: (newBusinessProj) => {
+        setConfirmState(prev => ({ ...prev, isOpen: false }));
+        navigate(`/admin/business/projects/${newBusinessProj.id}`);
+      },
+      onError: (err) => {
+        setEditError(err.response?.data?.message || err.message || 'Failed to convert project.');
+        setConfirmState(prev => ({ ...prev, isOpen: false }));
+      }
+    });
+  };
+
+  const handleOpenConvertDialog = () => {
+    if (!project) return;
+    setConfirmState({
+      isOpen: true,
+      title: 'Convert to Business Case Study',
+      message: 'Are you sure you want to convert this personal project into a Business Case Study? This will copy the title, description, thumbnail, and screenshot gallery to your business case studies register.',
+      variant: 'info',
+      showCancel: true,
+      onConfirm: () => {
+        handleConvertProject();
+      }
+    });
+  };
 
   const handleStartEdit = () => {
     if (!project) return;
@@ -254,6 +289,17 @@ export const AdminProjectDetail: React.FC = () => {
 
         {!isEditing && !isSuper && (
           <div className="flex items-center space-x-2">
+            {isBusiness && (
+              <button
+                id="convert-to-business-btn"
+                onClick={handleOpenConvertDialog}
+                disabled={convertMutation.isPending}
+                className="flex items-center space-x-1.5 rounded-md border border-slate-200 bg-white px-3 py-2 font-sans text-[10px] font-bold uppercase tracking-wider text-emerald-600 hover:bg-emerald-55 hover:border-emerald-300 transition cursor-pointer disabled:opacity-50 mr-1"
+              >
+                {convertMutation.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Building2 className="h-3.5 w-3.5" />}
+                <span>Convert to Business</span>
+              </button>
+            )}
             <button
               id="edit-project-btn"
               onClick={handleStartEdit}
