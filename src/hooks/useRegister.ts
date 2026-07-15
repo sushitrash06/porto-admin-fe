@@ -14,6 +14,7 @@ import type { AxiosError } from 'axios';
 interface RegisterRequest {
     email: string;
     password: string;
+    role?: 'USER' | 'BUSINESS';
 }
 
 interface RegisterResponse {

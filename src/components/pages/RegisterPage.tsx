@@ -8,7 +8,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import type { User } from '../../types';
 import { Role } from '../../types';
 import { useRegister } from '../../hooks/useRegister';
-import { ShieldAlert, UserPlus, Sparkles, Eye, EyeOff, Lock, Mail, Compass, Loader2, CheckCircle2 } from 'lucide-react';
+import { ShieldAlert, UserPlus, Sparkles, Eye, EyeOff, Lock, Mail, Compass, Loader2, CheckCircle2, User as UserIcon, Briefcase } from 'lucide-react';
 
 interface RegisterPageProps {
     onRegisterSuccess: (user: User) => void;
@@ -20,6 +20,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onRegisterSuccess })
     const [confirmPassword, setConfirmPassword] = useState<string>('');
     const [showPassword, setShowPassword] = useState<boolean>(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false);
+    const [role, setRole] = useState<'USER' | 'BUSINESS'>('USER');
     const [error, setError] = useState<string>('');
     const navigate = useNavigate();
 
@@ -56,7 +57,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onRegisterSuccess })
         }
 
         registerMutation.mutate(
-            { email: email.trim(), password },
+            { email: email.trim(), password, role },
             {
                 onSuccess: (payload) => {
                     const user: User = {
@@ -132,6 +133,48 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onRegisterSuccess })
 
                     {/* Form */}
                     <form onSubmit={handleRegister} className="mt-5 space-y-4">
+                        {/* Role Selection */}
+                        <div>
+                            <label className="block font-sans text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">
+                                Tipe Akun <span className="text-red-500">*</span>
+                            </label>
+                            <div className="grid grid-cols-2 gap-3">
+                                {/* User Role Card */}
+                                <button
+                                    type="button"
+                                    onClick={() => setRole('USER')}
+                                    className={`flex flex-col items-center justify-center p-3 rounded-lg border text-center transition-all cursor-pointer select-none ${
+                                        role === 'USER'
+                                            ? 'border-black bg-slate-50 text-slate-900 ring-1 ring-black/5'
+                                            : 'border-slate-200 bg-white hover:bg-slate-50/50 text-slate-500 hover:text-slate-800'
+                                    }`}
+                                >
+                                    <UserIcon className={`h-5 w-5 mb-1.5 ${role === 'USER' ? 'text-black' : 'text-slate-400'}`} />
+                                    <span className="font-sans text-xs font-bold block">Developer</span>
+                                    <span className="font-sans text-[9px] text-slate-450 leading-snug mt-1 max-w-[130px]">
+                                        Profil personal, skill, & proyek pribadi.
+                                    </span>
+                                </button>
+
+                                {/* Business Role Card */}
+                                <button
+                                    type="button"
+                                    onClick={() => setRole('BUSINESS')}
+                                    className={`flex flex-col items-center justify-center p-3 rounded-lg border text-center transition-all cursor-pointer select-none ${
+                                        role === 'BUSINESS'
+                                            ? 'border-black bg-slate-50 text-slate-900 ring-1 ring-black/5'
+                                            : 'border-slate-200 bg-white hover:bg-slate-50/50 text-slate-500 hover:text-slate-800'
+                                    }`}
+                                >
+                                    <Briefcase className={`h-5 w-5 mb-1.5 ${role === 'BUSINESS' ? 'text-black' : 'text-slate-400'}`} />
+                                    <span className="font-sans text-xs font-bold block">Bisnis / Agensi</span>
+                                    <span className="font-sans text-[9px] text-slate-450 leading-snug mt-1 max-w-[130px]">
+                                        Studi kasus bisnis, tim, & proyek komersial.
+                                    </span>
+                                </button>
+                            </div>
+                        </div>
+
                         {/* Email */}
                         <div>
                             <label className="block font-sans text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
