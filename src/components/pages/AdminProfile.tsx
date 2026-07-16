@@ -729,8 +729,15 @@ export const AdminProfile: React.FC = () => {
                                 {[
                                     { label: 'Profile', path: `/profiles/${userId}`, key: 'ep-profile' },
                                     { label: 'Experiences', path: `/experiences/public/${userId}`, key: 'ep-experiences' },
+                                    { label: 'Experience Detail', path: `/experiences/public/${userId}/<ID>`, key: 'ep-experience-detail' },
                                     { label: 'Projects', path: `/projects/public/${userId}`, key: 'ep-projects' },
+                                    { label: 'Project Detail', path: `/projects/public/${userId}/<ID>`, key: 'ep-project-detail' },
                                     { label: 'Full Portfolio', path: `/portfolio/${userId}`, key: 'ep-portfolio' },
+                                    { label: 'Business Profile', path: `/business-profiles/${userId}`, key: 'ep-business-profile' },
+                                    { label: 'Business Projects', path: `/business-projects/public/${userId}`, key: 'ep-business-projects' },
+                                    { label: 'Business Project Detail', path: `/business-projects/public/${userId}/<ID>`, key: 'ep-business-project-detail' },
+                                    { label: 'Business Services', path: `/business-services/public/${userId}`, key: 'ep-business-services' },
+                                    { label: 'Business Service Detail', path: `/business-services/public/${userId}/<ID>`, key: 'ep-business-service-detail' },
                                 ].map((ep) => {
                                     const fullUrl = `${baseUrl}${ep.path}`;
                                     return (
@@ -751,7 +758,7 @@ export const AdminProfile: React.FC = () => {
                                             </div>
                                             <code className="block font-mono text-[10px] text-slate-500 truncate select-all">
                                                 <span className="inline-block rounded bg-emerald-50 border border-emerald-200 text-emerald-700 px-1 py-0.5 mr-1.5 font-bold text-[8px]">GET</span>
-                                                {ep.path}
+                                                {fullUrl}
                                             </code>
                                         </div>
                                     );
@@ -838,20 +845,48 @@ export const AdminProfile: React.FC = () => {
                                         </thead>
                                         <tbody className="divide-y divide-slate-100">
                                             <tr>
-                                                <td className="px-3 py-2"><code className="font-mono text-[9px] text-slate-600">/profiles/{'{userId}'}</code></td>
+                                                <td className="px-3 py-2"><code className="font-mono text-[9px] text-slate-600">{'{baseUrl}'}/profiles/{'{userId}'}</code></td>
                                                 <td className="px-3 py-2 font-sans text-[10px] text-slate-500">Data profil public (nama, bio, skills, dll)</td>
                                             </tr>
                                             <tr>
-                                                <td className="px-3 py-2"><code className="font-mono text-[9px] text-slate-600">/experiences/public/{'{userId}'}</code></td>
+                                                <td className="px-3 py-2"><code className="font-mono text-[9px] text-slate-600">{'{baseUrl}'}/experiences/public/{'{userId}'}</code></td>
                                                 <td className="px-3 py-2 font-sans text-[10px] text-slate-500">Daftar pengalaman kerja public</td>
                                             </tr>
                                             <tr>
-                                                <td className="px-3 py-2"><code className="font-mono text-[9px] text-slate-600">/projects/public/{'{userId}'}</code></td>
+                                                <td className="px-3 py-2"><code className="font-mono text-[9px] text-slate-600">{'{baseUrl}'}/experiences/public/{'{userId}'}/id</code></td>
+                                                <td className="px-3 py-2 font-sans text-[10px] text-slate-500">Detail pengalaman kerja public</td>
+                                            </tr>
+                                            <tr>
+                                                <td className="px-3 py-2"><code className="font-mono text-[9px] text-slate-600">{'{baseUrl}'}/projects/public/{'{userId}'}</code></td>
                                                 <td className="px-3 py-2 font-sans text-[10px] text-slate-500">Daftar project public</td>
                                             </tr>
                                             <tr>
-                                                <td className="px-3 py-2"><code className="font-mono text-[9px] text-slate-600">/portfolio/{'{userId}'}</code></td>
+                                                <td className="px-3 py-2"><code className="font-mono text-[9px] text-slate-600">{'{baseUrl}'}/projects/public/{'{userId}'}/id</code></td>
+                                                <td className="px-3 py-2 font-sans text-[10px] text-slate-500">Detail project public</td>
+                                            </tr>
+                                            <tr>
+                                                <td className="px-3 py-2"><code className="font-mono text-[9px] text-slate-600">{'{baseUrl}'}/portfolio/{'{userId}'}</code></td>
                                                 <td className="px-3 py-2 font-sans text-[10px] text-slate-500">Semua data portfolio lengkap</td>
+                                            </tr>
+                                            <tr>
+                                                <td className="px-3 py-2"><code className="font-mono text-[9px] text-slate-600">{'{baseUrl}'}/business-profiles/{'{userId}'}</code></td>
+                                                <td className="px-3 py-2 font-sans text-[10px] text-slate-500">Data profil bisnis public</td>
+                                            </tr>
+                                            <tr>
+                                                <td className="px-3 py-2"><code className="font-mono text-[9px] text-slate-600">{'{baseUrl}'}/business-projects/public/{'{userId}'}</code></td>
+                                                <td className="px-3 py-2 font-sans text-[10px] text-slate-500">Daftar project bisnis public</td>
+                                            </tr>
+                                            <tr>
+                                                <td className="px-3 py-2"><code className="font-mono text-[9px] text-slate-600">{'{baseUrl}'}/business-projects/public/{'{userId}'}/id</code></td>
+                                                <td className="px-3 py-2 font-sans text-[10px] text-slate-500">Detail project bisnis public</td>
+                                            </tr>
+                                            <tr>
+                                                <td className="px-3 py-2"><code className="font-mono text-[9px] text-slate-600">{'{baseUrl}'}/business-services/public/{'{userId}'}</code></td>
+                                                <td className="px-3 py-2 font-sans text-[10px] text-slate-500">Daftar layanan bisnis public</td>
+                                            </tr>
+                                            <tr>
+                                                <td className="px-3 py-2"><code className="font-mono text-[9px] text-slate-600">{'{baseUrl}'}/business-services/public/{'{userId}'}/id</code></td>
+                                                <td className="px-3 py-2 font-sans text-[10px] text-slate-500">Detail layanan bisnis public</td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -865,7 +900,7 @@ export const AdminProfile: React.FC = () => {
                                     <li>Semua endpoint public <strong>tidak memerlukan token/autentikasi</strong>.</li>
                                     <li>Response dalam format <strong>JSON</strong>.</li>
                                     <li>Hanya data yang kamu set <strong>public</strong> yang akan muncul.</li>
-                                    <li>Untuk detail experience/project, tambahkan <code className="bg-amber-100 px-1 rounded text-[9px]">/{'experienceId'}</code> atau <code className="bg-amber-100 px-1 rounded text-[9px]">/{'projectId'}</code> di akhir URL.</li>
+                                    <li>Untuk endpoint detail (seperti experience, project, dll), ganti <code className="bg-amber-100 px-1 rounded text-[9px]">id</code> di akhir URL dengan ID yang sesuai.</li>
                                 </ul>
                             </div>
 
