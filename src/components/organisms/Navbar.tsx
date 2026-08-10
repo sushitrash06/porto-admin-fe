@@ -7,7 +7,7 @@ import React from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import type { User } from '../../types';
 import { Role } from '../../types';
-import { LogOut, LayoutDashboard, Compass, LogIn } from 'lucide-react';
+import { LogOut, LayoutDashboard, Compass } from 'lucide-react';
 import { useProfile } from '../../hooks/useProfile';
 
 interface NavbarProps {
@@ -39,8 +39,25 @@ export const Navbar: React.FC<NavbarProps> = ({ currentUser, onLogout }) => {
     }
   };
 
+  const handleScrollTo = (id: string) => {
+    if (location.pathname !== '/') {
+      navigate('/');
+      setTimeout(() => {
+        const element = document.getElementById(id);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 100);
+    } else {
+      const element = document.getElementById(id);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  };
+
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-slate-200 bg-white/90 backdrop-blur-md">
+    <header className="sticky top-0 z-50 w-full border-b border-neutral-100 bg-white/80 backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         
         {/* Brand Logo */}
@@ -48,36 +65,68 @@ export const Navbar: React.FC<NavbarProps> = ({ currentUser, onLogout }) => {
           onClick={handleLogoClick}
           className="flex cursor-pointer items-center space-x-2 transition active:scale-95"
         >
-          <div className="h-8 w-8 bg-black rounded-md flex items-center justify-center">
-            <div className="h-3 w-3 bg-white rotate-45"></div>
-          </div>
-          <div>
-            <span className="font-bold text-lg tracking-tight text-slate-900 font-sans">
-              DevPortal
+          {currentUser ? (
+            <>
+              <div className="h-8 w-8 bg-black rounded-md flex items-center justify-center">
+                <div className="h-3 w-3 bg-white rotate-45"></div>
+              </div>
+              <div>
+                <span className="font-bold text-lg tracking-tight text-slate-900 font-sans">
+                  DevPortal
+                </span>
+                <span className="ml-1.5 rounded-md bg-slate-100 border border-slate-200 px-1.5 py-0.5 font-mono text-[9px] font-bold uppercase tracking-wider text-slate-500">
+                  Admin
+                </span>
+              </div>
+            </>
+          ) : (
+            <span className="font-sans text-xl font-bold tracking-tight text-neutral-900">
+              Folio
             </span>
-            <span className="ml-1.5 rounded-md bg-slate-100 border border-slate-200 px-1.5 py-0.5 font-mono text-[9px] font-bold uppercase tracking-wider text-slate-500">
-              Admin
-            </span>
-          </div>
+          )}
         </div>
+
+        {/* Middle Navigation Links (Logged-out visitors only) */}
+        {!currentUser && (
+          <nav className="hidden md:flex items-center space-x-8">
+            <button
+              onClick={() => handleScrollTo('features')}
+              className="text-sm font-medium text-neutral-600 hover:text-neutral-950 transition-colors cursor-pointer"
+            >
+              Features
+            </button>
+            <button
+              onClick={() => handleScrollTo('testimonials')}
+              className="text-sm font-medium text-neutral-600 hover:text-neutral-950 transition-colors cursor-pointer"
+            >
+              Testimonials
+            </button>
+            <button
+              onClick={() => handleScrollTo('pricing')}
+              className="text-sm font-medium text-neutral-600 hover:text-neutral-950 transition-colors cursor-pointer"
+            >
+              Pricing
+            </button>
+          </nav>
+        )}
 
         {/* Action Panel */}
         <div className="flex items-center space-x-3">
-          <Link
-            id="nav-landing-btn"
-            to="/"
-            className={`flex items-center space-x-1.5 rounded-md px-3.5 py-2 font-sans text-xs font-semibold tracking-wide transition-all cursor-pointer ${
-              isLandingActive
-                ? 'bg-black text-white shadow-xs hover:bg-slate-800'
-                : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
-            }`}
-          >
-            <Compass className="h-4 w-4" />
-            <span>Showcase Hub</span>
-          </Link>
-
           {currentUser ? (
             <>
+              <Link
+                id="nav-landing-btn"
+                to="/"
+                className={`flex items-center space-x-1.5 rounded-md px-3.5 py-2 font-sans text-xs font-semibold tracking-wide transition-all cursor-pointer ${
+                  isLandingActive
+                    ? 'bg-black text-white shadow-xs hover:bg-slate-800'
+                    : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                }`}
+              >
+                <Compass className="h-4 w-4" />
+                <span>Showcase Hub</span>
+              </Link>
+              
               <button
                 id="nav-admin-btn"
                 onClick={handleAdminRedirect}
@@ -120,18 +169,22 @@ export const Navbar: React.FC<NavbarProps> = ({ currentUser, onLogout }) => {
               </button>
             </>
           ) : (
-            <Link
-              id="open-login-btn"
-              to="/login"
-              className={`flex items-center space-x-1.5 rounded-md px-4 py-2 font-sans text-xs font-bold uppercase tracking-wider transition-all active:scale-95 cursor-pointer ${
-                location.pathname === '/login'
-                  ? 'bg-neutral-800 text-white shadow-xs'
-                  : 'bg-black text-white shadow-xs hover:bg-slate-800'
-              }`}
-            >
-              <LogIn className="h-4 w-4" />
-              <span>Login Admin</span>
-            </Link>
+            <div className="flex items-center space-x-4">
+              <Link
+                id="open-login-btn"
+                to="/login"
+                className="text-sm font-medium text-neutral-600 hover:text-neutral-950 px-4 py-1.5 rounded-full border border-neutral-200 bg-white hover:bg-neutral-50 transition-all cursor-pointer"
+              >
+                Login
+              </Link>
+              <Link
+                id="open-register-btn"
+                to="/register"
+                className="text-sm font-bold text-white bg-neutral-950 hover:bg-neutral-800 px-4.5 py-2.5 rounded-full transition-all active:scale-95 cursor-pointer shadow-sm"
+              >
+                Get Started
+              </Link>
+            </div>
           )}
         </div>
 

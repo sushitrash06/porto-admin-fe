@@ -152,6 +152,28 @@
 					}
 				},
 				{
+					"name": "Test Email",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/auth/test-email",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"test-email"
+							]
+						}
+					}
+				},
+				{
 					"name": "Admin Only Check",
 					"request": {
 						"method": "GET",
@@ -1274,6 +1296,35 @@
 								"public",
 								"{{userId}}",
 								"{{businessProjectId}}"
+							]
+						}
+					}
+				},
+				{
+					"name": "Import Personal Project",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/business-projects/import-personal/{{projectId}}?deleteOriginal=false",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"business-projects",
+								"import-personal",
+								"{{projectId}}"
+							],
+							"query": [
+								{
+									"key": "deleteOriginal",
+									"value": "false"
+								}
 							]
 						}
 					}

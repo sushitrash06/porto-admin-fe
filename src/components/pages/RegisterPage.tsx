@@ -22,6 +22,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onRegisterSuccess })
     const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false);
     const [role, setRole] = useState<'USER' | 'BUSINESS'>('USER');
     const [error, setError] = useState<string>('');
+    const [step, setStep] = useState<1 | 2>(1);
     const navigate = useNavigate();
 
     const registerMutation = useRegister();
@@ -37,7 +38,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onRegisterSuccess })
 
     const passwordStrength = getPasswordStrength(password);
 
-    const handleRegister = (e: React.FormEvent) => {
+    const handleNextStep = (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
 
@@ -55,6 +56,12 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onRegisterSuccess })
             setError('Konfirmasi password tidak cocok.');
             return;
         }
+
+        setStep(2);
+    };
+
+    const handleRegister = () => {
+        setError('');
 
         registerMutation.mutate(
             { email: email.trim(), password, role },
@@ -117,10 +124,10 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onRegisterSuccess })
                     </div>
 
                     <h2 className="mt-4 font-sans text-xl font-bold tracking-tight text-slate-900">
-                        Buat Akun Baru
+                        {step === 1 ? 'Buat Akun Baru' : 'Pilih Jenis Akun'}
                     </h2>
                     <p className="mt-1 font-sans text-xs text-slate-400">
-                        Daftarkan akun untuk mengakses panel admin portfolio.
+                        {step === 1 ? 'Daftarkan akun untuk mengakses panel admin portfolio.' : 'Pilih jenis akun yang sesuai dengan kebutuhanmu.'}
                     </p>
 
                     {/* Errors */}
@@ -132,48 +139,84 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onRegisterSuccess })
                     )}
 
                     {/* Form */}
-                    <form onSubmit={handleRegister} className="mt-5 space-y-4">
-                        {/* Role Selection */}
-                        <div>
-                            <label className="block font-sans text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">
-                                Tipe Akun <span className="text-red-500">*</span>
-                            </label>
-                            <div className="grid grid-cols-2 gap-3">
-                                {/* User Role Card */}
-                                <button
-                                    type="button"
-                                    onClick={() => setRole('USER')}
-                                    className={`flex flex-col items-center justify-center p-3 rounded-lg border text-center transition-all cursor-pointer select-none ${
-                                        role === 'USER'
-                                            ? 'border-black bg-slate-50 text-slate-900 ring-1 ring-black/5'
-                                            : 'border-slate-200 bg-white hover:bg-slate-50/50 text-slate-500 hover:text-slate-800'
-                                    }`}
-                                >
-                                    <UserIcon className={`h-5 w-5 mb-1.5 ${role === 'USER' ? 'text-black' : 'text-slate-400'}`} />
-                                    <span className="font-sans text-xs font-bold block">Developer</span>
-                                    <span className="font-sans text-[9px] text-slate-450 leading-snug mt-1 max-w-[130px]">
-                                        Profil personal, skill, & proyek pribadi.
-                                    </span>
-                                </button>
+                    <form onSubmit={step === 1 ? handleNextStep : (e) => { e.preventDefault(); handleRegister(); }} className="mt-5 space-y-4">
+                        
+                        {/* Step 2: Role Selection */}
+                        {step === 2 && (
+                            <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
+                                <div>
+                                    <label className="block font-sans text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">
+                                        Tipe Akun <span className="text-red-500">*</span>
+                                    </label>
+                                    <div className="grid grid-cols-2 gap-3">
+                                        {/* User Role Card */}
+                                        <button
+                                            type="button"
+                                            onClick={() => setRole('USER')}
+                                            className={`flex flex-col items-center justify-center p-3 rounded-lg border text-center transition-all cursor-pointer select-none ${
+                                                role === 'USER'
+                                                    ? 'border-black bg-slate-50 text-slate-900 ring-1 ring-black/5'
+                                                    : 'border-slate-200 bg-white hover:bg-slate-50/50 text-slate-500 hover:text-slate-800'
+                                            }`}
+                                        >
+                                            <UserIcon className={`h-5 w-5 mb-1.5 ${role === 'USER' ? 'text-black' : 'text-slate-400'}`} />
+                                            <span className="font-sans text-xs font-bold block">Developer</span>
+                                            <span className="font-sans text-[9px] text-slate-450 leading-snug mt-1 max-w-[130px]">
+                                                Profil personal, skill, & proyek pribadi.
+                                            </span>
+                                        </button>
 
-                                {/* Business Role Card */}
-                                <button
-                                    type="button"
-                                    onClick={() => setRole('BUSINESS')}
-                                    className={`flex flex-col items-center justify-center p-3 rounded-lg border text-center transition-all cursor-pointer select-none ${
-                                        role === 'BUSINESS'
-                                            ? 'border-black bg-slate-50 text-slate-900 ring-1 ring-black/5'
-                                            : 'border-slate-200 bg-white hover:bg-slate-50/50 text-slate-500 hover:text-slate-800'
-                                    }`}
-                                >
-                                    <Briefcase className={`h-5 w-5 mb-1.5 ${role === 'BUSINESS' ? 'text-black' : 'text-slate-400'}`} />
-                                    <span className="font-sans text-xs font-bold block">Bisnis / Agensi</span>
-                                    <span className="font-sans text-[9px] text-slate-450 leading-snug mt-1 max-w-[130px]">
-                                        Studi kasus bisnis, tim, & proyek komersial.
-                                    </span>
-                                </button>
+                                        {/* Business Role Card */}
+                                        <button
+                                            type="button"
+                                            onClick={() => setRole('BUSINESS')}
+                                            className={`flex flex-col items-center justify-center p-3 rounded-lg border text-center transition-all cursor-pointer select-none ${
+                                                role === 'BUSINESS'
+                                                    ? 'border-black bg-slate-50 text-slate-900 ring-1 ring-black/5'
+                                                    : 'border-slate-200 bg-white hover:bg-slate-50/50 text-slate-500 hover:text-slate-800'
+                                            }`}
+                                        >
+                                            <Briefcase className={`h-5 w-5 mb-1.5 ${role === 'BUSINESS' ? 'text-black' : 'text-slate-400'}`} />
+                                            <span className="font-sans text-xs font-bold block">Bisnis / Agensi</span>
+                                            <span className="font-sans text-[9px] text-slate-450 leading-snug mt-1 max-w-[130px]">
+                                                Studi kasus bisnis, tim, & proyek komersial.
+                                            </span>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div className="pt-2 flex gap-3">
+                                    <button
+                                        type="button"
+                                        onClick={() => setStep(1)}
+                                        className="flex-1 cursor-pointer rounded-md border border-slate-200 bg-white py-2.5 font-sans text-xs font-bold uppercase tracking-wider text-slate-600 shadow-xs hover:bg-slate-50 transition active:scale-[0.98]"
+                                    >
+                                        Kembali
+                                    </button>
+                                    <button
+                                        id="register-submit-btn"
+                                        type="submit"
+                                        disabled={registerMutation.isPending}
+                                        className="flex-[2] flex cursor-pointer items-center justify-center space-x-2 rounded-md bg-black py-2.5 font-sans text-xs font-bold uppercase tracking-wider text-white shadow-xs hover:bg-slate-800 transition active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed"
+                                    >
+                                        {registerMutation.isPending ? (
+                                            <>
+                                                <Loader2 className="h-4 w-4 animate-spin" />
+                                                <span>Mendaftarkan...</span>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <UserPlus className="h-4 w-4" />
+                                                <span>Selesaikan</span>
+                                            </>
+                                        )}
+                                    </button>
+                                </div>
                             </div>
-                        </div>
+                        )}
+
+                        {/* Step 1: Email and Password */}
+                        {step === 1 && (
+                            <div className="space-y-4 animate-in fade-in slide-in-from-left-4 duration-300">
 
                         {/* Email */}
                         <div>
@@ -273,26 +316,16 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onRegisterSuccess })
                             )}
                         </div>
 
-                        <div className="pt-2">
-                            <button
-                                id="register-submit-btn"
-                                type="submit"
-                                disabled={registerMutation.isPending}
-                                className="flex w-full cursor-pointer items-center justify-center space-x-2 rounded-md bg-black py-2.5 font-sans text-xs font-bold uppercase tracking-wider text-white shadow-xs hover:bg-slate-800 transition active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed"
-                            >
-                                {registerMutation.isPending ? (
-                                    <>
-                                        <Loader2 className="h-4 w-4 animate-spin" />
-                                        <span>Mendaftarkan...</span>
-                                    </>
-                                ) : (
-                                    <>
-                                        <UserPlus className="h-4 w-4" />
-                                        <span>Daftar Akun</span>
-                                    </>
-                                )}
-                            </button>
-                        </div>
+                                <div className="pt-2">
+                                    <button
+                                        type="submit"
+                                        className="flex w-full cursor-pointer items-center justify-center space-x-2 rounded-md bg-black py-2.5 font-sans text-xs font-bold uppercase tracking-wider text-white shadow-xs hover:bg-slate-800 transition active:scale-[0.98]"
+                                    >
+                                        <span>Selanjutnya</span>
+                                    </button>
+                                </div>
+                            </div>
+                        )}
 
                         {/* Login link */}
                         <div className="text-center pt-1">
