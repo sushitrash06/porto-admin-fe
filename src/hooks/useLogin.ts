@@ -71,3 +71,25 @@ export function useChangePassword() {
     },
   });
 }
+
+export interface RequestEmailChangePayload {
+  newEmail: string;
+  password?: string;
+}
+
+interface RequestEmailChangeResponse {
+  message: string;
+}
+
+/**
+ * Hook to request an email change for logged-in user.
+ * Hits POST /auth/request-email-change
+ */
+export function useRequestEmailChange() {
+  return useMutation<RequestEmailChangeResponse, AxiosError<{ message?: string }>, RequestEmailChangePayload>({
+    mutationFn: async (payload) => {
+      const { data } = await api.post<RequestEmailChangeResponse>('/auth/request-email-change', payload);
+      return data;
+    },
+  });
+}

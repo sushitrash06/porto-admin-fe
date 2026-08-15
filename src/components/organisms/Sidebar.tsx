@@ -1,29 +1,27 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import type { User, Profile } from '../../types';
+import type { User, Profile, BusinessProfile } from '../../types';
 import { Role } from '../../types';
-import { Users, Briefcase, FolderGit2, ShieldCheck, UserCheck, Shield, LayoutDashboard, Building2 } from 'lucide-react';
-import { useBusinessProfile } from '../../hooks/useBusinessProfile';
+import { Users, Briefcase, FolderGit2, ShieldCheck, UserCheck, Shield, LayoutDashboard, Building2, AlertCircle } from 'lucide-react';
 
 interface SidebarProps {
   currentUser: User;
-  profile?: Profile | null;
+  profile?: Profile;
+  businessProfile?: BusinessProfile;
+  isProfileIncomplete?: boolean;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ currentUser, profile }) => {
+export const Sidebar: React.FC<SidebarProps> = ({ currentUser, profile, businessProfile, isProfileIncomplete }) => {
   const isSuper = currentUser.role === Role.SUPER_ADMIN;
   const isBusiness = currentUser.role === Role.BUSINESS;
-
-  // Fetch business profile if user is a BUSINESS role
-  const { data: businessProfile } = useBusinessProfile({
-    enabled: isBusiness,
-  });
 
   const linkStyle = ({ isActive }: { isActive: boolean }) =>
     `flex w-full items-center space-x-2.5 rounded-lg px-4 py-3 font-sans text-xs font-semibold tracking-wide transition-all ${isActive
       ? 'bg-neutral-900 text-white shadow-sm font-bold'
       : 'text-neutral-600 hover:bg-white hover:text-neutral-900 border border-transparent hover:border-neutral-200/50'
     }`;
+    
+  const disabledLinkStyle = "flex w-full items-center space-x-2.5 rounded-lg px-4 py-3 font-sans text-xs font-semibold tracking-wide transition-all opacity-40 pointer-events-none grayscale";
 
   // Resolve metadata for the Identity Card
   const displayName = isBusiness
@@ -80,20 +78,29 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentUser, profile }) => {
 
       {/* Sidebar Menu Toggles */}
       <nav className="space-y-1.5" aria-label="Sidebar Menu">
+        {isProfileIncomplete && (
+            <div className="mb-4 rounded-md border border-orange-200 bg-orange-50 p-3 text-orange-700 flex items-start space-x-2">
+                <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
+                <span className="font-sans text-[11px] font-medium leading-relaxed">
+                    Please complete your profile details to unlock other dashboard features.
+                </span>
+            </div>
+        )}
+
         {isSuper ? (
           /* Superadmin options */
           <>
-            <NavLink id="tab-users-btn" to="/admin/users" className={linkStyle}>
+            <NavLink id="tab-users-btn" to="/admin/users" className={isProfileIncomplete ? disabledLinkStyle : linkStyle}>
               <Users className="h-4 w-4" />
               <span>User Management</span>
             </NavLink>
 
-            <NavLink id="tab-experiences-btn" to="/admin/experiences" className={linkStyle}>
+            <NavLink id="tab-experiences-btn" to="/admin/experiences" className={isProfileIncomplete ? disabledLinkStyle : linkStyle}>
               <Briefcase className="h-4 w-4" />
               <span>Experiences (Audit only)</span>
             </NavLink>
 
-            <NavLink id="tab-projects-btn" to="/admin/projects" className={linkStyle}>
+            <NavLink id="tab-projects-btn" to="/admin/projects" className={isProfileIncomplete ? disabledLinkStyle : linkStyle}>
               <FolderGit2 className="h-4 w-4" />
               <span>Projects (Audit only)</span>
             </NavLink>
@@ -103,7 +110,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentUser, profile }) => {
               <span>My Profile Settings</span>
             </NavLink>
 
-            <NavLink id="tab-diagnostics-btn" to="/admin/diagnostics" className={linkStyle}>
+            <NavLink id="tab-diagnostics-btn" to="/admin/diagnostics" className={isProfileIncomplete ? disabledLinkStyle : linkStyle}>
               <Shield className="h-4 w-4" />
               <span>System Diagnostics</span>
             </NavLink>
@@ -111,7 +118,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentUser, profile }) => {
         ) : isBusiness ? (
           /* Business options */
           <>
-            <NavLink id="tab-business-dashboard-btn" to="/admin/business/dashboard" className={linkStyle}>
+            <NavLink id="tab-business-dashboard-btn" to="/admin/business/dashboard" className={isProfileIncomplete ? disabledLinkStyle : linkStyle}>
               <LayoutDashboard className="h-4 w-4" />
               <span>Business Dashboard</span>
             </NavLink>
@@ -121,12 +128,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentUser, profile }) => {
               <span>Business Profile</span>
             </NavLink>
 
-            <NavLink id="tab-business-services-btn" to="/admin/business/services" className={linkStyle}>
+            <NavLink id="tab-business-services-btn" to="/admin/business/services" className={isProfileIncomplete ? disabledLinkStyle : linkStyle}>
               <Briefcase className="h-4 w-4" />
               <span>Services Catalog</span>
             </NavLink>
 
-            <NavLink id="tab-business-projects-btn" to="/admin/business/projects" className={linkStyle}>
+            <NavLink id="tab-business-projects-btn" to="/admin/business/projects" className={isProfileIncomplete ? disabledLinkStyle : linkStyle}>
               <FolderGit2 className="h-4 w-4" />
               <span>Business Projects</span>
             </NavLink>
@@ -134,12 +141,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentUser, profile }) => {
         ) : (
           /* Standard User options */
           <>
-            <NavLink id="tab-experiences-btn-user" to="/admin/experiences" className={linkStyle}>
+            <NavLink id="tab-experiences-btn-user" to="/admin/experiences" className={isProfileIncomplete ? disabledLinkStyle : linkStyle}>
               <Briefcase className="h-4 w-4" />
               <span>My Experiences</span>
             </NavLink>
 
-            <NavLink id="tab-projects-btn-user" to="/admin/projects" className={linkStyle}>
+            <NavLink id="tab-projects-btn-user" to="/admin/projects" className={isProfileIncomplete ? disabledLinkStyle : linkStyle}>
               <FolderGit2 className="h-4 w-4" />
               <span>My Projects</span>
             </NavLink>

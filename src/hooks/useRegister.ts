@@ -5,8 +5,6 @@
 
 import { useMutation } from '@tanstack/react-query';
 import { api } from '../lib/api';
-import { saveAccessToken, decodeToken } from '../lib/auth';
-import type { JwtPayload } from '../lib/auth';
 import type { AxiosError } from 'axios';
 
 // ─── Request / Response shapes ──────────────────────────────────────
@@ -18,24 +16,14 @@ interface RegisterRequest {
 }
 
 interface RegisterResponse {
-    access_token: string;
+    message: string;
 }
 
 // ─── Register mutation ──────────────────────────────────────────────
 
-async function registerFn(credentials: RegisterRequest): Promise<JwtPayload> {
+async function registerFn(credentials: RegisterRequest): Promise<RegisterResponse> {
     const { data } = await api.post<RegisterResponse>('/auth/register', credentials);
-
-    // Persist the raw JWT
-    saveAccessToken(data.access_token);
-
-    // Decode payload so the caller gets structured user data
-    const payload = decodeToken(data.access_token);
-    if (!payload) {
-        throw new Error('Received an invalid or expired token from the server.');
-    }
-
-    return payload;
+    return data;
 }
 
 /**
@@ -45,13 +33,13 @@ async function registerFn(credentials: RegisterRequest): Promise<JwtPayload> {
  * ```tsx
  * const register = useRegister();
  * register.mutate({ email, password }, {
- *     onSuccess: (payload) => { ... },
+ *     onSuccess: (data) => { ... },
  *     onError: (err) => { ... },
  * });
  * ```
  */
 export function useRegister() {
-    return useMutation<JwtPayload, AxiosError<{ message?: string }>, RegisterRequest>({
+    return useMutation<RegisterResponse, AxiosError<{ message?: string }>, RegisterRequest>({
         mutationFn: registerFn,
     });
 }

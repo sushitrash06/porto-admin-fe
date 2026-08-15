@@ -22,7 +22,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onRegisterSuccess })
     const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false);
     const [role, setRole] = useState<'USER' | 'BUSINESS'>('USER');
     const [error, setError] = useState<string>('');
-    const [step, setStep] = useState<1 | 2>(1);
+    const [step, setStep] = useState<1 | 2 | 3>(1);
     const navigate = useNavigate();
 
     const registerMutation = useRegister();
@@ -66,23 +66,8 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onRegisterSuccess })
         registerMutation.mutate(
             { email: email.trim(), password, role },
             {
-                onSuccess: (payload) => {
-                    const user: User = {
-                        id: payload.sub,
-                        email: payload.email,
-                        role: payload.role,
-                        createdAt: '',
-                        updatedAt: '',
-                    };
-                    onRegisterSuccess(user);
-                    // Redirect based on role permissions
-                    if (payload.role === Role.SUPER_ADMIN) {
-                        navigate('/admin/users');
-                    } else if (payload.role === Role.BUSINESS) {
-                        navigate('/admin/business/dashboard');
-                    } else {
-                        navigate('/admin/experiences');
-                    }
+                onSuccess: (data) => {
+                    setStep(3);
                 },
                 onError: (err) => {
                     const msg =
@@ -124,10 +109,10 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onRegisterSuccess })
                     </div>
 
                     <h2 className="mt-4 font-sans text-xl font-bold tracking-tight text-slate-900">
-                        {step === 1 ? 'Buat Akun Baru' : 'Pilih Jenis Akun'}
+                        {step === 1 ? 'Buat Akun Baru' : step === 2 ? 'Pilih Jenis Akun' : 'Pendaftaran Berhasil'}
                     </h2>
                     <p className="mt-1 font-sans text-xs text-slate-400">
-                        {step === 1 ? 'Daftarkan akun untuk mengakses panel admin portfolio.' : 'Pilih jenis akun yang sesuai dengan kebutuhanmu.'}
+                        {step === 1 ? 'Daftarkan akun untuk mengakses panel admin portfolio.' : step === 2 ? 'Pilih jenis akun yang sesuai dengan kebutuhanmu.' : 'Akun berhasil dibuat.'}
                     </p>
 
                     {/* Errors */}
@@ -141,6 +126,29 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onRegisterSuccess })
                     {/* Form */}
                     <form onSubmit={step === 1 ? handleNextStep : (e) => { e.preventDefault(); handleRegister(); }} className="mt-5 space-y-4">
                         
+                        {/* Step 3: Success Message */}
+                        {step === 3 && (
+                            <div className="space-y-4 animate-in fade-in zoom-in-95 duration-300 flex flex-col items-center py-6 text-center">
+                                <div className="h-12 w-12 rounded-full bg-emerald-100 flex items-center justify-center mb-2">
+                                    <CheckCircle2 className="h-6 w-6 text-emerald-600" />
+                                </div>
+                                <h3 className="font-sans text-sm font-bold text-slate-900">
+                                    Silahkan Cek Email Anda
+                                </h3>
+                                <p className="font-sans text-xs text-slate-500 max-w-[250px] mx-auto">
+                                    Kami telah mengirimkan tautan verifikasi ke <strong>{email}</strong>. Harap verifikasi email Anda sebelum masuk.
+                                </p>
+                                <div className="pt-4 w-full">
+                                    <Link
+                                        to="/login"
+                                        className="flex w-full cursor-pointer items-center justify-center space-x-2 rounded-md bg-black py-2.5 font-sans text-xs font-bold uppercase tracking-wider text-white shadow-xs hover:bg-slate-800 transition active:scale-[0.98]"
+                                    >
+                                        <span>Ke Halaman Login</span>
+                                    </Link>
+                                </div>
+                            </div>
+                        )}
+
                         {/* Step 2: Role Selection */}
                         {step === 2 && (
                             <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
@@ -328,18 +336,20 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onRegisterSuccess })
                         )}
 
                         {/* Login link */}
-                        <div className="text-center pt-1">
-                            <p className="font-sans text-xs text-slate-400">
-                                Sudah punya akun?{' '}
-                                <Link
-                                    id="register-login-link"
-                                    to="/login"
-                                    className="font-bold text-slate-700 hover:text-black transition-colors underline underline-offset-2"
-                                >
-                                    Masuk di sini
-                                </Link>
-                            </p>
-                        </div>
+                        {step !== 3 && (
+                            <div className="text-center pt-1">
+                                <p className="font-sans text-xs text-slate-400">
+                                    Sudah punya akun?{' '}
+                                    <Link
+                                        id="register-login-link"
+                                        to="/login"
+                                        className="font-bold text-slate-700 hover:text-black transition-colors underline underline-offset-2"
+                                    >
+                                        Masuk di sini
+                                    </Link>
+                                </p>
+                            </div>
+                        )}
                     </form>
                 </div>
             </div>

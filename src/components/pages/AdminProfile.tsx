@@ -5,8 +5,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { useProfile, useUpdateProfile, useUploadProfileImage, useUploadProfileBanner, useUploadProfileCV } from '../../hooks/useProfile';
-import { useChangePassword } from '../../hooks/useLogin';
 import { getSessionPayload } from '../../lib/auth';
+import { AccountSecuritySection } from '../molecules/AccountSecuritySection';
 import { UserCheck, ShieldAlert, Loader2, Camera, Mail, Phone, MapPin, Sparkles, Tag, Plus, X, Globe, EyeOff, Lock, FileText, Upload, Download, Image as ImageIcon, Key, Copy, Check, ExternalLink, HelpCircle } from 'lucide-react';
 export const AdminProfile: React.FC = () => {
     const { data: profile, isLoading, isError, error: fetchError } = useProfile();
@@ -14,7 +14,6 @@ export const AdminProfile: React.FC = () => {
     const uploadImageMutation = useUploadProfileImage();
     const uploadBannerMutation = useUploadProfileBanner();
     const uploadCVMutation = useUploadProfileCV();
-    const changePasswordMutation = useChangePassword();
 
     // Get current user session for userId
     const session = getSessionPayload();
@@ -51,10 +50,6 @@ export const AdminProfile: React.FC = () => {
     const [successMsg, setSuccessMsg] = useState<string>('');
     const [errorMsg, setErrorMsg] = useState<string>('');
     const [isDownloadingCV, setIsDownloadingCV] = useState<boolean>(false);
-
-    // Change password fields state
-    const [oldPassword, setOldPassword] = useState<string>('');
-    const [newPassword, setNewPassword] = useState<string>('');
 
     // Tracks if form values have been initialized from the profile query
     const [isInitialized, setIsInitialized] = useState<boolean>(false);
@@ -192,31 +187,6 @@ export const AdminProfile: React.FC = () => {
         } finally {
             setIsDownloadingCV(false);
         }
-    };
-
-    const handleChangePassword = (e: React.FormEvent) => {
-        e.preventDefault();
-        setErrorMsg('');
-        setSuccessMsg('');
-
-        if (newPassword.length < 6) {
-            setErrorMsg('New password must be at least 6 characters long.');
-            return;
-        }
-
-        changePasswordMutation.mutate({
-            oldPassword,
-            newPassword
-        }, {
-            onSuccess: () => {
-                setSuccessMsg('Password changed successfully!');
-                setOldPassword('');
-                setNewPassword('');
-            },
-            onError: (err) => {
-                setErrorMsg(err.response?.data?.message || err.message || 'Failed to change password.');
-            }
-        });
     };
 
     const handleSaveProfile = (e: React.FormEvent) => {
@@ -642,37 +612,7 @@ export const AdminProfile: React.FC = () => {
             {/* TAB: Keamanan                                   */}
             {/* ═══════════════════════════════════════════════ */}
             {activeTab === 'security' && (
-                <div className="max-w-xl">
-                    <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-3xs space-y-5">
-                        <h4 className="font-sans text-sm font-bold uppercase tracking-wider text-slate-800 flex items-center space-x-2 border-b border-slate-100 pb-3">
-                            <Lock className="h-4 w-4 text-slate-500" />
-                            <span>Security Credentials</span>
-                        </h4>
-
-                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                            <div>
-                                <label className="block font-sans text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Current Password</label>
-                                <input type="password" value={oldPassword} onChange={(e) => setOldPassword(e.target.value)} placeholder="••••••••" className="w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 font-sans text-xs focus:border-slate-400 focus:bg-white focus:outline-hidden text-slate-900" />
-                            </div>
-                            <div>
-                                <label className="block font-sans text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">New Password</label>
-                                <input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="Min 6 characters" className="w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 font-sans text-xs focus:border-slate-400 focus:bg-white focus:outline-hidden text-slate-900" />
-                            </div>
-                        </div>
-
-                        <div className="flex justify-end pt-1">
-                            <button
-                                type="button"
-                                onClick={handleChangePassword}
-                                disabled={changePasswordMutation.isPending || !oldPassword || !newPassword}
-                                className="flex items-center space-x-2 rounded-md bg-black px-5 py-2 font-sans text-[10px] font-bold uppercase tracking-wider text-white shadow-3xs hover:bg-slate-800 transition active:scale-[0.98] disabled:opacity-50 cursor-pointer"
-                            >
-                                {changePasswordMutation.isPending && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-                                <span>Update Password</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
+                <AccountSecuritySection />
             )}
 
             {/* ═══════════════════════════════════════════════ */}

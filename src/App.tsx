@@ -11,6 +11,7 @@ import { Navbar } from './components/organisms/Navbar';
 import { LandingPage } from './components/pages/LandingPage';
 import { LoginPage } from './components/pages/LoginPage';
 import { RegisterPage } from './components/pages/RegisterPage';
+import { VerifyEmailPage } from './components/pages/VerifyEmailPage';
 import { AdminUsers } from './components/pages/AdminUsers';
 import { AdminExperiences } from './components/pages/AdminExperiences';
 import { AdminProjects } from './components/pages/AdminProjects';
@@ -39,7 +40,8 @@ function AppContent({ currentUser, handleLoginSuccess, handleLogout }: AppConten
   const location = useLocation();
   const isLoginPage = location.pathname === '/login';
   const isRegisterPage = location.pathname === '/register';
-  const isAuthPage = isLoginPage || isRegisterPage;
+  const isVerifyEmailPage = location.pathname === '/verify-email';
+  const isAuthPage = isLoginPage || isRegisterPage || isVerifyEmailPage;
 
   return (
     <div className="flex min-h-screen flex-col bg-neutral-50/50">
@@ -98,6 +100,9 @@ function AppContent({ currentUser, handleLoginSuccess, handleLogout }: AppConten
               )
             }
           />
+
+          {/* Verify Email View */}
+          <Route path="/verify-email" element={<VerifyEmailPage />} />
 
           {/* Secure Operational Admin Panel Workspace (Protected Layout) */}
           <Route element={<ProtectedLayout />}>
