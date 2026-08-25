@@ -54,7 +54,7 @@ export const AdminProjects: React.FC = () => {
         };
     }, [payload]);
 
-    const isSuper = currentUser?.role === Role.SUPER_ADMIN;
+    const isSuper = currentUser?.role === Role.ADMIN;
 
     // Debounce search
     useEffect(() => {
@@ -395,14 +395,14 @@ export const AdminProjects: React.FC = () => {
     }
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-6 admin-page-enter">
             {/* Self-contained header display */}
-            <div className="mb-6 border-b border-slate-100 pb-4">
-                <h2 className="font-sans text-lg font-extrabold tracking-tight text-neutral-900 uppercase">
-                    {isSuper ? 'Global Project Portfolios' : 'My Project Repositories'}
+            <div className="mb-6">
+                <h2 className="font-sans text-2xl font-extrabold tracking-tight text-neutral-900">
+                    {isSuper ? 'Project Audit' : 'My Project Repositories'}
                 </h2>
-                <p className="font-sans text-xs text-neutral-450 mt-1">
-                    {isSuper ? 'Audit, filter, and inspect project details submitted by active platform users.' : 'Document your open-source projects, link relevant jobs, and customize stack tags.'}
+                <p className="font-sans text-sm text-neutral-500 mt-1">
+                    {isSuper ? 'Audit, filter, and inspect project portfolios submitted by all platform users.' : 'Document your open-source projects, link relevant jobs, and customize stack tags.'}
                 </p>
             </div>
 
@@ -465,7 +465,7 @@ export const AdminProjects: React.FC = () => {
                                                 </>
                                             )}
                                         </ListboxOption>
-                                        {usersList.filter(u => u.role !== Role.SUPER_ADMIN).map(u => (
+                                        {usersList.filter(u => u.role !== Role.ADMIN).map(u => (
                                             <ListboxOption
                                                 key={u.id}
                                                 value={u.id}

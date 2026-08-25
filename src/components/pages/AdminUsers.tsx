@@ -7,7 +7,7 @@ import React, { useState } from 'react';
 import { Role, type User } from '../../types';
 import { useUsers, useCreateUser, useUpdateUser, useDeleteUser } from '../../hooks/useUsers';
 import { Dialog, DialogPanel, DialogTitle, DialogBackdrop, Listbox, ListboxButton, ListboxOptions, ListboxOption } from '@headlessui/react';
-import { Plus, ShieldAlert, Users, Search, UserCheck, Loader2, Calendar, ChevronLeft, ChevronRight, ChevronDown, Check, Edit, Trash2 } from 'lucide-react';
+import { Plus, ShieldAlert, Users, Search, Loader2, Calendar, ChevronLeft, ChevronRight, ChevronDown, Check, Edit, Trash2, Shield } from 'lucide-react';
 import { getSessionPayload } from '../../lib/auth';
 import { ConfirmDialog } from '../molecules/ConfirmDialog';
 
@@ -167,37 +167,58 @@ export const AdminUsers: React.FC = () => {
     const meta = data?.meta;
 
     return (
-        <div className="space-y-6">
-            {/* Self-contained header display */}
-            <div className="mb-6 border-b border-slate-100 pb-4">
-                <h2 className="font-sans text-lg font-extrabold tracking-tight text-neutral-900 uppercase">
-                    System User Databases
+        <div className="space-y-6 admin-page-enter">
+            {/* Page Header with Stats */}
+            <div className="mb-6">
+                <h2 className="font-sans text-2xl font-extrabold tracking-tight text-neutral-900">
+                    User Management
                 </h2>
-                <p className="font-sans text-xs text-neutral-450 mt-1">
-                    Manage employee role configurations, email constraints, and security entry privileges.
+                <p className="font-sans text-sm text-neutral-500 mt-1">
+                    Manage accounts, role assignments, and access privileges.
                 </p>
+
+                {/* Stats Badges */}
+                {meta && (
+                    <div className="flex flex-wrap items-center gap-2 mt-4">
+                        <span className="inline-flex items-center space-x-1.5 rounded-full bg-neutral-900 px-3 py-1.5 font-mono text-[10px] font-bold text-white">
+                            <Users className="h-3 w-3" />
+                            <span>{meta.total} Total Users</span>
+                        </span>
+                        {usersList.length > 0 && (
+                            <>
+                                <span className="inline-flex items-center space-x-1 rounded-full bg-indigo-100 px-3 py-1.5 font-mono text-[10px] font-bold text-indigo-700 border border-indigo-200">
+                                    <Shield className="h-3 w-3" />
+                                    <span>{usersList.filter(u => u.role === Role.ADMIN).length} Admin</span>
+                                </span>
+                                <span className="inline-flex items-center space-x-1 rounded-full bg-neutral-100 px-3 py-1.5 font-mono text-[10px] font-bold text-neutral-600 border border-neutral-200">
+                                    <span>{usersList.filter(u => u.role === Role.USER).length} User</span>
+                                </span>
+                            </>
+                        )}
+                    </div>
+                )}
             </div>
 
             {/* Search Header and Action panel */}
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-slate-200 pb-5">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-neutral-200/60 pb-6">
                 <div className="relative max-w-md w-full">
-                    <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                    <Search className="absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-neutral-400" />
                     <input
                         id="user-search"
                         type="text"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         placeholder="Search directory by email..."
-                        className="w-full rounded-md border border-slate-200 bg-slate-50 py-2 pr-4 pl-9.5 font-sans text-xs focus:border-slate-400 focus:bg-white focus:outline-hidden text-slate-900"
+                        className="w-full rounded-xl border border-neutral-200/60 bg-white/50 py-2.5 pr-4 pl-10 font-sans text-xs focus:border-indigo-400 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:outline-hidden text-neutral-900 shadow-sm backdrop-blur-sm transition-all"
                     />
                 </div>
 
                 <button
                     id="create-new-user-btn"
                     onClick={handleOpenCreate}
-                    className="flex cursor-pointer items-center justify-center space-x-1.5 rounded-md bg-black px-4 py-2 font-sans text-xs font-bold uppercase tracking-wider text-white shadow-3xs transition hover:bg-slate-800 active:scale-95"
+                    className="group flex cursor-pointer items-center justify-center space-x-2 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 px-5 py-2.5 font-sans text-xs font-bold uppercase tracking-wider text-white shadow-lg shadow-indigo-500/25 transition hover:shadow-indigo-500/40 hover:-translate-y-0.5 active:translate-y-0"
                 >
-                    <Plus className="h-4 w-4" />
+                    <Plus className="h-4 w-4 transition-transform group-hover:rotate-90" />
                     <span>Add System User</span>
                 </button>
             </div>
@@ -214,14 +235,14 @@ export const AdminUsers: React.FC = () => {
             )}
 
             {/* Directory Table */}
-            <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-3xs">
+            <div className="overflow-hidden rounded-2xl border border-neutral-200/60 glass-panel-light shadow-sm">
                 <div className="overflow-x-auto">
                     <table className="w-full border-collapse text-left text-xs">
-                        <thead className="bg-slate-50 border-b border-slate-200 font-mono text-[9px] font-bold uppercase tracking-wider text-slate-400">
+                        <thead className="bg-neutral-50/80 border-b border-neutral-200/60 font-mono text-[10px] font-bold uppercase tracking-widest text-neutral-500 backdrop-blur-md">
                             <tr>
-                                <th className="px-6 py-4">Developer</th>
-                                <th className="px-6 py-4">Role Permission</th>
-                                <th className="px-6 py-4">Created At</th>
+                                <th className="px-6 py-4">User Identity</th>
+                                <th className="px-6 py-4">Role Privileges</th>
+                                <th className="px-6 py-4">Registration Date</th>
                                 <th className="px-6 py-4 text-right">Actions</th>
                             </tr>
                         </thead>
@@ -265,11 +286,8 @@ export const AdminUsers: React.FC = () => {
 
                                         {/* Role Permission */}
                                         <td className="px-6 py-4">
-                                            <span className={`inline-flex items-center space-x-1 rounded-md px-2 py-0.5 font-mono text-[8px] font-bold uppercase tracking-wider ${user.role === Role.SUPER_ADMIN
-                                                    ? 'bg-black text-white border border-black shadow-3xs'
-                                                    : 'bg-slate-100 text-slate-600 border border-slate-200'
-                                                }`}>
-                                                <UserCheck className="h-2 w-2" />
+                                            <span className={`inline-flex items-center space-x-1 rounded-full px-2.5 py-1 font-mono text-[9px] font-bold uppercase tracking-wider ${user.role === Role.ADMIN ? 'bg-indigo-100 text-indigo-700 border border-indigo-200' : 'bg-neutral-100 text-neutral-600 border border-neutral-200'}`}>
+                                                <Shield className="h-2.5 w-2.5" />
                                                 <span>{user.role}</span>
                                             </span>
                                         </td>
@@ -423,11 +441,9 @@ export const AdminUsers: React.FC = () => {
                                                 className="relative w-full rounded-md border border-slate-200 bg-slate-50 py-2 pr-10 pl-3 text-left font-sans text-xs focus:border-slate-400 focus:bg-white focus:outline-hidden text-slate-900 cursor-pointer"
                                             >
                                                 <span className="block truncate">
-                                                    {role === Role.SUPER_ADMIN
-                                                        ? 'Super Administrator'
-                                                        : role === Role.BUSINESS
-                                                        ? 'Regular Business User'
-                                                        : 'Regular Portfolio User'}
+                                                    {role === Role.ADMIN
+                                                        ? 'Administrator'
+                                                        : 'Regular User'}
                                                 </span>
                                                 <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
                                                     <ChevronDown className="h-4 w-4 text-slate-400" />
@@ -441,7 +457,7 @@ export const AdminUsers: React.FC = () => {
                                                     {({ selected }) => (
                                                         <>
                                                             <span className={`block truncate ${selected ? 'font-bold' : 'font-normal'}`}>
-                                                                Regular Portfolio User
+                                                                Regular User
                                                             </span>
                                                             {selected && (
                                                                 <span className="absolute inset-y-0 right-0 flex items-center pr-3 text-black">
@@ -452,30 +468,13 @@ export const AdminUsers: React.FC = () => {
                                                     )}
                                                 </ListboxOption>
                                                 <ListboxOption
-                                                    value={Role.BUSINESS}
+                                                    value={Role.ADMIN}
                                                     className="relative cursor-pointer select-none py-2 pr-10 pl-3 text-slate-900 data-[focus]:bg-slate-50"
                                                 >
                                                     {({ selected }) => (
                                                         <>
                                                             <span className={`block truncate ${selected ? 'font-bold' : 'font-normal'}`}>
-                                                                Regular Business User
-                                                            </span>
-                                                            {selected && (
-                                                                <span className="absolute inset-y-0 right-0 flex items-center pr-3 text-black">
-                                                                    <Check className="h-3.5 w-3.5" />
-                                                                </span>
-                                                            )}
-                                                        </>
-                                                    )}
-                                                </ListboxOption>
-                                                <ListboxOption
-                                                    value={Role.SUPER_ADMIN}
-                                                    className="relative cursor-pointer select-none py-2 pr-10 pl-3 text-slate-900 data-[focus]:bg-slate-50"
-                                                >
-                                                    {({ selected }) => (
-                                                        <>
-                                                            <span className={`block truncate ${selected ? 'font-bold' : 'font-normal'}`}>
-                                                                Super Administrator
+                                                                Administrator
                                                             </span>
                                                             {selected && (
                                                                 <span className="absolute inset-y-0 right-0 flex items-center pr-3 text-black">

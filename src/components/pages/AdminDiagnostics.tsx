@@ -47,14 +47,14 @@ export const AdminDiagnostics: React.FC = () => {
     };
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-6 admin-page-enter">
             {/* Self-contained header display */}
-            <div className="mb-6 border-b border-slate-100 pb-4">
-                <h2 className="font-sans text-lg font-extrabold tracking-tight text-neutral-900 uppercase">
-                    System Security & Route Diagnostics
+            <div className="mb-6">
+                <h2 className="font-sans text-2xl font-extrabold tracking-tight text-neutral-900">
+                    System Diagnostics
                 </h2>
-                <p className="font-sans text-xs text-neutral-450 mt-1">
-                    Run verified security tests and inspect raw JSON outputs for postman APIs.
+                <p className="font-sans text-sm text-neutral-500 mt-1">
+                    Run verified security tests and inspect raw JSON outputs for API endpoints.
                 </p>
             </div>
 
@@ -140,7 +140,7 @@ export const AdminDiagnostics: React.FC = () => {
                             <span className="font-sans text-[10px] text-slate-400">Admin Gate Guard Check</span>
                         </div>
                         <p className="mt-3 font-sans text-xs text-slate-500 leading-relaxed">
-                            Verifies security role restraints. Expects <code className="bg-slate-50 px-1 py-0.5 rounded font-mono text-[10px] border border-slate-100">SUPER_ADMIN</code> privileges. Standard accounts should be rejected.
+                            Verifies security role restraints. Expects <code className="bg-slate-50 px-1 py-0.5 rounded font-mono text-[10px] border border-slate-100">ADMIN</code> privileges. Standard accounts should be rejected.
                         </p>
                     </div>
 

@@ -31,8 +31,8 @@ export const AdminProjectDetail: React.FC = () => {
   const navigate = useNavigate();
 
   const payload = getSessionPayload();
-  const isSuper = payload?.role === 'SUPER_ADMIN';
-  const isBusiness = payload?.role === 'BUSINESS' || payload?.role === 'SUPER_ADMIN';
+  const isSuper = payload?.role === 'ADMIN';
+  const isBusiness = payload?.hasBusinessProfile || payload?.role === 'ADMIN';
 
   // Hook queries
   const { data: project, isLoading, isError, error } = useProjectDetail(id);

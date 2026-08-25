@@ -31,8 +31,8 @@ export const Navbar: React.FC<NavbarProps> = ({ currentUser, onLogout }) => {
 
   const handleAdminRedirect = () => {
     if (currentUser) {
-      if (currentUser.role === Role.SUPER_ADMIN) {
-        navigate('/admin/users');
+      if (currentUser.role === Role.ADMIN) {
+        navigate('/admin/dashboard');
       } else {
         navigate('/admin/experiences');
       }

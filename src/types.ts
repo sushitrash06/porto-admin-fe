@@ -6,16 +6,17 @@
 // Using 'as const' object + type union instead of 'enum'
 // because erasableSyntaxOnly is enabled in tsconfig.
 export const Role = {
-  SUPER_ADMIN: 'SUPER_ADMIN',
+  ADMIN: 'ADMIN',
   USER: 'USER',
-  BUSINESS: 'BUSINESS',
 } as const;
 
 export type Role = (typeof Role)[keyof typeof Role];
 
 export const ProjectType = {
   PERSONAL: 'PERSONAL',
-  WORK: 'WORK'
+  WORK: 'WORK',
+  FREELANCE: 'FREELANCE',
+  OPEN_SOURCE: 'OPEN_SOURCE',
 } as const
 
 export type ProjectType =
@@ -41,6 +42,7 @@ export interface User {
   email: string;
   role: Role;
   profile?: Profile | null;
+  businessProfile?: BusinessProfile | null;
   createdAt: string;
   updatedAt?: string;
 }

@@ -6,6 +6,7 @@
 import React from 'react';
 import { Outlet } from 'react-router-dom';
 import { Sidebar } from '../organisms/Sidebar';
+import { AdminSidebar } from '../organisms/AdminSidebar';
 import { useProfile } from '../../hooks/useProfile';
 import { useBusinessProfile } from '../../hooks/useBusinessProfile';
 import type { User } from '../../types';
@@ -19,7 +20,8 @@ interface AdminLayoutProps {
 
 export const AdminLayout: React.FC<AdminLayoutProps> = ({ currentUser }) => {
   const location = useLocation();
-  const isBusiness = currentUser.role === Role.BUSINESS;
+  const isBusiness = !!currentUser.businessProfile;
+  const isSuper = currentUser.role === Role.ADMIN;
 
   // Conditionally fetch based on role to save bandwidth
   const { data: profile, isLoading: isLoadingProfile } = useProfile({ enabled: !isBusiness });
@@ -37,7 +39,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ currentUser }) => {
   }
 
   // Determine if profile is incomplete
-  const isProfileIncomplete = isBusiness 
+  const isProfileIncomplete = isSuper ? false : isBusiness 
     ? (!businessProfile || !businessProfile.businessName)
     : (!profile || !profile.fullName);
 
@@ -49,6 +51,30 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ currentUser }) => {
      return <Navigate to={targetProfilePath} replace />;
   }
 
+  // ═══════════════════════════════════════════════════════════════════
+  // SUPER_ADMIN: Floating Card Layout
+  // ═══════════════════════════════════════════════════════════════════
+  if (isSuper) {
+    return (
+      <div className="flex h-screen w-full">
+        {/* Fixed Dark Sidebar */}
+        <aside className="hidden lg:flex w-[260px] shrink-0">
+          <AdminSidebar currentUser={currentUser} />
+        </aside>
+
+        {/* Main Content Area */}
+        <main className="flex-1 overflow-y-auto bg-white relative">
+          <div className="mx-auto max-w-7xl px-8 py-8 lg:px-10">
+            <Outlet />
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════════════
+  // USER & BUSINESS: Original sidebar card layout (unchanged)
+  // ═══════════════════════════════════════════════════════════════════
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">

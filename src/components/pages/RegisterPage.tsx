@@ -6,7 +6,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import type { User } from '../../types';
-import { Role } from '../../types';
 import { useRegister } from '../../hooks/useRegister';
 import { ShieldAlert, UserPlus, Sparkles, Eye, EyeOff, Lock, Mail, Compass, Loader2, CheckCircle2, User as UserIcon, Briefcase } from 'lucide-react';
 
@@ -14,7 +13,7 @@ interface RegisterPageProps {
     onRegisterSuccess: (user: User) => void;
 }
 
-export const RegisterPage: React.FC<RegisterPageProps> = ({ onRegisterSuccess }) => {
+export const RegisterPage: React.FC<RegisterPageProps> = () => {
     const [email, setEmail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
     const [confirmPassword, setConfirmPassword] = useState<string>('');
@@ -23,8 +22,6 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onRegisterSuccess })
     const [role, setRole] = useState<'USER' | 'BUSINESS'>('USER');
     const [error, setError] = useState<string>('');
     const [step, setStep] = useState<1 | 2 | 3>(1);
-    const navigate = useNavigate();
-
     const registerMutation = useRegister();
 
     // Password strength indicator
@@ -66,7 +63,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onRegisterSuccess })
         registerMutation.mutate(
             { email: email.trim(), password, role },
             {
-                onSuccess: (data) => {
+                onSuccess: () => {
                     setStep(3);
                 },
                 onError: (err) => {

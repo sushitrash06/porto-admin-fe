@@ -40,13 +40,16 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
                         id: payload.sub,
                         email: payload.email,
                         role: payload.role,
+                        businessProfile: payload.hasBusinessProfile ? {} as never : null,
                         createdAt: '',
                         updatedAt: '',
                     };
                     onLoginSuccess(user);
                     // Redirect based on role permissions
-                    if (payload.role === Role.SUPER_ADMIN) {
-                        navigate('/admin/users');
+                    if (payload.role === Role.ADMIN) {
+                        navigate('/admin/dashboard');
+                    } else if (payload.hasBusinessProfile) {
+                        navigate('/admin/business/dashboard');
                     } else {
                         navigate('/admin/experiences');
                     }

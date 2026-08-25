@@ -17,6 +17,7 @@ import { AdminExperiences } from './components/pages/AdminExperiences';
 import { AdminProjects } from './components/pages/AdminProjects';
 import { AdminProfile } from './components/pages/AdminProfile';
 import { AdminDiagnostics } from './components/pages/AdminDiagnostics';
+import { AdminDashboardOverview } from './components/pages/AdminDashboardOverview';
 import { AdminExperienceDetail } from './components/pages/AdminExperienceDetail';
 import { AdminProjectDetail } from './components/pages/AdminProjectDetail';
 import { AdminLayout } from './components/templates/AdminLayout';
@@ -42,11 +43,15 @@ function AppContent({ currentUser, handleLoginSuccess, handleLogout }: AppConten
   const isRegisterPage = location.pathname === '/register';
   const isVerifyEmailPage = location.pathname === '/verify-email';
   const isAuthPage = isLoginPage || isRegisterPage || isVerifyEmailPage;
+  const isAdminPage = location.pathname.startsWith('/admin');
+  const isAdmin = currentUser?.role === Role.ADMIN;
+  // Hide navbar/footer for ADMIN on admin pages (dark sidebar handles nav)
+  const hideChrome = isAuthPage || (isAdminPage && isAdmin);
 
   return (
     <div className="flex min-h-screen flex-col bg-neutral-50/50">
       {/* Universal Navigation Header */}
-      {!isAuthPage && (
+      {!hideChrome && (
         <Navbar
           currentUser={currentUser}
           onLogout={handleLogout}
@@ -66,9 +71,9 @@ function AppContent({ currentUser, handleLoginSuccess, handleLogout }: AppConten
               currentUser ? (
                 <Navigate
                   to={
-                    currentUser.role === Role.SUPER_ADMIN
-                      ? '/admin/users'
-                      : currentUser.role === Role.BUSINESS
+                    currentUser.role === Role.ADMIN
+                      ? '/admin/dashboard'
+                      : currentUser.businessProfile
                         ? '/admin/business/dashboard'
                         : '/admin/experiences'
                   }
@@ -87,9 +92,9 @@ function AppContent({ currentUser, handleLoginSuccess, handleLogout }: AppConten
               currentUser ? (
                 <Navigate
                   to={
-                    currentUser.role === Role.SUPER_ADMIN
-                      ? '/admin/users'
-                      : currentUser.role === Role.BUSINESS
+                    currentUser.role === Role.ADMIN
+                      ? '/admin/dashboard'
+                      : currentUser.businessProfile
                         ? '/admin/business/dashboard'
                         : '/admin/experiences'
                   }
@@ -113,9 +118,9 @@ function AppContent({ currentUser, handleLoginSuccess, handleLogout }: AppConten
                 element={
                   <Navigate
                     to={
-                      currentUser?.role === Role.SUPER_ADMIN
-                        ? '/admin/users'
-                        : currentUser?.role === Role.BUSINESS
+                      currentUser?.role === Role.ADMIN
+                        ? '/admin/dashboard'
+                        : currentUser?.businessProfile
                           ? '/admin/business/dashboard'
                           : '/admin/profile'
                     }
@@ -124,6 +129,7 @@ function AppContent({ currentUser, handleLoginSuccess, handleLogout }: AppConten
                 }
               />
 
+              <Route path="/admin/dashboard" element={<AdminDashboardOverview />} />
               <Route path="/admin/profile" element={<AdminProfile />} />
               <Route path="/admin/experiences" element={<AdminExperiences />} />
               <Route path="/admin/experiences/:id" element={<AdminExperienceDetail />} />
@@ -134,7 +140,7 @@ function AppContent({ currentUser, handleLoginSuccess, handleLogout }: AppConten
               <Route
                 path="/admin/business/dashboard"
                 element={
-                  currentUser?.role === Role.BUSINESS ? (
+                  currentUser?.businessProfile ? (
                     <BusinessDashboard />
                   ) : (
                     <Navigate to="/admin/profile" replace />
@@ -144,7 +150,7 @@ function AppContent({ currentUser, handleLoginSuccess, handleLogout }: AppConten
               <Route
                 path="/admin/business/profile"
                 element={
-                  currentUser?.role === Role.BUSINESS ? (
+                  currentUser?.businessProfile ? (
                     <BusinessProfilePage />
                   ) : (
                     <Navigate to="/admin/profile" replace />
@@ -154,7 +160,7 @@ function AppContent({ currentUser, handleLoginSuccess, handleLogout }: AppConten
               <Route
                 path="/admin/business/services"
                 element={
-                  currentUser?.role === Role.BUSINESS ? (
+                  currentUser?.businessProfile ? (
                     <BusinessServices />
                   ) : (
                     <Navigate to="/admin/profile" replace />
@@ -164,7 +170,7 @@ function AppContent({ currentUser, handleLoginSuccess, handleLogout }: AppConten
               <Route
                 path="/admin/business/projects"
                 element={
-                  currentUser?.role === Role.BUSINESS ? (
+                  currentUser?.businessProfile ? (
                     <BusinessProjects />
                   ) : (
                     <Navigate to="/admin/profile" replace />
@@ -174,7 +180,7 @@ function AppContent({ currentUser, handleLoginSuccess, handleLogout }: AppConten
               <Route
                 path="/admin/business/projects/:id"
                 element={
-                  currentUser?.role === Role.BUSINESS ? (
+                  currentUser?.businessProfile ? (
                     <BusinessProjectDetail />
                   ) : (
                     <Navigate to="/admin/profile" replace />
@@ -182,11 +188,11 @@ function AppContent({ currentUser, handleLoginSuccess, handleLogout }: AppConten
                 }
               />
 
-              {/* Admin Users table restricted to SUPER_ADMIN */}
+              {/* Admin Users table restricted to ADMIN */}
               <Route
                 path="/admin/users"
                 element={
-                  currentUser?.role === Role.SUPER_ADMIN ? (
+                  currentUser?.role === Role.ADMIN ? (
                     <AdminUsers />
                   ) : (
                     <Navigate to="/admin/profile" replace />
@@ -204,7 +210,7 @@ function AppContent({ currentUser, handleLoginSuccess, handleLogout }: AppConten
       </main>
 
       {/* Modern High Contrast Footer */}
-      {!isAuthPage && (
+      {!hideChrome && (
         <footer className="border-t border-neutral-200 bg-white py-8">
           <div className="mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8">
             <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
@@ -231,6 +237,7 @@ export default function App() {
         id: payload.sub,
         email: payload.email,
         role: payload.role,
+        businessProfile: payload.hasBusinessProfile ? {} as never : null,
         createdAt: '',
         updatedAt: '',
       };

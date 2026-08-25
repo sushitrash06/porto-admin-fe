@@ -12,8 +12,8 @@ interface SidebarProps {
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({ currentUser, profile, businessProfile, isProfileIncomplete }) => {
-  const isSuper = currentUser.role === Role.SUPER_ADMIN;
-  const isBusiness = currentUser.role === Role.BUSINESS;
+  const isSuper = currentUser.role === Role.ADMIN;
+  const isBusiness = !!businessProfile;
 
   const linkStyle = ({ isActive }: { isActive: boolean }) =>
     `flex w-full items-center space-x-2.5 rounded-lg px-4 py-3 font-sans text-xs font-semibold tracking-wide transition-all ${isActive
