@@ -12,6 +12,7 @@ import { LandingPage } from './components/pages/LandingPage';
 import { LoginPage } from './components/pages/LoginPage';
 import { RegisterPage } from './components/pages/RegisterPage';
 import { VerifyEmailPage } from './components/pages/VerifyEmailPage';
+import { VerificationRequiredPage } from './components/pages/VerificationRequiredPage';
 import { AdminUsers } from './components/pages/AdminUsers';
 import { AdminExperiences } from './components/pages/AdminExperiences';
 import { AdminProjects } from './components/pages/AdminProjects';
@@ -108,6 +109,7 @@ function AppContent({ currentUser, handleLoginSuccess, handleLogout }: AppConten
 
           {/* Verify Email View */}
           <Route path="/verify-email" element={<VerifyEmailPage />} />
+          <Route path="/verify-required" element={<VerificationRequiredPage />} />
 
           {/* Secure Operational Admin Panel Workspace (Protected Layout) */}
           <Route element={<ProtectedLayout />}>

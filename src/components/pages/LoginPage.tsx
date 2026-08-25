@@ -59,6 +59,12 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
                         err.response?.data?.message ||
                         err.message ||
                         'Authentication failed. Please check your credentials.';
+                        
+                    if (msg === 'Please verify your email address first.') {
+                        navigate('/verify-required', { state: { email: email.trim() } });
+                        return;
+                    }
+                    
                     setError(typeof msg === 'string' ? msg : 'Authentication failed.');
                 },
             }
