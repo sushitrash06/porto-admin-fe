@@ -4,7 +4,7 @@
  */
 
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import type { User } from '../../types';
 import { useRegister } from '../../hooks/useRegister';
 import { ShieldAlert, UserPlus, Sparkles, Eye, EyeOff, Lock, Mail, Compass, Loader2, CheckCircle2, User as UserIcon, Briefcase } from 'lucide-react';
@@ -122,7 +122,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = () => {
 
                     {/* Form */}
                     <form onSubmit={step === 1 ? handleNextStep : (e) => { e.preventDefault(); handleRegister(); }} className="mt-5 space-y-4">
-                        
+
                         {/* Step 3: Success Message */}
                         {step === 3 && (
                             <div className="space-y-4 animate-in fade-in zoom-in-95 duration-300 flex flex-col items-center py-6 text-center">
@@ -158,11 +158,10 @@ export const RegisterPage: React.FC<RegisterPageProps> = () => {
                                         <button
                                             type="button"
                                             onClick={() => setRole('USER')}
-                                            className={`flex flex-col items-center justify-center p-3 rounded-lg border text-center transition-all cursor-pointer select-none ${
-                                                role === 'USER'
+                                            className={`flex flex-col items-center justify-center p-3 rounded-lg border text-center transition-all cursor-pointer select-none ${role === 'USER'
                                                     ? 'border-black bg-slate-50 text-slate-900 ring-1 ring-black/5'
                                                     : 'border-slate-200 bg-white hover:bg-slate-50/50 text-slate-500 hover:text-slate-800'
-                                            }`}
+                                                }`}
                                         >
                                             <UserIcon className={`h-5 w-5 mb-1.5 ${role === 'USER' ? 'text-black' : 'text-slate-400'}`} />
                                             <span className="font-sans text-xs font-bold block">Developer</span>
@@ -175,11 +174,10 @@ export const RegisterPage: React.FC<RegisterPageProps> = () => {
                                         <button
                                             type="button"
                                             onClick={() => setRole('BUSINESS')}
-                                            className={`flex flex-col items-center justify-center p-3 rounded-lg border text-center transition-all cursor-pointer select-none ${
-                                                role === 'BUSINESS'
+                                            className={`flex flex-col items-center justify-center p-3 rounded-lg border text-center transition-all cursor-pointer select-none ${role === 'BUSINESS'
                                                     ? 'border-black bg-slate-50 text-slate-900 ring-1 ring-black/5'
                                                     : 'border-slate-200 bg-white hover:bg-slate-50/50 text-slate-500 hover:text-slate-800'
-                                            }`}
+                                                }`}
                                         >
                                             <Briefcase className={`h-5 w-5 mb-1.5 ${role === 'BUSINESS' ? 'text-black' : 'text-slate-400'}`} />
                                             <span className="font-sans text-xs font-bold block">Bisnis / Agensi</span>
@@ -223,103 +221,102 @@ export const RegisterPage: React.FC<RegisterPageProps> = () => {
                         {step === 1 && (
                             <div className="space-y-4 animate-in fade-in slide-in-from-left-4 duration-300">
 
-                        {/* Email */}
-                        <div>
-                            <label className="block font-sans text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
-                                Email Address <span className="text-red-500">*</span>
-                            </label>
-                            <div className="relative">
-                                <Mail className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                                <input
-                                    id="register-email"
-                                    type="email"
-                                    required
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                    placeholder="nama@contoh.com"
-                                    className="w-full rounded-md border border-slate-200 bg-slate-50 py-2 pr-3 pl-9.5 font-sans text-xs focus:border-slate-400 focus:bg-white focus:outline-hidden text-slate-900"
-                                />
-                            </div>
-                        </div>
-
-                        {/* Password */}
-                        <div>
-                            <label className="block font-sans text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
-                                Password <span className="text-red-500">*</span>
-                            </label>
-                            <div className="relative">
-                                <Lock className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                                <input
-                                    id="register-password"
-                                    type={showPassword ? 'text' : 'password'}
-                                    required
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                    placeholder="Minimal 6 karakter"
-                                    className="w-full rounded-md border border-slate-200 bg-slate-50 py-2 pr-10 pl-9.5 font-sans text-xs focus:border-slate-400 focus:bg-white focus:outline-hidden text-slate-900"
-                                />
-                                <button
-                                    type="button"
-                                    onClick={() => setShowPassword(!showPassword)}
-                                    className="absolute top-1/2 right-3 -translate-y-1/2 text-slate-400 hover:text-slate-700 cursor-pointer"
-                                >
-                                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                                </button>
-                            </div>
-                            {/* Password strength bar */}
-                            {password.length > 0 && (
-                                <div className="mt-1.5">
-                                    <div className="h-1 w-full rounded-full bg-slate-100 overflow-hidden">
-                                        <div
-                                            className={`h-full rounded-full transition-all duration-300 ${passwordStrength.color}`}
-                                            style={{ width: passwordStrength.width }}
+                                {/* Email */}
+                                <div>
+                                    <label className="block font-sans text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                                        Email Address <span className="text-red-500">*</span>
+                                    </label>
+                                    <div className="relative">
+                                        <Mail className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                                        <input
+                                            id="register-email"
+                                            type="email"
+                                            required
+                                            value={email}
+                                            onChange={(e) => setEmail(e.target.value)}
+                                            placeholder="nama@contoh.com"
+                                            className="w-full rounded-md border border-slate-200 bg-slate-50 py-2 pr-3 pl-9.5 font-sans text-xs focus:border-slate-400 focus:bg-white focus:outline-hidden text-slate-900"
                                         />
                                     </div>
-                                    <p className="mt-0.5 font-sans text-[10px] text-slate-400">
-                                        Kekuatan password: <span className="font-bold">{passwordStrength.label}</span>
-                                    </p>
                                 </div>
-                            )}
-                        </div>
 
-                        {/* Confirm Password */}
-                        <div>
-                            <label className="block font-sans text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
-                                Konfirmasi Password <span className="text-red-500">*</span>
-                            </label>
-                            <div className="relative">
-                                <Lock className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                                <input
-                                    id="register-confirm-password"
-                                    type={showConfirmPassword ? 'text' : 'password'}
-                                    required
-                                    value={confirmPassword}
-                                    onChange={(e) => setConfirmPassword(e.target.value)}
-                                    placeholder="Ulangi password"
-                                    className={`w-full rounded-md border bg-slate-50 py-2 pr-10 pl-9.5 font-sans text-xs focus:bg-white focus:outline-hidden text-slate-900 ${
-                                        confirmPassword.length > 0 && confirmPassword === password
-                                            ? 'border-emerald-300 focus:border-emerald-400'
-                                            : confirmPassword.length > 0 && confirmPassword !== password
-                                              ? 'border-red-300 focus:border-red-400'
-                                              : 'border-slate-200 focus:border-slate-400'
-                                    }`}
-                                />
-                                <button
-                                    type="button"
-                                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                                    className="absolute top-1/2 right-3 -translate-y-1/2 text-slate-400 hover:text-slate-700 cursor-pointer"
-                                >
-                                    {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                                </button>
-                            </div>
-                            {/* Match indicator */}
-                            {confirmPassword.length > 0 && confirmPassword === password && (
-                                <div className="mt-1 flex items-center space-x-1">
-                                    <CheckCircle2 className="h-3 w-3 text-emerald-500" />
-                                    <p className="font-sans text-[10px] text-emerald-600 font-medium">Password cocok</p>
+                                {/* Password */}
+                                <div>
+                                    <label className="block font-sans text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                                        Password <span className="text-red-500">*</span>
+                                    </label>
+                                    <div className="relative">
+                                        <Lock className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                                        <input
+                                            id="register-password"
+                                            type={showPassword ? 'text' : 'password'}
+                                            required
+                                            value={password}
+                                            onChange={(e) => setPassword(e.target.value)}
+                                            placeholder="Minimal 6 karakter"
+                                            className="w-full rounded-md border border-slate-200 bg-slate-50 py-2 pr-10 pl-9.5 font-sans text-xs focus:border-slate-400 focus:bg-white focus:outline-hidden text-slate-900"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowPassword(!showPassword)}
+                                            className="absolute top-1/2 right-3 -translate-y-1/2 text-slate-400 hover:text-slate-700 cursor-pointer"
+                                        >
+                                            {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                        </button>
+                                    </div>
+                                    {/* Password strength bar */}
+                                    {password.length > 0 && (
+                                        <div className="mt-1.5">
+                                            <div className="h-1 w-full rounded-full bg-slate-100 overflow-hidden">
+                                                <div
+                                                    className={`h-full rounded-full transition-all duration-300 ${passwordStrength.color}`}
+                                                    style={{ width: passwordStrength.width }}
+                                                />
+                                            </div>
+                                            <p className="mt-0.5 font-sans text-[10px] text-slate-400">
+                                                Kekuatan password: <span className="font-bold">{passwordStrength.label}</span>
+                                            </p>
+                                        </div>
+                                    )}
                                 </div>
-                            )}
-                        </div>
+
+                                {/* Confirm Password */}
+                                <div>
+                                    <label className="block font-sans text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                                        Konfirmasi Password <span className="text-red-500">*</span>
+                                    </label>
+                                    <div className="relative">
+                                        <Lock className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                                        <input
+                                            id="register-confirm-password"
+                                            type={showConfirmPassword ? 'text' : 'password'}
+                                            required
+                                            value={confirmPassword}
+                                            onChange={(e) => setConfirmPassword(e.target.value)}
+                                            placeholder="Ulangi password"
+                                            className={`w-full rounded-md border bg-slate-50 py-2 pr-10 pl-9.5 font-sans text-xs focus:bg-white focus:outline-hidden text-slate-900 ${confirmPassword.length > 0 && confirmPassword === password
+                                                    ? 'border-emerald-300 focus:border-emerald-400'
+                                                    : confirmPassword.length > 0 && confirmPassword !== password
+                                                        ? 'border-red-300 focus:border-red-400'
+                                                        : 'border-slate-200 focus:border-slate-400'
+                                                }`}
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                            className="absolute top-1/2 right-3 -translate-y-1/2 text-slate-400 hover:text-slate-700 cursor-pointer"
+                                        >
+                                            {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                        </button>
+                                    </div>
+                                    {/* Match indicator */}
+                                    {confirmPassword.length > 0 && confirmPassword === password && (
+                                        <div className="mt-1 flex items-center space-x-1">
+                                            <CheckCircle2 className="h-3 w-3 text-emerald-500" />
+                                            <p className="font-sans text-[10px] text-emerald-600 font-medium">Password cocok</p>
+                                        </div>
+                                    )}
+                                </div>
 
                                 <div className="pt-2">
                                     <button

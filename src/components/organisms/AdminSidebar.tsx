@@ -8,8 +8,7 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import type { User } from '../../types';
 import {
     LayoutDashboard, Users, Briefcase, FolderGit2,
-    Shield, Settings, LogOut, ChevronRight,
-    ShieldCheck
+    Shield, Settings, LogOut
 } from 'lucide-react';
 import { clearAccessToken } from '../../lib/auth';
 
@@ -81,10 +80,9 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({ currentUser }) => {
                         to={item.path}
                         end={item.path === '/admin/dashboard'}
                         className={({ isActive }) =>
-                            `group relative flex items-center space-x-3 rounded-lg px-4 py-3 font-sans text-sm font-medium transition-colors ${
-                                isActive
-                                    ? 'bg-white/10 text-white'
-                                    : 'text-slate-400 hover:bg-white/5 hover:text-slate-200'
+                            `group relative flex items-center space-x-3 rounded-lg px-4 py-3 font-sans text-sm font-medium transition-colors ${isActive
+                                ? 'bg-white/10 text-white'
+                                : 'text-slate-400 hover:bg-white/5 hover:text-slate-200'
                             }`
                         }
                     >
@@ -94,10 +92,9 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({ currentUser }) => {
                                 {isActive && (
                                     <div className="absolute left-0 top-1/2 h-8 w-1 -translate-y-1/2 rounded-r-full bg-white"></div>
                                 )}
-                                
-                                <item.icon className={`h-[18px] w-[18px] transition-colors ${
-                                    isActive ? 'text-white' : 'text-slate-400 group-hover:text-slate-300'
-                                }`} />
+
+                                <item.icon className={`h-[18px] w-[18px] transition-colors ${isActive ? 'text-white' : 'text-slate-400 group-hover:text-slate-300'
+                                    }`} />
                                 <span>{item.label}</span>
                             </>
                         )}
