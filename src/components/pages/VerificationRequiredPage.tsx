@@ -1,17 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { Mail, ArrowLeft, Send, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
-import axios from 'axios';
-
-// Assuming your backend URL is set via environment variable or default
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+import { useResendVerification } from '../../hooks/useResendVerification';
 
 export const VerificationRequiredPage: React.FC = () => {
     const location = useLocation();
     const navigate = useNavigate();
     const email = location.state?.email || '';
 
-    const [isLoading, setIsLoading] = useState(false);
+    const resendVerification = useResendVerification();
     const [cooldown, setCooldown] = useState(0);
     const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle');
     const [message, setMessage] = useState('');
@@ -31,28 +28,30 @@ export const VerificationRequiredPage: React.FC = () => {
         }
     }, [cooldown]);
 
-    const handleResendEmail = async () => {
-        if (!email || cooldown > 0 || isLoading) return;
+    const handleResendEmail = () => {
+        if (!email || cooldown > 0 || resendVerification.isPending) return;
 
-        setIsLoading(true);
         setStatus('idle');
         setMessage('');
 
-        try {
-            await axios.post(`${API_URL}/auth/resend-verification`, { email });
-            setStatus('success');
-            setMessage('Email verifikasi telah dikirim ulang. Silakan cek inbox Anda.');
-            setCooldown(60); // 60 seconds cooldown
-        } catch (error: any) {
-            setStatus('error');
-            setMessage(
-                error.response?.data?.message ||
-                error.message ||
-                'Gagal mengirim ulang email verifikasi. Silakan coba lagi.'
-            );
-        } finally {
-            setIsLoading(false);
-        }
+        resendVerification.mutate(
+            { email },
+            {
+                onSuccess: (data) => {
+                    setStatus('success');
+                    setMessage(data.message || 'Email verifikasi telah dikirim ulang. Silakan cek inbox Anda.');
+                    setCooldown(60); // 60 seconds cooldown
+                },
+                onError: (error) => {
+                    setStatus('error');
+                    setMessage(
+                        error.response?.data?.message ||
+                        error.message ||
+                        'Gagal mengirim ulang email verifikasi. Silakan coba lagi.'
+                    );
+                },
+            }
+        );
     };
 
     if (!email) return null; // Prevents flashing before redirect
@@ -78,7 +77,7 @@ export const VerificationRequiredPage: React.FC = () => {
                         <h2 className="font-sans text-xl font-extrabold tracking-tight text-slate-900 mb-2">
                             Verifikasi Email Dibutuhkan
                         </h2>
-                        
+
                         <p className="font-sans text-sm text-slate-500 mb-6 leading-relaxed">
                             Akun Anda belum diverifikasi. Silakan periksa kotak masuk email Anda (atau folder spam) untuk tautan verifikasi.
                         </p>
@@ -111,14 +110,13 @@ export const VerificationRequiredPage: React.FC = () => {
                         <div className="w-full space-y-3">
                             <button
                                 onClick={handleResendEmail}
-                                disabled={isLoading || cooldown > 0}
-                                className={`flex w-full items-center justify-center space-x-2 rounded-lg py-3 font-sans text-sm font-bold uppercase tracking-wider transition-all duration-200 ${
-                                    cooldown > 0
-                                        ? 'bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200'
-                                        : 'bg-black text-white hover:bg-slate-800 shadow-sm active:scale-[0.98]'
-                                }`}
+                                disabled={resendVerification.isPending || cooldown > 0}
+                                className={`flex w-full items-center justify-center space-x-2 rounded-lg py-3 font-sans text-sm font-bold uppercase tracking-wider transition-all duration-200 ${cooldown > 0 || resendVerification.isPending
+                                    ? 'bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200'
+                                    : 'bg-black text-white hover:bg-slate-800 shadow-sm active:scale-[0.98]'
+                                    }`}
                             >
-                                {isLoading ? (
+                                {resendVerification.isPending ? (
                                     <>
                                         <Loader2 className="h-4 w-4 animate-spin" />
                                         <span>Mengirim...</span>

@@ -5,9 +5,9 @@
 
 import React, { useState } from 'react';
 import { Role, type User } from '../../types';
-import { useUsers, useCreateUser, useUpdateUser, useDeleteUser } from '../../hooks/useUsers';
+import { useUsers, useCreateUser, useUpdateUser, useDeleteUser, useResendVerification } from '../../hooks/useUsers';
 import { Dialog, DialogPanel, DialogTitle, DialogBackdrop, Listbox, ListboxButton, ListboxOptions, ListboxOption } from '@headlessui/react';
-import { Plus, ShieldAlert, Users, Search, Loader2, Calendar, ChevronLeft, ChevronRight, ChevronDown, Check, Edit, Trash2, Shield } from 'lucide-react';
+import { Plus, ShieldAlert, Users, Search, Loader2, Calendar, ChevronLeft, ChevronRight, ChevronDown, Check, Edit, Trash2, Shield, Mail, CheckCircle2, AlertCircle } from 'lucide-react';
 import { getSessionPayload } from '../../lib/auth';
 import { ConfirmDialog } from '../molecules/ConfirmDialog';
 
@@ -55,6 +55,7 @@ export const AdminUsers: React.FC = () => {
     const createUserMutation = useCreateUser();
     const updateUserMutation = useUpdateUser();
     const deleteUserMutation = useDeleteUser();
+    const resendVerificationMutation = useResendVerification();
 
     // Debounce search input
     React.useEffect(() => {
@@ -99,6 +100,41 @@ export const AdminUsers: React.FC = () => {
                             title: 'Failed to Delete User',
                             message: typeof errMsg === 'string' ? errMsg : 'An unexpected error occurred.',
                             variant: 'info',
+                            showCancel: false,
+                            onConfirm: () => {}
+                        });
+                    }
+                });
+            }
+        });
+    };
+
+    const handleResendVerification = (user: User) => {
+        setConfirmState({
+            isOpen: true,
+            title: 'Resend Email Verification',
+            message: `Send a new email verification link to ${user.email}?`,
+            variant: 'info',
+            showCancel: true,
+            onConfirm: () => {
+                resendVerificationMutation.mutate(user.id, {
+                    onSuccess: (res) => {
+                        setConfirmState({
+                            isOpen: true,
+                            title: 'Verification Email Sent',
+                            message: res.message || `Verification link sent to ${user.email}.`,
+                            variant: 'info',
+                            showCancel: false,
+                            onConfirm: () => {}
+                        });
+                    },
+                    onError: (err) => {
+                        const errMsg = err.response?.data?.message || err.message || 'Failed to send verification email.';
+                        setConfirmState({
+                            isOpen: true,
+                            title: 'Failed to Send Email',
+                            message: typeof errMsg === 'string' ? errMsg : 'An unexpected error occurred.',
+                            variant: 'danger',
                             showCancel: false,
                             onConfirm: () => {}
                         });
@@ -242,6 +278,7 @@ export const AdminUsers: React.FC = () => {
                             <tr>
                                 <th className="px-6 py-4">User Identity</th>
                                 <th className="px-6 py-4">Role Privileges</th>
+                                <th className="px-6 py-4">Status</th>
                                 <th className="px-6 py-4">Registration Date</th>
                                 <th className="px-6 py-4 text-right">Actions</th>
                             </tr>
@@ -249,14 +286,14 @@ export const AdminUsers: React.FC = () => {
                         <tbody className="divide-y divide-slate-100 font-sans text-slate-600">
                             {isLoading ? (
                                 <tr>
-                                    <td colSpan={4} className="px-6 py-12 text-center text-slate-455">
+                                    <td colSpan={5} className="px-6 py-12 text-center text-slate-455">
                                         <Loader2 className="mx-auto h-8 w-8 animate-spin text-slate-400 mb-2" />
                                         <p className="font-sans text-xs">Querying system database...</p>
                                     </td>
                                 </tr>
                             ) : usersList.length === 0 ? (
                                 <tr>
-                                    <td colSpan={4} className="px-6 py-12 text-center text-slate-400">
+                                    <td colSpan={5} className="px-6 py-12 text-center text-slate-400">
                                         <Users className="mx-auto h-8 w-8 text-slate-355 mb-2" />
                                         <p className="font-sans text-xs">No users match your listing criteria.</p>
                                     </td>
@@ -292,6 +329,21 @@ export const AdminUsers: React.FC = () => {
                                             </span>
                                         </td>
 
+                                        {/* Email Verification Status */}
+                                        <td className="px-6 py-4">
+                                            {user.isEmailVerified ? (
+                                                <span className="inline-flex items-center space-x-1 rounded-full bg-emerald-100 px-2.5 py-1 font-mono text-[9px] font-bold uppercase tracking-wider text-emerald-700 border border-emerald-200">
+                                                    <CheckCircle2 className="h-2.5 w-2.5" />
+                                                    <span>Verified</span>
+                                                </span>
+                                            ) : (
+                                                <span className="inline-flex items-center space-x-1 rounded-full bg-amber-100 px-2.5 py-1 font-mono text-[9px] font-bold uppercase tracking-wider text-amber-700 border border-amber-200">
+                                                    <AlertCircle className="h-2.5 w-2.5" />
+                                                    <span>Unverified</span>
+                                                </span>
+                                            )}
+                                        </td>
+
                                         {/* Created At */}
                                         <td className="px-6 py-4">
                                             <div className="flex items-center space-x-1.5 font-mono text-[10px] text-slate-550">
@@ -309,6 +361,16 @@ export const AdminUsers: React.FC = () => {
                                         {/* Actions */}
                                         <td className="px-6 py-4 text-right">
                                             <div className="flex items-center justify-end space-x-1.5">
+                                                {!user.isEmailVerified && (
+                                                    <button
+                                                        onClick={() => handleResendVerification(user)}
+                                                        disabled={resendVerificationMutation.isPending}
+                                                        className="rounded-md border border-amber-200 bg-amber-50 p-1.5 text-amber-600 hover:border-amber-400 hover:bg-amber-100 hover:text-amber-800 transition cursor-pointer disabled:opacity-50"
+                                                        title="Resend verification email"
+                                                    >
+                                                        <Mail className="h-3 w-3" />
+                                                    </button>
+                                                )}
                                                 <button
                                                     onClick={() => handleOpenEdit(user)}
                                                     className="rounded-md border border-slate-200 bg-white p-1.5 text-slate-500 hover:border-slate-400 hover:text-black transition cursor-pointer"

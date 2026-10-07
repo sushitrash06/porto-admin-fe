@@ -41,6 +41,7 @@ export interface User {
   id: string;
   email: string;
   role: Role;
+  isEmailVerified?: boolean;
   profile?: Profile | null;
   businessProfile?: BusinessProfile | null;
   createdAt: string;

@@ -95,3 +95,19 @@ export function useDeleteUser() {
     },
   });
 }
+
+/**
+ * Hook to resend email verification to user (Admin only)
+ */
+export function useResendVerification() {
+  const queryClient = useQueryClient();
+  return useMutation<{ message: string }, AxiosError<{ message?: string }>, string>({
+    mutationFn: async (id: string) => {
+      const { data } = await api.post<{ message: string }>(`/users/${id}/resend-verification`);
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+    },
+  });
+}
