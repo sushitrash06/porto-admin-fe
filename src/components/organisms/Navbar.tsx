@@ -72,7 +72,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentUser, onLogout }) => {
               </div>
               <div>
                 <span className="font-bold text-lg tracking-tight text-slate-900 font-sans">
-                  DevPortal
+                  Foliowalaweh
                 </span>
                 <span className="ml-1.5 rounded-md bg-slate-100 border border-slate-200 px-1.5 py-0.5 font-mono text-[9px] font-bold uppercase tracking-wider text-slate-500">
                   Admin
@@ -81,7 +81,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentUser, onLogout }) => {
             </>
           ) : (
             <span className="font-sans text-xl font-bold tracking-tight text-neutral-900">
-              Folio
+              Foliowalaweh
             </span>
           )}
         </div>
@@ -101,12 +101,12 @@ export const Navbar: React.FC<NavbarProps> = ({ currentUser, onLogout }) => {
             >
               Testimonials
             </button>
-            <button
+            {/* <button
               onClick={() => handleScrollTo('pricing')}
               className="text-sm font-medium text-neutral-600 hover:text-neutral-950 transition-colors cursor-pointer"
             >
               Pricing
-            </button>
+            </button> */}
           </nav>
         )}
 

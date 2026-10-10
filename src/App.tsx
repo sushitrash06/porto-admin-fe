@@ -217,7 +217,7 @@ function AppContent({ currentUser, handleLoginSuccess, handleLogout }: AppConten
           <div className="mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8">
             <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
               <span className="font-sans text-xs text-neutral-450">
-                © {new Date().getFullYear()} AdminPortfolio Hub. Complete persistent sandbox directory.
+                © {new Date().getFullYear()} Foliowalaweh Hub. Complete persistent sandbox directory.
               </span>
               <div className="flex items-center space-x-1 font-mono text-[10px] text-neutral-400">
                 <Cpu className="h-3 w-3" />

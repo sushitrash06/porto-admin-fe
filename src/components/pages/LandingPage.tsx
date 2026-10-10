@@ -9,7 +9,7 @@ import { ProjectType } from '../../types';
 import type { Project } from '../../types';
 import {
     Briefcase, FolderGit2, Search, Calendar, Github, GraduationCap,
-    Sparkles, Code2, Globe, Loader2, Play, Check, Star, User, FileText
+    Sparkles, Code2, Globe, Loader2, Play, Star, User, FileText
 } from 'lucide-react';
 import { useProfile } from '../../hooks/useProfile';
 import { useMyExperiences } from '../../hooks/useExperiences';
@@ -220,7 +220,7 @@ export const LandingPage: React.FC = () => {
                                 ))}
                             </div>
                             <p className="text-neutral-600 text-sm leading-relaxed mb-6 font-medium italic">
-                                "Folio helped me organize my scattered side projects and career milestones into a single, cohesive timeline. I shared it on LinkedIn and got contacted by three recruiters within a week!"
+                                "Foliowalaweh helped me organize my scattered side projects and career milestones into a single, cohesive timeline. I shared it on LinkedIn and got contacted by three recruiters within a week!"
                             </p>
                             <div className="flex items-center gap-3">
                                 <div className="h-10 w-10 rounded-full bg-slate-205 flex items-center justify-center font-bold text-neutral-700 text-sm">
@@ -240,7 +240,7 @@ export const LandingPage: React.FC = () => {
                                 ))}
                             </div>
                             <p className="text-neutral-600 text-sm leading-relaxed mb-6 font-medium italic">
-                                "As a small digital agency, we needed a neat showcase that wasn't overly complex. Folio let us present our clients' success stories beautifully and cleanly. It's a game changer."
+                                "As a small digital agency, we needed a neat showcase that wasn't overly complex. Foliowalaweh let us present our clients' success stories beautifully and cleanly. It's a game changer."
                             </p>
                             <div className="flex items-center gap-3">
                                 <div className="h-10 w-10 rounded-full bg-slate-205 flex items-center justify-center font-bold text-neutral-700 text-sm">
@@ -255,7 +255,7 @@ export const LandingPage: React.FC = () => {
                     </div>
                 </section>
 
-                {/* Pricing Section */}
+                {/* Pricing Section (Temporarily hidden)
                 <section id="pricing" className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-24 border-t border-neutral-100 scroll-mt-16 mb-12">
                     <div className="text-center mb-16">
                         <h2 className="text-3xl font-extrabold tracking-tight text-neutral-900 sm:text-4xl">
@@ -267,7 +267,7 @@ export const LandingPage: React.FC = () => {
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto items-stretch">
-                        {/* Free Tier */}
+                        Free Tier
                         <div className="rounded-2xl border border-neutral-200 bg-white p-8 flex flex-col justify-between hover:border-neutral-300 transition duration-300">
                             <div>
                                 <h3 className="text-lg font-bold text-neutral-900">Developer Starter</h3>
@@ -296,7 +296,7 @@ export const LandingPage: React.FC = () => {
                             </Link>
                         </div>
 
-                        {/* Pro Tier (Popular) */}
+                        Pro Tier (Popular)
                         <div className="rounded-2xl border-2 border-neutral-900 bg-white p-8 flex flex-col justify-between relative shadow-sm">
                             <div className="absolute top-0 right-8 transform -translate-y-1/2 rounded-full bg-neutral-955 text-white px-3 py-1 font-mono text-[9px] font-bold uppercase tracking-wider">
                                 Popular
@@ -332,7 +332,7 @@ export const LandingPage: React.FC = () => {
                             </Link>
                         </div>
 
-                        {/* Agency Tier */}
+                        Agency Tier
                         <div className="rounded-2xl border border-neutral-200 bg-white p-8 flex flex-col justify-between hover:border-neutral-300 transition duration-300">
                             <div>
                                 <h3 className="text-lg font-bold text-neutral-900">Agency & Teams</h3>
@@ -366,6 +366,7 @@ export const LandingPage: React.FC = () => {
                         </div>
                     </div>
                 </section>
+                */}
             </div>
         );
     }

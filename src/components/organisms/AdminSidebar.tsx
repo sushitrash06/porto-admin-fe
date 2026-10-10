@@ -67,7 +67,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({ currentUser }) => {
                         <LayoutDashboard className="h-4 w-4" />
                     </div>
                     <span className="font-sans text-lg font-bold text-white tracking-wide">
-                        PortoAdmin
+                        Foliowalaweh
                     </span>
                 </div>
             </div>

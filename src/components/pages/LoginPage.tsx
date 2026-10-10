@@ -100,7 +100,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
                     </div>
 
                     <h2 className="mt-4 font-sans text-xl font-bold tracking-tight text-slate-900">
-                        Sign In to Portal
+                        Sign In to Foliowalaweh
                     </h2>
                     <p className="mt-1 font-sans text-xs text-slate-400">
                         Enter secure credentials to administer directory databases.
