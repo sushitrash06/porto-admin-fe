@@ -79,7 +79,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentUser, profile, business
       {/* Preview Portfolio Link */}
       {!isProfileIncomplete && (
         <a
-          href={`http://localhost:3002/${currentUser.id}`}
+          href={`/portfolio/${currentUser.id}`}
           target="_blank"
           rel="noopener noreferrer"
           className="flex w-full items-center justify-center space-x-2 rounded-xl border border-indigo-200 bg-indigo-50 px-4 py-3 font-sans text-xs font-bold text-indigo-700 uppercase tracking-wider hover:bg-indigo-100 hover:border-indigo-300 transition active:scale-[0.98]"

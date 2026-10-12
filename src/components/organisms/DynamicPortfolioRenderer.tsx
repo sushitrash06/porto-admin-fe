@@ -195,9 +195,35 @@ const AboutBlock: React.FC<{
   section: SectionBlock;
   profile?: Partial<Profile> | null;
 }> = ({ section, profile }) => {
+  const variant = section.variant || 'CLASSIC_CARD';
   const title = section.title || 'About Me';
   const bio = profile?.bio || 'Passionate software craftsman dedicated to clean architectures, responsive design systems, and delightful digital experiences.';
   const headline = profile?.headline;
+
+  if (variant === 'SIDE_BY_SIDE') {
+    return (
+      <section className="py-16 px-6 max-w-6xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-start p-8 md:p-12 rounded-[var(--radius)] bg-[var(--surface)] border border-[var(--text)]/10 shadow-sm">
+          <div className="md:col-span-4 space-y-3">
+            <span className="w-2.5 h-8 rounded-full bg-[var(--primary)] inline-block" />
+            <h2 className="text-3xl font-extrabold text-[var(--text)] tracking-tight">
+              {title}
+            </h2>
+            {headline && (
+              <p className="text-sm font-semibold text-[var(--primary)] uppercase tracking-wider">
+                {headline}
+              </p>
+            )}
+          </div>
+          <div className="md:col-span-8">
+            <p className="text-base text-[var(--text)]/80 leading-relaxed whitespace-pre-line">
+              {bio}
+            </p>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="py-16 px-6 max-w-5xl mx-auto">
@@ -417,6 +443,7 @@ const ExperienceBlock: React.FC<{
   section: SectionBlock;
   experiences?: Experience[];
 }> = ({ section, experiences = [] }) => {
+  const variant = section.variant || 'VERTICAL_LINE';
   const title = section.title || 'Work Experience';
 
   const sampleExp: Partial<Experience>[] = [
@@ -439,6 +466,47 @@ const ExperienceBlock: React.FC<{
   ];
 
   const items = experiences.length > 0 ? experiences : (sampleExp as Experience[]);
+
+  if (variant === 'CARDS_GRID') {
+    return (
+      <section className="py-20 px-6 max-w-6xl mx-auto">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl font-extrabold text-[var(--text)] tracking-tight">
+            {title}
+          </h2>
+          <p className="text-sm text-[var(--text)]/60 mt-1">Career journey and contributions</p>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {items.map((exp) => (
+            <div
+              key={exp.id}
+              className="p-6 rounded-[var(--radius)] bg-[var(--surface)] border border-[var(--text)]/10 shadow-2xs hover:border-[var(--primary)]/40 transition duration-300 flex flex-col justify-between"
+            >
+              <div>
+                <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
+                  <h3 className="text-lg font-bold text-[var(--text)]">
+                    {exp.position}
+                  </h3>
+                  <span className="inline-flex items-center gap-1 text-[11px] font-mono text-[var(--primary)] font-bold">
+                    <Calendar className="w-3 h-3" />
+                    {exp.startDate} — {exp.endDate || 'Active'}
+                  </span>
+                </div>
+                <p className="text-xs font-semibold text-[var(--text)]/70 mb-3">
+                  {exp.company}
+                </p>
+                {exp.description && (
+                  <p className="text-xs text-[var(--text)]/80 leading-relaxed whitespace-pre-line">
+                    {exp.description}
+                  </p>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="py-20 px-6 max-w-4xl mx-auto">
@@ -486,6 +554,7 @@ const ServicesBlock: React.FC<{
   section: SectionBlock;
   services?: BusinessService[] | string[];
 }> = ({ section, services = [] }) => {
+  const variant = section.variant || 'CARDS_3COL';
   const title = section.title || 'Services & Solutions';
   const defaultServices = [
     { title: 'Full-Stack Web Engineering', desc: 'Design, development, and deployment of reactive web apps with modern toolchains.' },
@@ -493,6 +562,38 @@ const ServicesBlock: React.FC<{
     { title: 'Technical Architecture Audit', desc: 'Performance optimization, security audits, and code review consulting.' },
   ];
   const items = services && services.length > 0 ? services : defaultServices;
+
+  if (variant === 'MINIMAL_LIST') {
+    return (
+      <section className="py-20 px-6 max-w-4xl mx-auto">
+        <div className="text-center mb-10">
+          <h2 className="text-3xl font-extrabold text-[var(--text)] tracking-tight">
+            {title}
+          </h2>
+          <p className="text-sm text-[var(--text)]/60 mt-1">High impact offerings for teams and businesses</p>
+        </div>
+        <div className="space-y-4">
+          {items.map((srv, idx) => {
+            const srvTitle = typeof srv === 'string' ? srv : 'name' in srv ? srv.name : 'title' in srv ? srv.title : 'Service';
+            const srvDesc = typeof srv === 'string' ? 'Custom consulting and delivery.' : 'description' in srv ? srv.description || 'Custom offering.' : 'desc' in srv ? srv.desc : 'Custom offering.';
+            return (
+              <div key={idx} className="p-5 rounded-[var(--radius)] bg-[var(--surface)] border border-[var(--text)]/10 shadow-3xs flex items-center justify-between gap-4">
+                <div className="flex items-center gap-3.5">
+                  <div className="w-9 h-9 rounded-lg bg-[var(--primary)]/10 text-[var(--primary)] flex items-center justify-center shrink-0">
+                    <Briefcase className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold text-[var(--text)]">{srvTitle}</h3>
+                    <p className="text-xs text-[var(--text)]/70 mt-0.5">{srvDesc}</p>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="py-20 px-6 max-w-6xl mx-auto">
@@ -551,10 +652,44 @@ const ContactBlock: React.FC<{
   section: SectionBlock;
   profile?: Partial<Profile> | null;
 }> = ({ section, profile }) => {
+  const variant = section.variant || 'FORM_AND_DETAILS';
   const title = section.title || "Let's Work Together";
   const email = profile?.contactEmail || 'hello@developer.io';
   const phone = profile?.phoneNumber;
   const location = profile?.location;
+
+  if (variant === 'SIMPLE_LINKS') {
+    return (
+      <section id="contact" className="py-16 px-6 max-w-4xl mx-auto text-center">
+        <h2 className="text-2xl md:text-3xl font-extrabold text-[var(--text)] tracking-tight mb-2">
+          {title}
+        </h2>
+        <p className="text-xs md:text-sm text-[var(--text)]/70 max-w-md mx-auto mb-6">
+          Reach out directly via email or phone.
+        </p>
+        <div className="flex flex-wrap items-center justify-center gap-3">
+          {email && (
+            <a
+              href={`mailto:${email}`}
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-[var(--radius)] bg-[var(--primary)] text-white font-bold text-xs uppercase tracking-wider hover:opacity-90 transition shadow-sm"
+            >
+              <Mail className="w-3.5 h-3.5" />
+              <span>{email}</span>
+            </a>
+          )}
+          {phone && (
+            <a
+              href={`tel:${phone}`}
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-[var(--radius)] bg-[var(--surface)] border border-[var(--text)]/15 text-[var(--text)] font-bold text-xs uppercase tracking-wider hover:bg-[var(--text)]/5 transition"
+            >
+              <Phone className="w-3.5 h-3.5" />
+              <span>{phone}</span>
+            </a>
+          )}
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section id="contact" className="py-20 px-6 max-w-4xl mx-auto">
@@ -603,7 +738,28 @@ const ContactBlock: React.FC<{
 const BannerBlock: React.FC<{
   section: SectionBlock;
 }> = ({ section }) => {
+  const variant = section.variant || 'GRADIENT_ACCENT';
   const title = section.title || 'Open for Consulting & Contracting';
+
+  if (variant === 'SUBTLE_CARD') {
+    return (
+      <section className="py-10 px-6 max-w-5xl mx-auto">
+        <div className="p-6 rounded-[var(--radius)] bg-[var(--surface)] border-2 border-[var(--primary)]/30 text-[var(--text)] shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
+          <div>
+            <h3 className="text-lg font-bold text-[var(--text)]">{title}</h3>
+            <p className="text-xs text-[var(--text)]/70 mt-0.5">Specialized in React, TypeScript, Cloud Architectures.</p>
+          </div>
+          <a
+            href="#contact"
+            className="px-5 py-2.5 rounded-[var(--radius)] bg-[var(--primary)] text-white font-bold text-xs uppercase tracking-wider hover:opacity-90 transition shrink-0"
+          >
+            Contact Now
+          </a>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="py-12 px-6 max-w-5xl mx-auto">
       <div className="p-6 rounded-[var(--radius)] bg-[var(--primary)] text-white shadow-lg flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">

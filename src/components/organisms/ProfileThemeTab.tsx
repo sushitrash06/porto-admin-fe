@@ -3,259 +3,591 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { Reorder } from 'motion/react';
 import {
   Palette, Check, Loader2, ExternalLink, Sparkles,
-  Sliders, Moon, Sun, CheckCircle2, Layers
+  Sliders, Moon, Sun, CheckCircle2, Layers, GripVertical,
+  Eye, EyeOff, RotateCcw, AlertTriangle, ArrowUpDown,
+  Laptop, ShieldAlert
 } from 'lucide-react';
+import type { AxiosError } from 'axios';
 import {
   usePublishedTemplates,
+  useMyTheme,
   useApplyTemplate,
   useUpdateUserThemeConfig,
+  useReorderSections,
+  useResetThemeConfig,
 } from '../../hooks/useTemplates';
 import type { Profile } from '../../types';
-import type { UserCustomConfig, Template } from '../../types/theme';
-
-interface PersonalThemeCustomizerProps {
-  initialAccentColor: string;
-  initialDarkMode: boolean;
-  onSave: (payload: UserCustomConfig) => void;
-  isSaving: boolean;
-}
-
-const PersonalThemeCustomizer: React.FC<PersonalThemeCustomizerProps> = ({
-  initialAccentColor,
-  initialDarkMode,
-  onSave,
-  isSaving,
-}) => {
-  const [accentColor, setAccentColor] = useState<string>(initialAccentColor);
-  const [darkMode, setDarkMode] = useState<boolean>(initialDarkMode);
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onSave({
-      theme: {
-        primaryColor: accentColor,
-        darkMode,
-      },
-    });
-  };
-
-  return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-3xs space-y-5">
-      <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-        <h4 className="text-sm font-bold uppercase tracking-wider text-slate-800 flex items-center gap-2">
-          <Sliders className="w-4 h-4 text-indigo-600" />
-          <span>Personal Theme Customizer</span>
-        </h4>
-        <span className="text-[11px] text-slate-400">Personal overrides for your portfolio</span>
-      </div>
-
-      <form onSubmit={handleSubmit} className="space-y-5">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          {/* Custom Accent Color */}
-          <div>
-            <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">
-              Personal Accent Color
-            </label>
-            <div className="flex items-center gap-3">
-              <input
-                type="color"
-                value={accentColor}
-                onChange={(e) => setAccentColor(e.target.value)}
-                className="w-10 h-10 rounded-lg bg-transparent border border-slate-200 cursor-pointer"
-              />
-              <input
-                type="text"
-                value={accentColor}
-                onChange={(e) => setAccentColor(e.target.value)}
-                placeholder="#000000"
-                className="flex-1 px-3.5 py-2 rounded-lg border border-slate-200 bg-slate-50 font-mono text-xs text-slate-900 focus:bg-white focus:outline-hidden focus:border-indigo-500"
-              />
-            </div>
-            <p className="text-[10px] text-slate-400 mt-1.5">
-              Overrides the primary buttons, highlights, and link colors on your chosen template.
-            </p>
-          </div>
-
-          {/* Dark Mode Toggle */}
-          <div>
-            <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">
-              Color Scheme Preference
-            </label>
-            <div className="flex items-center justify-between p-3 rounded-xl border border-slate-200 bg-slate-50">
-              <div className="flex items-center gap-2">
-                {darkMode ? <Moon className="w-4 h-4 text-indigo-600" /> : <Sun className="w-4 h-4 text-amber-500" />}
-                <span className="text-xs font-semibold text-slate-700">
-                  {darkMode ? 'Dark Mode Surface' : 'Light Mode Surface'}
-                </span>
-              </div>
-              <label className="relative inline-flex items-center cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={darkMode}
-                  onChange={(e) => setDarkMode(e.target.checked)}
-                  className="sr-only peer"
-                />
-                <div className="w-11 h-6 bg-slate-200 peer-focus:outline-hidden rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-black" />
-              </label>
-            </div>
-            <p className="text-[10px] text-slate-400 mt-1.5">
-              Toggle dark contrast background across your portfolio page.
-            </p>
-          </div>
-        </div>
-
-        <div className="flex justify-end pt-2">
-          <button
-            type="submit"
-            disabled={isSaving}
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-black text-white text-xs font-bold uppercase tracking-wider hover:bg-slate-800 transition active:scale-95 disabled:opacity-50 cursor-pointer shadow-xs"
-          >
-            {isSaving && (
-              <Loader2 className="w-3.5 h-3.5 animate-spin" />
-            )}
-            <span>Save Theme Customization</span>
-          </button>
-        </div>
-      </form>
-    </div>
-  );
-};
+import type {
+  Template,
+  TemplateCategory,
+  SectionBlock,
+} from '../../types/theme';
 
 interface ProfileThemeTabProps {
   profile?: Profile | null;
   userId: string;
 }
 
-export const ProfileThemeTab: React.FC<ProfileThemeTabProps> = ({ profile, userId }) => {
-  // Published templates query
-  const { data: publishedTemplates = [], isLoading: isLoadingTemplates } = usePublishedTemplates();
+const PRESET_ACCENT_COLORS = [
+  { name: 'Indigo Aura', color: '#6366f1' },
+  { name: 'Emerald Spark', color: '#10b981' },
+  { name: 'Purple Bloom', color: '#8b5cf6' },
+  { name: 'Rose Velvet', color: '#f43f5e' },
+  { name: 'Amber Sunset', color: '#f59e0b' },
+  { name: 'Ocean Cyan', color: '#06b6d4' },
+  { name: 'Monochrome Noir', color: '#09090b' },
+];
 
-  // Mutations
+const CATEGORY_TABS: Array<{ label: string; value: TemplateCategory | 'ALL' }> = [
+  { label: 'All Categories', value: 'ALL' },
+  { label: 'Developer', value: 'DEVELOPER' },
+  { label: 'Designer', value: 'DESIGNER' },
+  { label: 'Business', value: 'BUSINESS' },
+  { label: 'Creative', value: 'CREATIVE' },
+  { label: 'Minimal', value: 'MINIMAL' },
+];
+
+export const ProfileThemeTab: React.FC<ProfileThemeTabProps> = ({ profile: _profile, userId }) => {
+  // ─── 1. API QUERIES & MUTATIONS ───────────────────────────────────────────
+  const [selectedCategory, setSelectedCategory] = useState<TemplateCategory | 'ALL'>('ALL');
+  const { data: myThemeData, isLoading: isLoadingMyTheme } = useMyTheme();
+  const { data: publishedTemplates = [], isLoading: isLoadingTemplates } = usePublishedTemplates(
+    selectedCategory === 'ALL' ? undefined : selectedCategory
+  );
+
   const applyTemplateMutation = useApplyTemplate();
   const updateCustomConfigMutation = useUpdateUserThemeConfig();
+  const reorderSectionsMutation = useReorderSections();
+  const resetThemeMutation = useResetThemeConfig();
 
-  // Active template resolution
-  const activeTemplateId = profile?.templateId || null;
-  const [statusMessage, setStatusMessage] = useState<string>('');
+  // ─── 2. LOCAL STATE FOR SECTIONS & CUSTOMIZER ─────────────────────────────
+  const [sections, setSections] = useState<SectionBlock[]>([]);
+  const [accentColor, setAccentColor] = useState<string>('#000000');
+  const [darkMode, setDarkMode] = useState<boolean>(false);
+  const [statusMessage, setStatusMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
+  const [showResetConfirm, setShowResetConfirm] = useState<boolean>(false);
+  const [hasUnsavedReorder, setHasUnsavedReorder] = useState<boolean>(false);
 
-  const showFeedback = (msg: string) => {
-    setStatusMessage(msg);
-    setTimeout(() => setStatusMessage(''), 3000);
+  // Sync state when backend returns myThemeData
+  useEffect(() => {
+    if (myThemeData?.resolvedLayout?.sections) {
+      setSections(myThemeData.resolvedLayout.sections);
+      setHasUnsavedReorder(false);
+    }
+    if (myThemeData?.resolvedLayout?.theme) {
+      const activeColor =
+        myThemeData.userCustomConfig?.theme?.primaryColor ||
+        myThemeData.resolvedLayout.theme.primaryColor ||
+        '#000000';
+      const activeDark =
+        myThemeData.userCustomConfig?.theme?.darkMode ??
+        myThemeData.resolvedLayout.theme.darkMode ??
+        false;
+      setAccentColor(activeColor);
+      setDarkMode(activeDark);
+    }
+  }, [myThemeData]);
+
+  const showFeedback = (text: string, type: 'success' | 'error' = 'success') => {
+    setStatusMessage({ text, type });
+    setTimeout(() => setStatusMessage(null), 3500);
   };
 
-  const handleApplyTemplate = (template: Template) => {
-    applyTemplateMutation.mutate(template.id, {
+  // ─── 3. ACTIONS ────────────────────────────────────────────────────────────
+
+  // Apply new template
+  const handleApplyTemplate = (tpl: Template) => {
+    applyTemplateMutation.mutate(tpl.id, {
       onSuccess: () => {
-        showFeedback(`Theme template "${template.name}" applied successfully!`);
+        showFeedback(`Template "${tpl.name}" successfully applied to your portfolio!`);
       },
-      onError: (err) => {
-        showFeedback(err.response?.data?.message || 'Failed to apply theme template.');
+      onError: (err: AxiosError<{ message?: string }>) => {
+        showFeedback(err.response?.data?.message || 'Failed to apply template.', 'error');
       },
     });
   };
 
-  const handleSaveCustomization = (payload: UserCustomConfig) => {
-    updateCustomConfigMutation.mutate(payload, {
+  // Drag-and-drop Reorder
+  const handleReorder = (newSections: SectionBlock[]) => {
+    setSections(newSections);
+    setHasUnsavedReorder(true);
+  };
+
+  // Save reordered sections
+  const handleSaveReorder = () => {
+    const sectionIds = sections.map((s) => s.id);
+    reorderSectionsMutation.mutate(sectionIds, {
       onSuccess: () => {
-        showFeedback('Personal theme overrides saved successfully!');
+        setHasUnsavedReorder(false);
+        showFeedback('Section order saved successfully!');
       },
-      onError: (err) => {
-        showFeedback(err.response?.data?.message || 'Failed to save theme overrides.');
+      onError: (err: AxiosError<{ message?: string }>) => {
+        showFeedback(err.response?.data?.message || 'Failed to save section order.', 'error');
       },
     });
   };
 
-  const activeTemplate = publishedTemplates.find((t) => t.id === activeTemplateId);
+  // Toggle Visibility of a Section
+  const handleToggleVisibility = (sectionId: string) => {
+    const updatedSections = sections.map((s) =>
+      s.id === sectionId ? { ...s, isVisible: !s.isVisible } : s
+    );
+    setSections(updatedSections);
+
+    // Save visibility override to backend
+    updateCustomConfigMutation.mutate(
+      {
+        sections: updatedSections.map((s) => ({
+          id: s.id,
+          isVisible: s.isVisible,
+        })),
+      },
+      {
+        onSuccess: () => {
+          const toggled = updatedSections.find((s) => s.id === sectionId);
+          showFeedback(
+            `Section "${toggled?.title || toggled?.type}" is now ${
+              toggled?.isVisible ? 'visible' : 'hidden'
+            } on your portfolio.`
+          );
+        },
+        onError: (err: AxiosError<{ message?: string }>) => {
+          showFeedback(err.response?.data?.message || 'Failed to update section visibility.', 'error');
+        },
+      }
+    );
+  };
+
+  // Save Accent Color & Dark Mode
+  const handleSaveAppearance = (e: React.FormEvent) => {
+    e.preventDefault();
+    updateCustomConfigMutation.mutate(
+      {
+        theme: {
+          primaryColor: accentColor,
+          darkMode,
+        },
+      },
+      {
+        onSuccess: () => {
+          showFeedback('Personal theme accent color and styling saved!');
+        },
+        onError: (err: AxiosError<{ message?: string }>) => {
+          showFeedback(err.response?.data?.message || 'Failed to save appearance settings.', 'error');
+        },
+      }
+    );
+  };
+
+  // Reset to default template layout
+  const handleConfirmReset = () => {
+    resetThemeMutation.mutate(undefined, {
+      onSuccess: () => {
+        setShowResetConfirm(false);
+        showFeedback('All customizations reset back to default template layout!');
+      },
+      onError: (err: AxiosError<{ message?: string }>) => {
+        showFeedback(err.response?.data?.message || 'Failed to reset theme.', 'error');
+      },
+    });
+  };
+
+  const activeTemplate = myThemeData?.template;
 
   return (
     <div className="space-y-8 font-sans">
       {/* ─────────────────────────────────────────────────────────────────────────────
-          1. HEADER & PREVIEW LINK
+          1. HERO HEADER WITH ACTIVE TEMPLATE STATUS & LIVE PREVIEW LINK
          ───────────────────────────────────────────────────────────────────────────── */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-5 rounded-2xl bg-gradient-to-r from-slate-900 via-slate-800 to-indigo-950 text-white shadow-md">
-        <div>
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/10 text-indigo-300 font-mono text-[9px] font-bold uppercase tracking-wider mb-2 backdrop-blur-xs">
-            <Sparkles className="w-3 h-3 text-amber-300" />
-            <span>Theme & Section Blueprint</span>
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 p-6 text-white shadow-xl border border-slate-800">
+        <div className="relative z-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-5">
+          <div className="space-y-1.5">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-indigo-300 font-mono text-[10px] font-bold uppercase tracking-wider backdrop-blur-xs border border-white/10">
+              <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+              <span>Theme Studio & Section Reorder</span>
+            </div>
+            <h3 className="text-xl sm:text-2xl font-black tracking-tight text-white">
+              Portfolio Customizer
+            </h3>
+            <p className="text-xs text-slate-300 max-w-xl leading-relaxed">
+              Choose your favorite blueprint template, reorder sections with drag & drop,
+              toggle visibility, and pick your personal color accent.
+            </p>
           </div>
-          <h3 className="text-lg font-bold tracking-tight">
-            Personal Portfolio Layout & Styling
-          </h3>
-          <p className="text-xs text-slate-300 mt-0.5">
-            Select a verified template layout and personalize your custom accent color.
-          </p>
+
+          <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+            {userId && (
+              <a
+                href={`/portfolio/${userId}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white text-slate-950 text-xs font-bold uppercase tracking-wider hover:bg-slate-100 transition active:scale-95 shadow-md"
+              >
+                <ExternalLink className="w-3.5 h-3.5" />
+                <span>View Live Portfolio</span>
+              </a>
+            )}
+
+            <button
+              type="button"
+              onClick={() => setShowResetConfirm(true)}
+              disabled={resetThemeMutation.isPending}
+              className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-700/80 text-xs font-semibold transition active:scale-95 cursor-pointer"
+              title="Reset all customized sections and colors to template defaults"
+            >
+              <RotateCcw className="w-3.5 h-3.5 text-amber-400" />
+              <span>Reset Defaults</span>
+            </button>
+          </div>
         </div>
 
-        {userId && (
-          <a
-            href={`/portfolio/${userId}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white text-slate-950 text-xs font-bold uppercase tracking-wider hover:bg-slate-100 transition active:scale-95 shadow-sm shrink-0"
-          >
-            <ExternalLink className="w-3.5 h-3.5" />
-            <span>Preview Portfolio</span>
-          </a>
+        {/* Active Template Bar */}
+        {activeTemplate && (
+          <div className="mt-5 pt-4 border-t border-slate-800/80 flex flex-wrap items-center justify-between gap-3 text-xs">
+            <div className="flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="text-slate-400">Current Active Template:</span>
+              <strong className="text-white font-bold">{activeTemplate.name}</strong>
+              <span className="px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 font-mono text-[10px] uppercase">
+                {activeTemplate.category}
+              </span>
+            </div>
+
+            <div className="flex items-center gap-4 text-[11px] font-mono text-slate-400">
+              <span>{sections.length} Sections Configured</span>
+              <span>{sections.filter((s) => s.isVisible).length} Visible</span>
+            </div>
+          </div>
         )}
       </div>
 
+      {/* Floating Status Notification */}
       {statusMessage && (
-        <div className="p-3.5 rounded-xl bg-slate-900 text-white text-xs font-semibold flex items-center gap-2 shadow-md animate-in fade-in duration-200">
-          <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-          <span>{statusMessage}</span>
+        <div
+          className={`p-4 rounded-xl text-xs font-bold flex items-center gap-2 shadow-lg animate-in fade-in duration-200 ${
+            statusMessage.type === 'success'
+              ? 'bg-slate-900 text-white border border-slate-800'
+              : 'bg-rose-900/90 text-white border border-rose-800'
+          }`}
+        >
+          {statusMessage.type === 'success' ? (
+            <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+          ) : (
+            <ShieldAlert className="w-4 h-4 text-rose-300 shrink-0" />
+          )}
+          <span>{statusMessage.text}</span>
         </div>
       )}
 
       {/* ─────────────────────────────────────────────────────────────────────────────
-          2. MINI CUSTOMIZER (PERSONAL ACCENT & DARK MODE)
+          2. TWO-COLUMN WORKSPACE: PERSONAL CUSTOMIZER & SECTION REORDER
          ───────────────────────────────────────────────────────────────────────────── */}
-      <PersonalThemeCustomizer
-        key={`${userId}-${profile?.userCustomConfig?.theme?.primaryColor || ''}-${profile?.userCustomConfig?.theme?.darkMode}`}
-        initialAccentColor={profile?.userCustomConfig?.theme?.primaryColor || '#000000'}
-        initialDarkMode={profile?.userCustomConfig?.theme?.darkMode ?? false}
-        onSave={handleSaveCustomization}
-        isSaving={updateCustomConfigMutation.isPending}
-      />
+      {isLoadingMyTheme ? (
+        <div className="py-20 flex flex-col items-center justify-center text-slate-400">
+          <Loader2 className="w-8 h-8 animate-spin text-slate-800 mb-2" />
+          <p className="text-xs font-semibold">Loading your portfolio configuration...</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          {/* ─── LEFT: PERSONAL SECTION REORDER & VISIBILITY (7 Cols) ─── */}
+          <div className="lg:col-span-7 space-y-5">
+            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-2xs space-y-4">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+                <div>
+                  <h4 className="text-sm font-bold uppercase tracking-wider text-slate-900 flex items-center gap-2">
+                    <ArrowUpDown className="w-4 h-4 text-indigo-600" />
+                    <span>Personal Section Reordering</span>
+                  </h4>
+                  <p className="text-xs text-slate-400 mt-0.5">
+                    Drag the handle ⠿ to arrange sections in your preferred order, or toggle eye icon to hide/show.
+                  </p>
+                </div>
+
+                {hasUnsavedReorder && (
+                  <button
+                    type="button"
+                    onClick={handleSaveReorder}
+                    disabled={reorderSectionsMutation.isPending}
+                    className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold uppercase tracking-wider transition active:scale-95 shadow-sm cursor-pointer"
+                  >
+                    {reorderSectionsMutation.isPending && (
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    )}
+                    <span>Save Order</span>
+                  </button>
+                )}
+              </div>
+
+              {sections.length === 0 ? (
+                <div className="p-8 text-center text-slate-400 border border-dashed border-slate-200 rounded-xl">
+                  <p className="text-xs">No sections found for this template.</p>
+                </div>
+              ) : (
+                <Reorder.Group
+                  axis="y"
+                  values={sections}
+                  onReorder={handleReorder}
+                  className="space-y-2.5"
+                >
+                  {sections.map((section, index) => (
+                    <Reorder.Item
+                      key={section.id}
+                      value={section}
+                      className={`flex items-center justify-between p-3.5 rounded-xl border transition-all duration-200 select-none shadow-2xs cursor-grab active:cursor-grabbing ${
+                        section.isVisible
+                          ? 'bg-slate-50/80 border-slate-200 hover:border-indigo-400/80 hover:bg-white'
+                          : 'bg-slate-100/60 border-slate-200/60 opacity-60'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3 min-w-0">
+                        {/* Drag Handle */}
+                        <div className="p-1 rounded text-slate-400 hover:text-slate-600">
+                          <GripVertical className="w-4 h-4 shrink-0" />
+                        </div>
+
+                        {/* Order Badge */}
+                        <span className="w-5 h-5 rounded-full bg-slate-200 text-slate-700 text-[10px] font-mono font-bold flex items-center justify-center shrink-0">
+                          {index + 1}
+                        </span>
+
+                        <div className="min-w-0">
+                          <p className="font-bold text-xs text-slate-900 truncate">
+                            {section.title || section.type}
+                          </p>
+                          <div className="flex items-center gap-2 mt-0.5">
+                            <span className="font-mono text-[9px] font-bold text-indigo-600 uppercase bg-indigo-50 px-1.5 py-0.2 rounded">
+                              {section.type}
+                            </span>
+                            {section.variant && (
+                              <span className="font-mono text-[9px] text-slate-400">
+                                {section.variant}
+                              </span>
+                            )}
+                            {!section.isVisible && (
+                              <span className="text-[10px] font-semibold text-rose-500 bg-rose-50 px-1.5 py-0.2 rounded">
+                                Hidden
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Visibility Toggle Button */}
+                      <div className="flex items-center gap-2 shrink-0">
+                        <button
+                          type="button"
+                          onClick={() => handleToggleVisibility(section.id)}
+                          disabled={updateCustomConfigMutation.isPending}
+                          className={`p-2 rounded-lg border transition cursor-pointer ${
+                            section.isVisible
+                              ? 'border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
+                              : 'border-slate-200 bg-white text-slate-400 hover:bg-slate-50 hover:text-slate-600'
+                          }`}
+                          title={section.isVisible ? 'Hide this section' : 'Show this section'}
+                        >
+                          {section.isVisible ? (
+                            <Eye className="w-4 h-4" />
+                          ) : (
+                            <EyeOff className="w-4 h-4 text-rose-500" />
+                          )}
+                        </button>
+                      </div>
+                    </Reorder.Item>
+                  ))}
+                </Reorder.Group>
+              )}
+
+              {hasUnsavedReorder && (
+                <div className="pt-2 flex justify-end">
+                  <button
+                    type="button"
+                    onClick={handleSaveReorder}
+                    disabled={reorderSectionsMutation.isPending}
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-black text-white text-xs font-bold uppercase tracking-wider hover:bg-slate-800 transition active:scale-95 shadow-sm cursor-pointer"
+                  >
+                    {reorderSectionsMutation.isPending && (
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    )}
+                    <span>Save New Section Order</span>
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* ─── RIGHT: COLOR ACCENT PICKER & PREFERENCE (5 Cols) ─── */}
+          <div className="lg:col-span-5 space-y-5">
+            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-2xs space-y-5">
+              <div className="border-b border-slate-100 pb-3 flex items-center justify-between">
+                <h4 className="text-sm font-bold uppercase tracking-wider text-slate-900 flex items-center gap-2">
+                  <Sliders className="w-4 h-4 text-indigo-600" />
+                  <span>Personal Accent & Colors</span>
+                </h4>
+                <span className="text-[10px] font-mono text-slate-400">User Overrides</span>
+              </div>
+
+              <form onSubmit={handleSaveAppearance} className="space-y-5">
+                {/* Preset Palettes */}
+                <div>
+                  <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">
+                    Quick Preset Accents
+                  </label>
+                  <div className="grid grid-cols-4 sm:grid-cols-7 gap-2">
+                    {PRESET_ACCENT_COLORS.map((preset) => {
+                      const isSelected = accentColor.toLowerCase() === preset.color.toLowerCase();
+                      return (
+                        <button
+                          key={preset.name}
+                          type="button"
+                          onClick={() => setAccentColor(preset.color)}
+                          className={`w-9 h-9 rounded-xl flex items-center justify-center transition shadow-2xs cursor-pointer ${
+                            isSelected
+                              ? 'ring-2 ring-black ring-offset-2 scale-110'
+                              : 'hover:scale-105'
+                          }`}
+                          style={{ backgroundColor: preset.color }}
+                          title={preset.name}
+                        >
+                          {isSelected && <Check className="w-4 h-4 text-white drop-shadow-sm" />}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Custom Color Picker Input */}
+                <div>
+                  <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">
+                    Custom Hex Color
+                  </label>
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="color"
+                      value={accentColor}
+                      onChange={(e) => setAccentColor(e.target.value)}
+                      className="w-11 h-11 rounded-xl bg-transparent border border-slate-200 cursor-pointer shadow-3xs"
+                    />
+                    <input
+                      type="text"
+                      value={accentColor}
+                      onChange={(e) => setAccentColor(e.target.value)}
+                      placeholder="#000000"
+                      className="flex-1 px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 font-mono text-xs text-slate-900 focus:bg-white focus:outline-hidden focus:border-indigo-500 font-bold"
+                    />
+                  </div>
+                  <p className="text-[11px] text-slate-400 mt-1.5 leading-relaxed">
+                    This color will apply to primary call-to-actions, badges, and highlights on your portfolio.
+                  </p>
+                </div>
+
+                {/* Dark Mode Preference Toggle */}
+                <div>
+                  <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">
+                    Color Scheme Preference
+                  </label>
+                  <div className="flex items-center justify-between p-3.5 rounded-xl border border-slate-200 bg-slate-50">
+                    <div className="flex items-center gap-2.5">
+                      {darkMode ? (
+                        <Moon className="w-4 h-4 text-indigo-600" />
+                      ) : (
+                        <Sun className="w-4 h-4 text-amber-500" />
+                      )}
+                      <div>
+                        <span className="text-xs font-bold text-slate-800 block">
+                          {darkMode ? 'Dark Mode Surface' : 'Light Mode Surface'}
+                        </span>
+                        <span className="text-[10px] text-slate-400">
+                          Overrides default background contrast
+                        </span>
+                      </div>
+                    </div>
+
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={darkMode}
+                        onChange={(e) => setDarkMode(e.target.checked)}
+                        className="sr-only peer"
+                      />
+                      <div className="w-11 h-6 bg-slate-200 peer-focus:outline-hidden rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-black" />
+                    </label>
+                  </div>
+                </div>
+
+                {/* Save Appearance Button */}
+                <div className="pt-2 flex justify-end">
+                  <button
+                    type="submit"
+                    disabled={updateCustomConfigMutation.isPending}
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-black text-white text-xs font-bold uppercase tracking-wider hover:bg-slate-800 transition active:scale-95 disabled:opacity-50 shadow-xs cursor-pointer"
+                  >
+                    {updateCustomConfigMutation.isPending && (
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    )}
+                    <span>Save Theme Customization</span>
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ─────────────────────────────────────────────────────────────────────────────
-          3. TEMPLATE SELECTOR GRID
+          3. TEMPLATE SELECTOR GRID (1-CLICK APPLY)
          ───────────────────────────────────────────────────────────────────────────── */}
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
+      <div className="space-y-5 pt-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h4 className="text-sm font-bold uppercase tracking-wider text-slate-800 flex items-center gap-2">
-              <Layers className="w-4 h-4 text-slate-500" />
+            <h4 className="text-base font-bold text-slate-900 flex items-center gap-2">
+              <Layers className="w-5 h-5 text-indigo-600" />
               <span>Available Portfolio Templates</span>
             </h4>
-            <p className="text-xs text-slate-400 mt-0.5">
-              Choose the architectural layout that best fits your career goals.
+            <p className="text-xs text-slate-500 mt-0.5">
+              Select any of the master templates created by our design team. Click "Use This Template" to adopt it instantly.
             </p>
           </div>
 
-          {activeTemplate && (
-            <span className="text-xs font-bold text-emerald-600 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-full flex items-center gap-1.5 font-mono">
-              <Check className="w-3.5 h-3.5" />
-              <span>Active: {activeTemplate.name}</span>
-            </span>
-          )}
+          {/* Category Filter Pills */}
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
+            {CATEGORY_TABS.map((cat) => (
+              <button
+                key={cat.value}
+                type="button"
+                onClick={() => setSelectedCategory(cat.value)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition cursor-pointer ${
+                  selectedCategory === cat.value
+                    ? 'bg-black text-white shadow-xs'
+                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                }`}
+              >
+                {cat.label}
+              </button>
+            ))}
+          </div>
         </div>
 
         {isLoadingTemplates ? (
-          <div className="py-16 flex flex-col items-center justify-center text-slate-400">
-            <Loader2 className="w-8 h-8 animate-spin text-slate-600 mb-2" />
-            <p className="text-xs font-semibold">Loading available templates...</p>
+          <div className="py-20 flex flex-col items-center justify-center text-slate-400">
+            <Loader2 className="w-8 h-8 animate-spin text-slate-800 mb-2" />
+            <p className="text-xs font-semibold">Loading available blueprints...</p>
           </div>
         ) : publishedTemplates.length === 0 ? (
-          <div className="py-12 border border-dashed border-slate-200 rounded-2xl p-6 text-center text-slate-400 bg-white">
-            <p className="text-xs">No published templates available right now.</p>
+          <div className="py-16 border-2 border-dashed border-slate-200 rounded-2xl p-8 text-center text-slate-400 bg-white">
+            <Laptop className="w-8 h-8 mx-auto mb-2 text-slate-300" />
+            <p className="text-sm font-semibold text-slate-700">No published templates found</p>
+            <p className="text-xs mt-1 text-slate-400">
+              There are currently no published templates in this category.
+            </p>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {publishedTemplates.map((tpl) => {
-              const isActive = tpl.id === activeTemplateId;
+              const isActive = activeTemplate?.id === tpl.id;
               const primary = tpl.layoutConfig?.theme?.primaryColor || '#000000';
               const bg = tpl.layoutConfig?.theme?.backgroundColor || '#ffffff';
               const sectionCount = tpl.layoutConfig?.sections?.length || 0;
@@ -263,9 +595,9 @@ export const ProfileThemeTab: React.FC<ProfileThemeTabProps> = ({ profile, userI
               return (
                 <div
                   key={tpl.id}
-                  className={`rounded-2xl bg-white overflow-hidden transition-all duration-300 flex flex-col justify-between border ${
+                  className={`group rounded-2xl bg-white overflow-hidden transition-all duration-300 flex flex-col justify-between border ${
                     isActive
-                      ? 'border-emerald-500 ring-2 ring-emerald-500/20 shadow-md'
+                      ? 'border-emerald-500 ring-2 ring-emerald-500/20 shadow-lg'
                       : 'border-slate-200 hover:border-slate-300 hover:shadow-md'
                   }`}
                 >
@@ -276,7 +608,7 @@ export const ProfileThemeTab: React.FC<ProfileThemeTabProps> = ({ profile, userI
                         <img
                           src={tpl.thumbnail}
                           alt={tpl.name}
-                          className="w-full h-full object-cover"
+                          className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
                         />
                       ) : (
                         <div
@@ -284,10 +616,10 @@ export const ProfileThemeTab: React.FC<ProfileThemeTabProps> = ({ profile, userI
                           style={{ backgroundColor: bg }}
                         >
                           <div
-                            className="w-10 h-10 rounded-xl flex items-center justify-center shadow-sm mb-1.5"
+                            className="w-12 h-12 rounded-xl flex items-center justify-center shadow-sm mb-2"
                             style={{ backgroundColor: primary }}
                           >
-                            <Palette className="w-5 h-5 text-white" />
+                            <Palette className="w-6 h-6 text-white" />
                           </div>
                           <span className="font-mono text-[9px] font-bold text-slate-400 uppercase tracking-widest">
                             {tpl.slug}
@@ -297,36 +629,37 @@ export const ProfileThemeTab: React.FC<ProfileThemeTabProps> = ({ profile, userI
 
                       {/* Active Badge */}
                       {isActive && (
-                        <div className="absolute top-2.5 left-2.5 bg-emerald-600 text-white font-mono text-[9px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full shadow-xs flex items-center gap-1">
+                        <div className="absolute top-3 left-3 bg-emerald-600 text-white font-mono text-[9px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full shadow-md flex items-center gap-1">
                           <Check className="w-3 h-3" />
-                          <span>Active Theme</span>
+                          <span>Active Template</span>
                         </div>
                       )}
 
-                      <span className="absolute bottom-2.5 right-2.5 px-2 py-0.5 rounded-md bg-black/60 text-white font-mono text-[9px] font-bold uppercase">
+                      <span className="absolute bottom-3 right-3 px-2 py-0.5 rounded-md bg-black/60 text-white font-mono text-[9px] font-bold uppercase backdrop-blur-xs">
                         {sectionCount} Sections
                       </span>
                     </div>
 
-                    <div className="p-4">
-                      <span className="font-mono text-[9px] font-bold uppercase tracking-wider text-slate-400">
-                        {tpl.category}
-                      </span>
-                      <h4 className="font-bold text-sm text-slate-900 mt-0.5 leading-snug">
+                    <div className="p-5">
+                      <div className="flex items-center justify-between text-[10px] font-mono text-slate-400 uppercase mb-1">
+                        <span>{tpl.category}</span>
+                        <span>v{tpl.version}</span>
+                      </div>
+                      <h4 className="font-bold text-sm text-slate-900 group-hover:text-indigo-600 transition leading-snug">
                         {tpl.name}
                       </h4>
-                      <p className="text-xs text-slate-500 line-clamp-2 mt-1 leading-relaxed">
-                        {tpl.description || 'Verified AST portfolio template blueprint.'}
+                      <p className="text-xs text-slate-500 line-clamp-2 mt-1.5 leading-relaxed">
+                        {tpl.description || 'Modern AST portfolio template blueprint.'}
                       </p>
                     </div>
                   </div>
 
-                  <div className="p-4 pt-0">
+                  <div className="p-5 pt-0">
                     <button
                       type="button"
                       onClick={() => handleApplyTemplate(tpl)}
                       disabled={isActive || applyTemplateMutation.isPending}
-                      className={`w-full py-2.5 px-3 rounded-xl text-xs font-bold uppercase tracking-wider transition active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer ${
+                      className={`w-full py-2.5 px-4 rounded-xl text-xs font-bold uppercase tracking-wider transition active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer ${
                         isActive
                           ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 cursor-default'
                           : 'bg-black text-white hover:bg-slate-800 shadow-xs'
@@ -344,6 +677,45 @@ export const ProfileThemeTab: React.FC<ProfileThemeTabProps> = ({ profile, userI
           </div>
         )}
       </div>
+
+      {/* ─────────────────────────────────────────────────────────────────────────────
+          4. RESET CONFIRMATION MODAL
+         ───────────────────────────────────────────────────────────────────────────── */}
+      {showResetConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
+          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl border border-slate-200 animate-in fade-in zoom-in-95 duration-200">
+            <div className="w-12 h-12 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center mb-4">
+              <AlertTriangle className="w-6 h-6" />
+            </div>
+            <h3 className="font-bold text-lg text-slate-900">Reset to Template Defaults?</h3>
+            <p className="text-xs text-slate-500 mt-2 leading-relaxed">
+              This will remove all your personal section reordering, section visibility overrides, and
+              custom accent colors. Your portfolio will restore the exact default blueprint of{' '}
+              <strong className="text-slate-800">{activeTemplate?.name || 'the base template'}</strong>.
+            </p>
+            <div className="flex items-center justify-end gap-3 mt-6">
+              <button
+                type="button"
+                onClick={() => setShowResetConfirm(false)}
+                className="px-4 py-2 rounded-lg border border-slate-200 bg-white text-slate-700 text-xs font-semibold hover:bg-slate-50 transition cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmReset}
+                disabled={resetThemeMutation.isPending}
+                className="px-4 py-2 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold uppercase tracking-wider transition flex items-center gap-1.5 cursor-pointer"
+              >
+                {resetThemeMutation.isPending && (
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                )}
+                <span>Reset Now</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

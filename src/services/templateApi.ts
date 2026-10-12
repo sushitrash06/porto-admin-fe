@@ -9,6 +9,7 @@ import type {
   CreateTemplatePayload,
   UpdateTemplatePayload,
   UserCustomConfig,
+  LayoutConfig,
   TemplateCategory,
 } from '../types/theme';
 
@@ -99,15 +100,37 @@ export const templateApi = {
     return res.data;
   },
 
-  // User mengadopsi template ke profilnya
+  // Ambil template aktif, userCustomConfig, dan resolvedLayout user yang sedang login
+  getMyTheme: async (): Promise<{
+    template: Template;
+    userCustomConfig: UserCustomConfig | null;
+    resolvedLayout: LayoutConfig;
+  }> => {
+    const res = await api.get('/templates/me');
+    return res.data;
+  },
+
+  // User mengadopsi template ke profilnya (1-click apply)
   applyTemplate: async (templateId: string): Promise<{ message: string; template: Template }> => {
     const res = await api.patch('/templates/me/apply', { templateId });
+    return res.data;
+  },
+
+  // User geser-geser urutan section portofolionya sendiri (Drag & Drop)
+  reorderSections: async (sectionIds: string[]): Promise<{ message: string; resolvedLayout?: LayoutConfig }> => {
+    const res = await api.patch('/templates/me/reorder-sections', { sectionIds });
     return res.data;
   },
 
   // User kustomisasi warna aksen / sembunyikan section
   updateUserThemeConfig: async (payload: UserCustomConfig): Promise<{ message: string }> => {
     const res = await api.patch('/templates/me/theme-config', payload);
+    return res.data;
+  },
+
+  // User reset kustomisasi kembali ke tampilan asli template bawaan
+  resetThemeConfig: async (): Promise<{ message: string }> => {
+    const res = await api.post('/templates/me/reset');
     return res.data;
   },
 };

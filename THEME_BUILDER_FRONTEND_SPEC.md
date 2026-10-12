@@ -208,15 +208,37 @@ export const templateApi = {
     return res.data;
   },
 
-  // User mengadopsi template ke profilnya
+  // Ambil template aktif, userCustomConfig, dan resolvedLayout user yang sedang login
+  getMyTheme: async (): Promise<{
+    template: Template;
+    userCustomConfig: UserCustomConfig | null;
+    resolvedLayout: LayoutConfig;
+  }> => {
+    const res = await api.get('/templates/me');
+    return res.data;
+  },
+
+  // User mengadopsi template ke profilnya (1-click apply)
   applyTemplate: async (templateId: string) => {
     const res = await api.patch('/templates/me/apply', { templateId });
+    return res.data;
+  },
+
+  // User geser-geser urutan section portofolionya sendiri (Drag & Drop)
+  reorderSections: async (sectionIds: string[]) => {
+    const res = await api.patch('/templates/me/reorder-sections', { sectionIds });
     return res.data;
   },
 
   // User kustomisasi warna aksen / sembunyikan section
   updateUserThemeConfig: async (payload: UserCustomConfig) => {
     const res = await api.patch('/templates/me/theme-config', payload);
+    return res.data;
+  },
+
+  // User reset kustomisasi kembali ke tampilan asli template bawaan
+  resetThemeConfig: async () => {
+    const res = await api.post('/templates/me/reset');
     return res.data;
   },
 };
@@ -274,14 +296,22 @@ export const templateApi = {
 ### Fitur C: Tab "Theme Portofolio" di Profil User (`AdminProfile.tsx`)
 **Lokasi**: Tambahkan tab/section baru di `src/components/pages/AdminProfile.tsx`
 
-1. **Card Selector Template**:
-   - Fetch template aktif dengan `useQuery` memanggil `templateApi.getPublishedTemplates()`.
-   - Tampilkan kartu-kartu template dalam format grid.
-   - Template yang sedang aktif ditandai dengan border highlight & badge "Active Theme".
-   - Tombol **"Use This Template"** $\rightarrow$ memanggil `templateApi.applyTemplate(template.id)`.
-2. **Mini Customizer (Personal Accent)**:
-   - User dapat mengatur warna aksen custom (`primaryColor`) atau toggle dark/light mode miliknya sendiri tanpa mengubah template dasar orang lain.
-   - Menyimpan via `templateApi.updateUserThemeConfig()`.
+Halaman ini memungkinkan user memilih template dasar dan mengkustomisasi portofolionya sendiri:
+1. **1-Click Template Selector**:
+   - Tampilkan kartu template yang tersedia (`templateApi.getPublishedTemplates()`).
+   - Beri border highlight & badge "Active" pada template yang sedang dipakai.
+   - Tombol "Use This Template" memanggil `templateApi.applyTemplate(template.id)`.
+2. **Personal Section Reordering (Drag & Drop untuk User)**:
+   - Ambil susunan section user saat ini via `templateApi.getMyTheme()`.
+   - Tampilkan daftar section dalam list vertikal dengan drag-handle (`<Reorder.Group>` dari `motion/react`).
+   - User bisa menggeser urutan section (misal memindahkan Projects ke atas Experience).
+   - Saat di-drop/disimpan, panggil `templateApi.reorderSections(sectionIds)`.
+3. **Toggle Hide/Show Section**:
+   - User dapat toggle tombol mata (`Eye` / `EyeOff`) untuk menyembunyikan section yang belum ingin ditampilkan (misal belum punya pengalaman kerja).
+4. **Personal Color Accent**:
+   - Color picker sederhana untuk mengubah warna aksen utama portofolio milik user (`primaryColor`).
+5. **Tombol "Reset to Template Defaults"**:
+   - Tombol untuk mereset semua kustomisasi user kembali persis seperti template asli bawaan Admin (`templateApi.resetThemeConfig()`).
 
 ---
 

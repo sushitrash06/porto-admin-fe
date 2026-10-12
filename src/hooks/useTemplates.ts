@@ -19,6 +19,7 @@ export const TEMPLATES_QUERY_KEY = {
   adminDetail: (id: string) => ['templates', 'admin', 'detail', id] as const,
   publishedList: (category?: TemplateCategory) => ['templates', 'published', category] as const,
   publishedDetail: (idOrSlug: string) => ['templates', 'published', 'detail', idOrSlug] as const,
+  myTheme: () => ['templates', 'me'] as const,
 };
 
 /**
@@ -159,6 +160,16 @@ export function usePublishedTemplateDetail(idOrSlug: string, options?: { enabled
 }
 
 /**
+ * Hook to retrieve active template, userCustomConfig, and resolvedLayout for current user.
+ */
+export function useMyTheme() {
+  return useQuery({
+    queryKey: TEMPLATES_QUERY_KEY.myTheme(),
+    queryFn: () => templateApi.getMyTheme(),
+  });
+}
+
+/**
  * Hook for user to apply a template to their profile.
  */
 export function useApplyTemplate() {
@@ -170,6 +181,26 @@ export function useApplyTemplate() {
   >({
     mutationFn: (templateId: string) => templateApi.applyTemplate(templateId),
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: TEMPLATES_QUERY_KEY.myTheme() });
+      queryClient.invalidateQueries({ queryKey: ['profile', 'me'] });
+      queryClient.invalidateQueries({ queryKey: ['portfolio'] });
+    },
+  });
+}
+
+/**
+ * Hook for user to reorder sections in their portfolio (drag-and-drop).
+ */
+export function useReorderSections() {
+  const queryClient = useQueryClient();
+  return useMutation<
+    { message: string; resolvedLayout?: unknown },
+    AxiosError<{ message?: string }>,
+    string[]
+  >({
+    mutationFn: (sectionIds: string[]) => templateApi.reorderSections(sectionIds),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: TEMPLATES_QUERY_KEY.myTheme() });
       queryClient.invalidateQueries({ queryKey: ['profile', 'me'] });
       queryClient.invalidateQueries({ queryKey: ['portfolio'] });
     },
@@ -188,6 +219,26 @@ export function useUpdateUserThemeConfig() {
   >({
     mutationFn: (payload: UserCustomConfig) => templateApi.updateUserThemeConfig(payload),
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: TEMPLATES_QUERY_KEY.myTheme() });
+      queryClient.invalidateQueries({ queryKey: ['profile', 'me'] });
+      queryClient.invalidateQueries({ queryKey: ['portfolio'] });
+    },
+  });
+}
+
+/**
+ * Hook for user to reset theme customizations back to template defaults.
+ */
+export function useResetThemeConfig() {
+  const queryClient = useQueryClient();
+  return useMutation<
+    { message: string },
+    AxiosError<{ message?: string }>,
+    void
+  >({
+    mutationFn: () => templateApi.resetThemeConfig(),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: TEMPLATES_QUERY_KEY.myTheme() });
       queryClient.invalidateQueries({ queryKey: ['profile', 'me'] });
       queryClient.invalidateQueries({ queryKey: ['portfolio'] });
     },
