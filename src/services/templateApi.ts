@@ -133,6 +133,42 @@ export const templateApi = {
     const res = await api.post('/templates/me/reset');
     return res.data;
   },
+
+  // ─── BUSINESS PROFILE THEME ENDPOINTS ───────────────────────────────────────
+
+  // 1. Ambil template aktif, userCustomConfig, dan resolvedLayout untuk profil bisnis
+  getMyBusinessTheme: async (): Promise<{
+    template: Template;
+    userCustomConfig: UserCustomConfig | null;
+    resolvedLayout: LayoutConfig;
+  }> => {
+    const res = await api.get('/templates/business/me');
+    return res.data;
+  },
+
+  // 2. Terapkan template ke profil bisnis (1-click apply)
+  applyBusinessTemplate: async (templateId: string): Promise<{ message: string; template: Template }> => {
+    const res = await api.patch('/templates/business/me/apply', { templateId });
+    return res.data;
+  },
+
+  // 3. Reorder section profil bisnis (Drag & Drop)
+  reorderBusinessSections: async (sectionIds: string[]): Promise<{ message: string; resolvedLayout?: LayoutConfig }> => {
+    const res = await api.patch('/templates/business/me/reorder-sections', { sectionIds });
+    return res.data;
+  },
+
+  // 4. Update kustomisasi warna aksen / dark mode / visibility profil bisnis
+  updateBusinessThemeConfig: async (payload: UserCustomConfig): Promise<{ message: string }> => {
+    const res = await api.patch('/templates/business/me/theme-config', payload);
+    return res.data;
+  },
+
+  // 5. Reset kustomisasi profil bisnis ke default template bawaan
+  resetBusinessThemeConfig: async (): Promise<{ message: string }> => {
+    const res = await api.post('/templates/business/me/reset');
+    return res.data;
+  },
 };
 
 export default templateApi;

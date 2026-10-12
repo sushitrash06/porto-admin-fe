@@ -241,6 +241,42 @@ export const templateApi = {
     const res = await api.post('/templates/me/reset');
     return res.data;
   },
+
+  // ─── BUSINESS PROFILE THEME ENDPOINTS ───────────────────────────────────────
+
+  // Ambil template aktif, userCustomConfig, dan resolvedLayout untuk profil bisnis
+  getMyBusinessTheme: async (): Promise<{
+    template: Template;
+    userCustomConfig: UserCustomConfig | null;
+    resolvedLayout: LayoutConfig;
+  }> => {
+    const res = await api.get('/templates/business/me');
+    return res.data;
+  },
+
+  // Terapkan template ke profil bisnis
+  applyBusinessTemplate: async (templateId: string) => {
+    const res = await api.patch('/templates/business/me/apply', { templateId });
+    return res.data;
+  },
+
+  // Reorder section profil bisnis (Drag & Drop)
+  reorderBusinessSections: async (sectionIds: string[]) => {
+    const res = await api.patch('/templates/business/me/reorder-sections', { sectionIds });
+    return res.data;
+  },
+
+  // Update kustomisasi warna / visibility profil bisnis
+  updateBusinessThemeConfig: async (payload: UserCustomConfig) => {
+    const res = await api.patch('/templates/business/me/theme-config', payload);
+    return res.data;
+  },
+
+  // Reset kustomisasi profil bisnis ke default
+  resetBusinessThemeConfig: async () => {
+    const res = await api.post('/templates/business/me/reset');
+    return res.data;
+  },
 };
 ```
 
@@ -370,6 +406,31 @@ Komponen ini digunakan di halaman publik portofolio pengunjung (`/portfolio/:use
 
 ---
 
+### Fitur E: Tab "Theme Bisnis" di Profil Bisnis (`AdminBusinessProfile.tsx`)
+**Lokasi**: Tab/Section baru di manajemen Business Profile
+
+Mirip seperti profil personal, user yang memiliki akun/profil bisnis juga dapat:
+1. **Pilih Template Bisnis**:
+   - Filter katalog template berdasarkan kategori `BUSINESS` via `templateApi.getPublishedTemplates('BUSINESS')`.
+   - 1-Click Apply: `templateApi.applyBusinessTemplate(template.id)`.
+2. **Personal Business Section Reordering (Drag & Drop)**:
+   - Ambil layout aktif via `templateApi.getMyBusinessTheme()`.
+   - User bisnis dapat menggeser urutan section bisnis:
+     - `HERO_PROFILE` (Logo, Banner, Tagline Bisnis)
+     - `ABOUT_ME` (Profil Perusahaan/Tentang Kami)
+     - `SERVICES_GRID` (Layanan Bisnis & Harga)
+     - `PROJECT_LIST` (Showcase Proyek Bisnis)
+     - `CONTACT_SECTION` (Kontak, Alamat, Email, Website)
+   - Simpan urutan: `templateApi.reorderBusinessSections(sectionIds)`.
+3. **Toggle Hide/Show & Custom Branding**:
+   - Sembunyikan section tertentu (misal jika belum menyediakan daftar harga layanan).
+   - Atur warna aksen brand perusahaan via `templateApi.updateBusinessThemeConfig()`.
+   - Tombol reset ke bawaan template: `templateApi.resetBusinessThemeConfig()`.
+4. **Public Business Profile**:
+   - Endpoint publik `GET /business-profiles/:userId` sudah menyertakan `layout: { theme, sections }` yang siap dirender secara dinamis oleh `DynamicPortfolioRenderer`.
+
+---
+
 ## 5. Contoh Implementasi Drag & Drop dengan `motion/react`
 
 Karena di `porto-admin-dev-fe` sudah terinstall package `motion: ^12.23.24`, implementasi drag-and-drop sangat ringkas:
@@ -443,9 +504,11 @@ export const BuilderCanvas = ({
 ## 6. Checklist Eksekusi Frontend
 
 - [ ] Simpan tipe data di `src/types/theme.ts`.
-- [ ] Buat API service di `src/services/templateApi.ts`.
+- [ ] Buat API service di `src/services/templateApi.ts` (termasuk personal & business endpoints).
 - [ ] Buat halaman katalog admin `AdminTemplates.tsx`.
 - [ ] Buat halaman studio drag-and-drop `AdminTemplateBuilder.tsx`.
-- [ ] Tambahkan tab "Theme Portofolio" di `AdminProfile.tsx`.
-- [ ] Buat `DynamicPortfolioRenderer.tsx` untuk render portofolio publik.
+- [ ] Tambahkan tab "Theme Portofolio" di `AdminProfile.tsx` (Personal Profile).
+- [ ] Tambahkan tab "Theme Bisnis" di `AdminBusinessProfile.tsx` (Business Profile).
+- [ ] Buat `DynamicPortfolioRenderer.tsx` untuk render portofolio publik (mendukung personal & business profile).
 - [ ] Daftarkan route baru di `App.tsx` / router configuration.
+

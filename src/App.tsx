@@ -36,6 +36,7 @@ import { AdminTemplateBuilder } from './components/pages/AdminTemplateBuilder';
 import { PublicPortfolioPage } from './components/pages/PublicPortfolioPage';
 import { ForgotPasswordPage } from './components/pages/ForgotPasswordPage';
 import { ResetPasswordPage } from './components/pages/ResetPasswordPage';
+import { UserThemeStudio } from './components/pages/UserThemeStudio';
 
 interface AppContentProps {
   currentUser: User | null;
@@ -52,11 +53,12 @@ function AppContent({ currentUser, handleLoginSuccess, handleLogout }: AppConten
   const isResetPwPage = location.pathname === '/reset-password';
   const isPortfolioPage = location.pathname.startsWith('/portfolio');
   const isBuilderPage = location.pathname.startsWith('/admin/templates/builder');
+  const isStudioPage = location.pathname.includes('/theme-studio');
   const isAuthPage = isLoginPage || isRegisterPage || isVerifyEmailPage || isForgotPwPage || isResetPwPage;
   const isAdminPage = location.pathname.startsWith('/admin');
   const isAdmin = currentUser?.role === Role.ADMIN;
-  // Hide navbar/footer for AUTH, PORTFOLIO, BUILDER STUDIO, or ADMIN on admin pages
-  const hideChrome = isAuthPage || isPortfolioPage || isBuilderPage || (isAdminPage && isAdmin);
+  // Hide navbar/footer for AUTH, PORTFOLIO, BUILDER STUDIO, USER THEME STUDIO, or ADMIN on admin pages
+  const hideChrome = isAuthPage || isPortfolioPage || isBuilderPage || isStudioPage || (isAdminPage && isAdmin);
 
   return (
     <div className="flex min-h-screen flex-col bg-neutral-50/50">
@@ -147,6 +149,7 @@ function AppContent({ currentUser, handleLoginSuccess, handleLogout }: AppConten
 
               <Route path="/admin/dashboard" element={<AdminDashboardOverview />} />
               <Route path="/admin/profile" element={<AdminProfile />} />
+              <Route path="/admin/theme-studio" element={<UserThemeStudio currentUser={currentUser!} />} />
               <Route path="/admin/experiences" element={<AdminExperiences />} />
               <Route path="/admin/experiences/:id" element={<AdminExperienceDetail />} />
               <Route path="/admin/projects" element={<AdminProjects />} />
@@ -168,6 +171,16 @@ function AppContent({ currentUser, handleLoginSuccess, handleLogout }: AppConten
                 element={
                   currentUser?.businessProfile ? (
                     <BusinessProfilePage />
+                  ) : (
+                    <Navigate to="/admin/profile" replace />
+                  )
+                }
+              />
+              <Route
+                path="/admin/business/theme-studio"
+                element={
+                  currentUser?.businessProfile ? (
+                    <UserThemeStudio currentUser={currentUser!} isBusinessMode />
                   ) : (
                     <Navigate to="/admin/profile" replace />
                   )

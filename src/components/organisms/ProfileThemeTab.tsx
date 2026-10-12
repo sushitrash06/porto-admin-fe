@@ -4,12 +4,13 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { Reorder } from 'motion/react';
 import {
   Palette, Check, Loader2, ExternalLink, Sparkles,
   Sliders, Moon, Sun, CheckCircle2, Layers, GripVertical,
   Eye, EyeOff, RotateCcw, AlertTriangle, ArrowUpDown,
-  Laptop, ShieldAlert
+  Laptop, ShieldAlert, Monitor
 } from 'lucide-react';
 import type { AxiosError } from 'axios';
 import {
@@ -26,6 +27,7 @@ import type {
   TemplateCategory,
   SectionBlock,
 } from '../../types/theme';
+import { ThemeDeviceSimulator } from '../molecules/ThemeDeviceSimulator';
 
 interface ProfileThemeTabProps {
   profile?: Profile | null;
@@ -70,6 +72,7 @@ export const ProfileThemeTab: React.FC<ProfileThemeTabProps> = ({ profile: _prof
   const [darkMode, setDarkMode] = useState<boolean>(false);
   const [statusMessage, setStatusMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
   const [showResetConfirm, setShowResetConfirm] = useState<boolean>(false);
+  const [showSimulator, setShowSimulator] = useState<boolean>(false);
   const [hasUnsavedReorder, setHasUnsavedReorder] = useState<boolean>(false);
 
   // Sync state when backend returns myThemeData
@@ -198,6 +201,22 @@ export const ProfileThemeTab: React.FC<ProfileThemeTabProps> = ({ profile: _prof
 
   const activeTemplate = myThemeData?.template;
 
+  const livePreviewData = {
+    profile: _profile,
+    layout: {
+      theme: {
+        fontFamily: myThemeData?.resolvedLayout?.theme?.fontFamily || 'Inter, sans-serif',
+        primaryColor: accentColor,
+        backgroundColor: darkMode ? '#0f172a' : '#ffffff',
+        surfaceColor: darkMode ? '#1e293b' : '#ffffff',
+        textColor: darkMode ? '#f8fafc' : '#0f172a',
+        borderRadius: myThemeData?.resolvedLayout?.theme?.borderRadius || '12px',
+        darkMode,
+      },
+      sections,
+    },
+  };
+
   return (
     <div className="space-y-8 font-sans">
       {/* ─────────────────────────────────────────────────────────────────────────────
@@ -220,6 +239,25 @@ export const ProfileThemeTab: React.FC<ProfileThemeTabProps> = ({ profile: _prof
           </div>
 
           <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+            <Link
+              to="/admin/theme-studio"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white text-xs font-bold uppercase tracking-wider transition active:scale-95 shadow-lg cursor-pointer"
+              title="Open full-screen side-by-side studio playground"
+            >
+              <Sparkles className="w-4 h-4 text-amber-300" />
+              <span>Open Theme Studio</span>
+            </Link>
+
+            <button
+              type="button"
+              onClick={() => setShowSimulator(true)}
+              className="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-slate-800/90 hover:bg-slate-800 text-slate-200 text-xs font-bold uppercase tracking-wider transition active:scale-95 border border-slate-700 cursor-pointer"
+              title="Open quick simulator modal"
+            >
+              <Monitor className="w-4 h-4 text-indigo-300" />
+              <span>Simulator</span>
+            </button>
+
             {userId && (
               <a
                 href={`/portfolio/${userId}`}
@@ -715,6 +753,19 @@ export const ProfileThemeTab: React.FC<ProfileThemeTabProps> = ({ profile: _prof
             </div>
           </div>
         </div>
+      )}
+
+      {/* ─────────────────────────────────────────────────────────────────────────────
+          5. LIVE DEVICE SIMULATOR PLAYGROUND
+         ───────────────────────────────────────────────────────────────────────────── */}
+      {showSimulator && (
+        <ThemeDeviceSimulator
+          data={livePreviewData}
+          title="Developer Portfolio Live Simulator"
+          publicUrl={userId ? `/portfolio/${userId}` : undefined}
+          onClose={() => setShowSimulator(false)}
+          isModal
+        />
       )}
     </div>
   );

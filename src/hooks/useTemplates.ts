@@ -20,6 +20,7 @@ export const TEMPLATES_QUERY_KEY = {
   publishedList: (category?: TemplateCategory) => ['templates', 'published', category] as const,
   publishedDetail: (idOrSlug: string) => ['templates', 'published', 'detail', idOrSlug] as const,
   myTheme: () => ['templates', 'me'] as const,
+  myBusinessTheme: () => ['templates', 'business', 'me'] as const,
 };
 
 /**
@@ -241,6 +242,90 @@ export function useResetThemeConfig() {
       queryClient.invalidateQueries({ queryKey: TEMPLATES_QUERY_KEY.myTheme() });
       queryClient.invalidateQueries({ queryKey: ['profile', 'me'] });
       queryClient.invalidateQueries({ queryKey: ['portfolio'] });
+    },
+  });
+}
+
+// ─── BUSINESS HOOKS ──────────────────────────────────────────────────────────
+
+/**
+ * Hook to retrieve active template, userCustomConfig, and resolvedLayout for current user's business profile.
+ */
+export function useMyBusinessTheme() {
+  return useQuery({
+    queryKey: TEMPLATES_QUERY_KEY.myBusinessTheme(),
+    queryFn: () => templateApi.getMyBusinessTheme(),
+  });
+}
+
+/**
+ * Hook for business user to apply a template.
+ */
+export function useApplyBusinessTemplate() {
+  const queryClient = useQueryClient();
+  return useMutation<
+    { message: string; template: Template },
+    AxiosError<{ message?: string }>,
+    string
+  >({
+    mutationFn: (templateId: string) => templateApi.applyBusinessTemplate(templateId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: TEMPLATES_QUERY_KEY.myBusinessTheme() });
+      queryClient.invalidateQueries({ queryKey: ['businessProfile'] });
+    },
+  });
+}
+
+/**
+ * Hook for business user to reorder sections (drag-and-drop).
+ */
+export function useReorderBusinessSections() {
+  const queryClient = useQueryClient();
+  return useMutation<
+    { message: string; resolvedLayout?: unknown },
+    AxiosError<{ message?: string }>,
+    string[]
+  >({
+    mutationFn: (sectionIds: string[]) => templateApi.reorderBusinessSections(sectionIds),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: TEMPLATES_QUERY_KEY.myBusinessTheme() });
+      queryClient.invalidateQueries({ queryKey: ['businessProfile'] });
+    },
+  });
+}
+
+/**
+ * Hook for business user to update custom theme overrides.
+ */
+export function useUpdateBusinessThemeConfig() {
+  const queryClient = useQueryClient();
+  return useMutation<
+    { message: string },
+    AxiosError<{ message?: string }>,
+    UserCustomConfig
+  >({
+    mutationFn: (payload: UserCustomConfig) => templateApi.updateBusinessThemeConfig(payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: TEMPLATES_QUERY_KEY.myBusinessTheme() });
+      queryClient.invalidateQueries({ queryKey: ['businessProfile'] });
+    },
+  });
+}
+
+/**
+ * Hook for business user to reset customizations back to template defaults.
+ */
+export function useResetBusinessThemeConfig() {
+  const queryClient = useQueryClient();
+  return useMutation<
+    { message: string },
+    AxiosError<{ message?: string }>,
+    void
+  >({
+    mutationFn: () => templateApi.resetBusinessThemeConfig(),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: TEMPLATES_QUERY_KEY.myBusinessTheme() });
+      queryClient.invalidateQueries({ queryKey: ['businessProfile'] });
     },
   });
 }

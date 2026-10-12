@@ -784,7 +784,16 @@ const BannerBlock: React.FC<{
 export const DynamicPortfolioRenderer: React.FC<DynamicPortfolioRendererProps> = ({
   data,
 }) => {
-  const { layout, profile, experiences, projects } = data;
+  const {
+    layout,
+    profile,
+    experiences,
+    projects,
+    businessProfile,
+    businessServices,
+    businessProjects,
+  } = data;
+
   const theme = layout.theme || {
     fontFamily: 'Inter, sans-serif',
     primaryColor: '#000000',
@@ -793,6 +802,48 @@ export const DynamicPortfolioRenderer: React.FC<DynamicPortfolioRendererProps> =
     textColor: '#0f172a',
     borderRadius: '12px',
   };
+
+  // Harmonize personal profile and business profile data
+  const effectiveProfile: Partial<Profile> | null | undefined =
+    profile ||
+    (businessProfile
+      ? {
+          fullName: businessProfile.businessName,
+          headline: businessProfile.location || 'Corporate Showcase',
+          bio: businessProfile.description,
+          profileImage: businessProfile.logo || businessProfile.bannerImage,
+          location: businessProfile.location,
+          contactEmail: businessProfile.contactEmail,
+          phoneNumber: businessProfile.phoneNumber,
+        }
+      : null);
+
+  const effectiveProjects: Project[] =
+    projects && projects.length > 0
+      ? projects
+      : businessProjects && businessProjects.length > 0
+      ? businessProjects.map((bp) => ({
+          id: bp.id,
+          userId: bp.userId || '',
+          title: bp.title,
+          description: bp.description,
+          thumbnail: bp.thumbnail,
+          images: bp.images,
+          techStacks: bp.projectType ? [bp.projectType] : [],
+          projectUrl: '',
+          type: 'WORK',
+          isPublic: bp.isPublic ?? true,
+          createdAt: bp.createdAt || '',
+          updatedAt: bp.updatedAt || '',
+        }))
+      : [];
+
+  const effectiveServices =
+    profile?.services && profile.services.length > 0
+      ? profile.services
+      : businessServices && businessServices.length > 0
+      ? businessServices
+      : [];
 
   const sections = layout.sections || [];
   const visibleSections = sections.filter((s) => s.isVisible);
@@ -828,7 +879,7 @@ export const DynamicPortfolioRenderer: React.FC<DynamicPortfolioRendererProps> =
                 <HeroBlock
                   key={section.id}
                   section={section}
-                  profile={profile}
+                  profile={effectiveProfile}
                 />
               );
 
@@ -837,7 +888,7 @@ export const DynamicPortfolioRenderer: React.FC<DynamicPortfolioRendererProps> =
                 <AboutBlock
                   key={section.id}
                   section={section}
-                  profile={profile}
+                  profile={effectiveProfile}
                 />
               );
 
@@ -846,7 +897,7 @@ export const DynamicPortfolioRenderer: React.FC<DynamicPortfolioRendererProps> =
                 <SkillsBlock
                   key={section.id}
                   section={section}
-                  skills={profile?.skills}
+                  skills={effectiveProfile?.skills}
                 />
               );
 
@@ -855,7 +906,7 @@ export const DynamicPortfolioRenderer: React.FC<DynamicPortfolioRendererProps> =
                 <ProjectsBlock
                   key={section.id}
                   section={section}
-                  projects={projects}
+                  projects={effectiveProjects}
                 />
               );
 
@@ -873,7 +924,7 @@ export const DynamicPortfolioRenderer: React.FC<DynamicPortfolioRendererProps> =
                 <ServicesBlock
                   key={section.id}
                   section={section}
-                  services={profile?.services}
+                  services={effectiveServices}
                 />
               );
 
@@ -882,7 +933,7 @@ export const DynamicPortfolioRenderer: React.FC<DynamicPortfolioRendererProps> =
                 <ContactBlock
                   key={section.id}
                   section={section}
-                  profile={profile}
+                  profile={effectiveProfile}
                 />
               );
 

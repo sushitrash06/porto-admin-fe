@@ -13,10 +13,14 @@ import {
 } from '../../hooks/useBusinessProfile';
 import { 
   Building2, ShieldAlert, Loader2, Camera, Mail, Phone, MapPin, 
-  Globe, EyeOff, Image as ImageIcon, Link2, Copy, Check
+  Globe, EyeOff, Image as ImageIcon, Link2, Copy, Check, Palette
 } from 'lucide-react';
+import { BusinessThemeTab } from '../organisms/BusinessThemeTab';
+
+type BusinessTab = 'brand' | 'theme';
 
 export const BusinessProfilePage: React.FC = () => {
+  const [activeTab, setActiveTab] = useState<BusinessTab>('brand');
   const { data: profile, isLoading, isError, error: fetchError } = useBusinessProfile();
   const updateProfileMutation = useUpdateBusinessProfile();
   const uploadLogoMutation = useUploadBusinessLogo();
@@ -155,7 +159,36 @@ export const BusinessProfilePage: React.FC = () => {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
+      {/* Tab Navigation Switcher */}
+      <div className="flex items-center gap-1 rounded-lg bg-slate-100/80 p-1 mb-6 overflow-x-auto">
+        <button
+          type="button"
+          onClick={() => setActiveTab('brand')}
+          className={`flex items-center space-x-1.5 rounded-md px-3.5 py-2 font-sans text-[10px] font-bold uppercase tracking-wider transition cursor-pointer ${
+            activeTab === 'brand'
+              ? 'bg-white text-slate-900 shadow-xs border border-slate-200'
+              : 'text-slate-500 hover:text-slate-800'
+          }`}
+        >
+          <Building2 className="h-3.5 w-3.5" />
+          <span>Identitas Brand & Media</span>
+        </button>
+        <button
+          type="button"
+          onClick={() => setActiveTab('theme')}
+          className={`flex items-center space-x-1.5 rounded-md px-3.5 py-2 font-sans text-[10px] font-bold uppercase tracking-wider transition cursor-pointer ${
+            activeTab === 'theme'
+              ? 'bg-white text-slate-900 shadow-xs border border-slate-200'
+              : 'text-slate-500 hover:text-slate-800'
+          }`}
+        >
+          <Palette className="h-3.5 w-3.5 text-blue-600" />
+          <span>Theme & Showcase Bisnis</span>
+        </button>
+      </div>
+
+      {activeTab === 'brand' && (
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
         {/* Left Column: Media Assets (Logo & Banner) */}
         <div className="lg:col-span-4 space-y-6">
           <div className="relative rounded-xl border border-slate-200 bg-white shadow-3xs overflow-hidden flex flex-col items-center text-center pb-5">
@@ -448,6 +481,11 @@ export const BusinessProfilePage: React.FC = () => {
           </div>
         </form>
       </div>
+      )}
+
+      {activeTab === 'theme' && (
+        <BusinessThemeTab businessProfile={profile} userId={profile?.userId || ''} />
+      )}
     </div>
   );
 };

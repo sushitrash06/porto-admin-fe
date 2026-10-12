@@ -51,8 +51,8 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ currentUser }) => {
      return <Navigate to={targetProfilePath} replace />;
   }
 
-  // Builder Studio uses its own full-screen 3-panel studio layout
-  if (location.pathname.startsWith('/admin/templates/builder')) {
+  // Builder Studio & User Theme Studio use their own full-screen studio layout
+  if (location.pathname.startsWith('/admin/templates/builder') || location.pathname.includes('/theme-studio')) {
     return <Outlet />;
   }
 

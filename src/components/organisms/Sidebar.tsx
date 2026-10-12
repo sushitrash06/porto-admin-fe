@@ -2,7 +2,7 @@ import React from 'react';
 import { NavLink } from 'react-router-dom';
 import type { User, Profile, BusinessProfile } from '../../types';
 import { Role } from '../../types';
-import { Users, Briefcase, FolderGit2, ShieldCheck, UserCheck, Shield, LayoutDashboard, Building2, AlertCircle, Globe } from 'lucide-react';
+import { Users, Briefcase, FolderGit2, ShieldCheck, UserCheck, Shield, LayoutDashboard, Building2, AlertCircle, Globe, Palette } from 'lucide-react';
 
 interface SidebarProps {
   currentUser: User;
@@ -141,6 +141,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentUser, profile, business
               <span>Business Profile</span>
             </NavLink>
 
+            <NavLink id="tab-business-theme-studio-btn" to="/admin/business/theme-studio" className={isProfileIncomplete ? disabledLinkStyle : linkStyle}>
+              <Palette className="h-4 w-4 text-blue-500" />
+              <span>Theme Studio & Playground</span>
+            </NavLink>
+
             <NavLink id="tab-business-services-btn" to="/admin/business/services" className={isProfileIncomplete ? disabledLinkStyle : linkStyle}>
               <Briefcase className="h-4 w-4" />
               <span>Services Catalog</span>
@@ -162,6 +167,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentUser, profile, business
             <NavLink id="tab-projects-btn-user" to="/admin/projects" className={isProfileIncomplete ? disabledLinkStyle : linkStyle}>
               <FolderGit2 className="h-4 w-4" />
               <span>My Projects</span>
+            </NavLink>
+
+            <NavLink id="tab-theme-studio-btn-user" to="/admin/theme-studio" className={isProfileIncomplete ? disabledLinkStyle : linkStyle}>
+              <Palette className="h-4 w-4 text-indigo-500" />
+              <span>Theme Studio & Playground</span>
             </NavLink>
 
             <NavLink id="tab-profile-btn-user" to="/admin/profile" className={linkStyle}>
