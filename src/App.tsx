@@ -34,6 +34,8 @@ import { BusinessProjectDetail } from './components/pages/BusinessProjectDetail'
 import { AdminTemplates } from './components/pages/AdminTemplates';
 import { AdminTemplateBuilder } from './components/pages/AdminTemplateBuilder';
 import { PublicPortfolioPage } from './components/pages/PublicPortfolioPage';
+import { ForgotPasswordPage } from './components/pages/ForgotPasswordPage';
+import { ResetPasswordPage } from './components/pages/ResetPasswordPage';
 
 interface AppContentProps {
   currentUser: User | null;
@@ -46,9 +48,11 @@ function AppContent({ currentUser, handleLoginSuccess, handleLogout }: AppConten
   const isLoginPage = location.pathname === '/login';
   const isRegisterPage = location.pathname === '/register';
   const isVerifyEmailPage = location.pathname === '/verify-email';
+  const isForgotPwPage = location.pathname === '/forgot-password';
+  const isResetPwPage = location.pathname === '/reset-password';
   const isPortfolioPage = location.pathname.startsWith('/portfolio');
   const isBuilderPage = location.pathname.startsWith('/admin/templates/builder');
-  const isAuthPage = isLoginPage || isRegisterPage || isVerifyEmailPage;
+  const isAuthPage = isLoginPage || isRegisterPage || isVerifyEmailPage || isForgotPwPage || isResetPwPage;
   const isAdminPage = location.pathname.startsWith('/admin');
   const isAdmin = currentUser?.role === Role.ADMIN;
   // Hide navbar/footer for AUTH, PORTFOLIO, BUILDER STUDIO, or ADMIN on admin pages
@@ -116,6 +120,10 @@ function AppContent({ currentUser, handleLoginSuccess, handleLogout }: AppConten
           {/* Verify Email View */}
           <Route path="/verify-email" element={<VerifyEmailPage />} />
           <Route path="/verify-required" element={<VerificationRequiredPage />} />
+
+          {/* Forgot / Reset Password Views */}
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
 
           {/* Secure Operational Admin Panel Workspace (Protected Layout) */}
           <Route element={<ProtectedLayout />}>

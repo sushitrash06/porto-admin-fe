@@ -180,6 +180,17 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
                             </button>
                         </div>
 
+                        {/* Forgot password link */}
+                        <div className="text-center pt-1">
+                            <Link
+                                id="login-forgot-pw-link"
+                                to="/forgot-password"
+                                className="font-sans text-xs font-medium text-slate-400 hover:text-slate-700 transition-colors underline underline-offset-2"
+                            >
+                                Lupa password?
+                            </Link>
+                        </div>
+
                         {/* Register link */}
                         <div className="text-center pt-1">
                             <p className="font-sans text-xs text-slate-400">

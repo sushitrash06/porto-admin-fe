@@ -93,3 +93,40 @@ export function useRequestEmailChange() {
     },
   });
 }
+
+// ─── Forgot / Reset Password ────────────────────────────────────────
+
+export interface ForgotPasswordPayload {
+  email: string;
+}
+
+/**
+ * Hook to request a password-reset email.
+ * Hits POST /auth/forgot-password
+ */
+export function useForgotPassword() {
+  return useMutation<{ message: string }, AxiosError<{ message?: string }>, ForgotPasswordPayload>({
+    mutationFn: async (payload) => {
+      const { data } = await api.post<{ message: string }>('/auth/forgot-password', payload);
+      return data;
+    },
+  });
+}
+
+export interface ResetPasswordPayload {
+  token: string;
+  newPassword: string;
+}
+
+/**
+ * Hook to reset a user's password with the token from the email link.
+ * Hits POST /auth/reset-password
+ */
+export function useResetPassword() {
+  return useMutation<{ message: string }, AxiosError<{ message?: string }>, ResetPasswordPayload>({
+    mutationFn: async (payload) => {
+      const { data } = await api.post<{ message: string }>('/auth/reset-password', payload);
+      return data;
+    },
+  });
+}
