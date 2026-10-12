@@ -51,6 +51,11 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ currentUser }) => {
      return <Navigate to={targetProfilePath} replace />;
   }
 
+  // Builder Studio uses its own full-screen 3-panel studio layout
+  if (location.pathname.startsWith('/admin/templates/builder')) {
+    return <Outlet />;
+  }
+
   // ═══════════════════════════════════════════════════════════════════
   // SUPER_ADMIN: Floating Card Layout
   // ═══════════════════════════════════════════════════════════════════

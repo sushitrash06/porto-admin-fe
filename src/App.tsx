@@ -31,6 +31,9 @@ import { BusinessProfilePage } from './components/pages/BusinessProfile';
 import { BusinessServices } from './components/pages/BusinessServices';
 import { BusinessProjects } from './components/pages/BusinessProjects';
 import { BusinessProjectDetail } from './components/pages/BusinessProjectDetail';
+import { AdminTemplates } from './components/pages/AdminTemplates';
+import { AdminTemplateBuilder } from './components/pages/AdminTemplateBuilder';
+import { PublicPortfolioPage } from './components/pages/PublicPortfolioPage';
 
 interface AppContentProps {
   currentUser: User | null;
@@ -43,11 +46,13 @@ function AppContent({ currentUser, handleLoginSuccess, handleLogout }: AppConten
   const isLoginPage = location.pathname === '/login';
   const isRegisterPage = location.pathname === '/register';
   const isVerifyEmailPage = location.pathname === '/verify-email';
+  const isPortfolioPage = location.pathname.startsWith('/portfolio');
+  const isBuilderPage = location.pathname.startsWith('/admin/templates/builder');
   const isAuthPage = isLoginPage || isRegisterPage || isVerifyEmailPage;
   const isAdminPage = location.pathname.startsWith('/admin');
   const isAdmin = currentUser?.role === Role.ADMIN;
-  // Hide navbar/footer for ADMIN on admin pages (dark sidebar handles nav)
-  const hideChrome = isAuthPage || (isAdminPage && isAdmin);
+  // Hide navbar/footer for AUTH, PORTFOLIO, BUILDER STUDIO, or ADMIN on admin pages
+  const hideChrome = isAuthPage || isPortfolioPage || isBuilderPage || (isAdminPage && isAdmin);
 
   return (
     <div className="flex min-h-screen flex-col bg-neutral-50/50">
@@ -64,6 +69,7 @@ function AppContent({ currentUser, handleLoginSuccess, handleLogout }: AppConten
         <Routes>
           {/* Public Portfolio Showcase Hub */}
           <Route path="/" element={<LandingPage />} />
+          <Route path="/portfolio/:userId" element={<PublicPortfolioPage />} />
 
           {/* Login View */}
           <Route
@@ -196,6 +202,38 @@ function AppContent({ currentUser, handleLoginSuccess, handleLogout }: AppConten
                 element={
                   currentUser?.role === Role.ADMIN ? (
                     <AdminUsers />
+                  ) : (
+                    <Navigate to="/admin/profile" replace />
+                  )
+                }
+              />
+
+              {/* Admin Templates Management & Builder Studio */}
+              <Route
+                path="/admin/templates"
+                element={
+                  currentUser?.role === Role.ADMIN ? (
+                    <AdminTemplates />
+                  ) : (
+                    <Navigate to="/admin/profile" replace />
+                  )
+                }
+              />
+              <Route
+                path="/admin/templates/builder"
+                element={
+                  currentUser?.role === Role.ADMIN ? (
+                    <AdminTemplateBuilder />
+                  ) : (
+                    <Navigate to="/admin/profile" replace />
+                  )
+                }
+              />
+              <Route
+                path="/admin/templates/builder/:id"
+                element={
+                  currentUser?.role === Role.ADMIN ? (
+                    <AdminTemplateBuilder />
                   ) : (
                     <Navigate to="/admin/profile" replace />
                   )

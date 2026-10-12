@@ -8,7 +8,7 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import type { User } from '../../types';
 import {
     LayoutDashboard, Users, Briefcase, FolderGit2,
-    Shield, Settings, LogOut
+    Shield, Settings, LogOut, Palette
 } from 'lucide-react';
 import { clearAccessToken } from '../../lib/auth';
 
@@ -26,6 +26,11 @@ const navItems = [
         label: 'User Management',
         path: '/admin/users',
         icon: Users,
+    },
+    {
+        label: 'Theme Templates',
+        path: '/admin/templates',
+        icon: Palette,
     },
     {
         label: 'Experiences',

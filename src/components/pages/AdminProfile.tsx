@@ -7,7 +7,8 @@ import React, { useState, useEffect } from 'react';
 import { useProfile, useUpdateProfile, useUploadProfileImage, useUploadProfileBanner, useUploadProfileCV } from '../../hooks/useProfile';
 import { getSessionPayload } from '../../lib/auth';
 import { AccountSecuritySection } from '../molecules/AccountSecuritySection';
-import { UserCheck, ShieldAlert, Loader2, Camera, Mail, Phone, MapPin, Sparkles, Tag, Plus, X, Globe, EyeOff, Lock, FileText, Upload, Download, Image as ImageIcon, Key, Copy, Check, ExternalLink, HelpCircle } from 'lucide-react';
+import { ProfileThemeTab } from '../organisms/ProfileThemeTab';
+import { UserCheck, ShieldAlert, Loader2, Camera, Mail, Phone, MapPin, Sparkles, Tag, Plus, X, Globe, EyeOff, Lock, FileText, Upload, Download, Image as ImageIcon, Key, Copy, Check, ExternalLink, HelpCircle, Palette } from 'lucide-react';
 export const AdminProfile: React.FC = () => {
     const { data: profile, isLoading, isError, error: fetchError } = useProfile();
     const updateProfileMutation = useUpdateProfile();
@@ -55,6 +56,7 @@ export const AdminProfile: React.FC = () => {
     const [isInitialized, setIsInitialized] = useState<boolean>(false);
 
     // Populate form fields once profile data is loaded
+    /* eslint-disable react-hooks/set-state-in-effect */
     useEffect(() => {
         if (profile && !isInitialized) {
             setFullName(profile.fullName || '');
@@ -69,6 +71,7 @@ export const AdminProfile: React.FC = () => {
             setIsInitialized(true);
         }
     }, [profile, isInitialized]);
+    /* eslint-enable react-hooks/set-state-in-effect */
 
 
     const handleAddSkill = (e: React.FormEvent) => {
@@ -179,7 +182,7 @@ export const AdminProfile: React.FC = () => {
             link.click();
             document.body.removeChild(link);
             window.URL.revokeObjectURL(blobUrl);
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error('Failed to download CV:', error);
             setErrorMsg('Failed to download CV. Please try viewing it directly instead.');
             // Fallback opening in new tab
@@ -219,13 +222,14 @@ export const AdminProfile: React.FC = () => {
         });
     };
     // Active tab state
-    type ProfileTab = 'profile' | 'skills' | 'media' | 'security' | 'api';
+    type ProfileTab = 'profile' | 'skills' | 'media' | 'theme' | 'security' | 'api';
     const [activeTab, setActiveTab] = useState<ProfileTab>('profile');
 
     const tabs: { id: ProfileTab; label: string; icon: React.FC<{ className?: string }> }[] = [
         { id: 'profile', label: 'Profil', icon: UserCheck },
         { id: 'skills', label: 'Skills & Layanan', icon: Sparkles },
         { id: 'media', label: 'Media', icon: ImageIcon },
+        { id: 'theme', label: 'Theme Portofolio', icon: Palette },
         { id: 'security', label: 'Keamanan', icon: Lock },
         { id: 'api', label: 'API Access', icon: Key },
     ];
@@ -606,6 +610,13 @@ export const AdminProfile: React.FC = () => {
                         )}
                     </div>
                 </div>
+            )}
+
+            {/* ═══════════════════════════════════════════════ */}
+            {/* TAB: Theme Portofolio                          */}
+            {/* ═══════════════════════════════════════════════ */}
+            {activeTab === 'theme' && (
+                <ProfileThemeTab profile={profile} userId={userId} />
             )}
 
             {/* ═══════════════════════════════════════════════ */}

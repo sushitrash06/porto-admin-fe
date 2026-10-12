@@ -3,6 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import type { Template, UserCustomConfig } from './types/theme';
+
 // Using 'as const' object + type union instead of 'enum'
 // because erasableSyntaxOnly is enabled in tsconfig.
 export const Role = {
@@ -35,6 +37,9 @@ export interface Profile {
   phoneNumber?: string;
   location?: string;
   isPublic?: boolean;
+  templateId?: string | null;
+  template?: Template | null;
+  userCustomConfig?: UserCustomConfig | null;
 }
 
 export interface User {
@@ -136,3 +141,6 @@ export interface BusinessProject {
   createdAt: string;
   updatedAt: string;
 }
+
+// Re-export Theme Builder types
+export * from './types/theme';

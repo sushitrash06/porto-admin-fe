@@ -1,0 +1,115 @@
+/**
+ * @license
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+import { api } from '../lib/api';
+import type {
+  Template,
+  CreateTemplatePayload,
+  UpdateTemplatePayload,
+  UserCustomConfig,
+  TemplateCategory,
+} from '../types/theme';
+
+export interface AdminTemplateQueryParams {
+  search?: string;
+  category?: TemplateCategory;
+  isPublished?: boolean;
+  page?: number;
+  limit?: number;
+}
+
+export interface AdminTemplateListResponse {
+  data: Template[];
+  meta: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
+}
+
+export const templateApi = {
+  // ─── ADMIN ENDPOINTS (Require Role: ADMIN) ───────────────────────────────────
+
+  // 1. Ambil semua template (draft & published) dengan pagination & filter
+  getAllAdmin: async (params?: AdminTemplateQueryParams): Promise<AdminTemplateListResponse> => {
+    const res = await api.get('/admin/templates', { params });
+    return res.data;
+  },
+
+  // 2. Ambil detail template untuk di-load ke Builder canvas
+  getByIdAdmin: async (id: string): Promise<Template> => {
+    const res = await api.get(`/admin/templates/${id}`);
+    return res.data;
+  },
+
+  // 3. Simpan template baru hasil builder
+  create: async (payload: CreateTemplatePayload): Promise<Template> => {
+    const res = await api.post('/admin/templates', payload);
+    return res.data;
+  },
+
+  // 4. Update susunan layout / config template
+  update: async (id: string, payload: UpdateTemplatePayload): Promise<Template> => {
+    const res = await api.patch(`/admin/templates/${id}`, payload);
+    return res.data;
+  },
+
+  // 5. Toggle publish/unpublish
+  togglePublish: async (id: string, isPublished: boolean): Promise<Template> => {
+    const res = await api.patch(`/admin/templates/${id}/publish`, { isPublished });
+    return res.data;
+  },
+
+  // 6. Duplikasi / Clone template
+  clone: async (id: string): Promise<Template> => {
+    const res = await api.post(`/admin/templates/${id}/clone`);
+    return res.data;
+  },
+
+  // 7. Upload thumbnail screenshot template
+  uploadThumbnail: async (id: string, file: File): Promise<Template> => {
+    const formData = new FormData();
+    formData.append('file', file);
+    const res = await api.post(`/admin/templates/${id}/thumbnail`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return res.data;
+  },
+
+  // 8. Hapus template
+  delete: async (id: string): Promise<{ message?: string }> => {
+    const res = await api.delete(`/admin/templates/${id}`);
+    return res.data;
+  },
+
+  // ─── USER & PUBLIC ENDPOINTS ────────────────────────────────────────────────
+
+  // Ambil list template yang siap dipakai user
+  getPublishedTemplates: async (category?: TemplateCategory): Promise<Template[]> => {
+    const res = await api.get('/templates', { params: { category } });
+    return res.data;
+  },
+
+  // Detail preview template publik
+  getPublishedDetail: async (idOrSlug: string): Promise<Template> => {
+    const res = await api.get(`/templates/${idOrSlug}`);
+    return res.data;
+  },
+
+  // User mengadopsi template ke profilnya
+  applyTemplate: async (templateId: string): Promise<{ message: string; template: Template }> => {
+    const res = await api.patch('/templates/me/apply', { templateId });
+    return res.data;
+  },
+
+  // User kustomisasi warna aksen / sembunyikan section
+  updateUserThemeConfig: async (payload: UserCustomConfig): Promise<{ message: string }> => {
+    const res = await api.patch('/templates/me/theme-config', payload);
+    return res.data;
+  },
+};
+
+export default templateApi;
