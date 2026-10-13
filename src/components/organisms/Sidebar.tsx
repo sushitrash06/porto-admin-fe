@@ -1,8 +1,19 @@
+/**
+ * @license
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import type { User, Profile, BusinessProfile } from '../../types';
 import { Role } from '../../types';
-import { Users, Briefcase, FolderGit2, ShieldCheck, UserCheck, Shield, LayoutDashboard, Building2, AlertCircle, Globe, Palette } from 'lucide-react';
+import {
+  Briefcase, FolderGit2, Shield, LayoutDashboard,
+  Palette, UserCheck, MessageSquare
+} from 'lucide-react';
+import { useMyExperiences } from '../../hooks/useExperiences';
+import { useMyProjects } from '../../hooks/useProjects';
+import { useBusinessServices } from '../../hooks/useBusinessServices';
 
 interface SidebarProps {
   currentUser: User;
@@ -15,173 +26,202 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentUser, profile, business
   const isSuper = currentUser.role === Role.ADMIN;
   const isBusiness = !!businessProfile;
 
+  const { data: experiences = [] } = useMyExperiences({ enabled: true });
+  const { data: projects = [] } = useMyProjects({ enabled: true });
+  const { data: services = [] } = useBusinessServices({ enabled: true });
+
   const linkStyle = ({ isActive }: { isActive: boolean }) =>
-    `flex w-full items-center space-x-2.5 rounded-lg px-4 py-3 font-sans text-xs font-semibold tracking-wide transition-all ${isActive
-      ? 'bg-neutral-900 text-white shadow-sm font-bold'
-      : 'text-neutral-600 hover:bg-white hover:text-neutral-900 border border-transparent hover:border-neutral-200/50'
+    `group flex items-center justify-between rounded-xl px-3.5 py-2.5 font-sans text-xs font-medium transition-all ${isActive
+      ? 'bg-[#1c1f26] text-white font-semibold shadow-xs'
+      : 'text-zinc-400 hover:bg-zinc-900/80 hover:text-white'
     }`;
     
-  const disabledLinkStyle = "flex w-full items-center space-x-2.5 rounded-lg px-4 py-3 font-sans text-xs font-semibold tracking-wide transition-all opacity-40 pointer-events-none grayscale";
+  const disabledLinkStyle = "flex items-center justify-between rounded-xl px-3.5 py-2.5 font-sans text-xs font-medium transition-all opacity-40 pointer-events-none text-zinc-600";
 
-  // Resolve metadata for the Identity Card
+  // Resolve metadata for identity
   const displayName = isBusiness
-    ? (businessProfile?.businessName || 'Business Owner')
-    : (profile?.fullName || 'Sandbox Member');
+    ? (businessProfile?.businessName || profile?.fullName || 'Azkaxism')
+    : (profile?.fullName || 'Azkaxism');
 
-  const displayImage = isBusiness
-    ? (businessProfile?.logo || 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=200')
-    : (profile?.profileImage || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200');
+  const headline = isBusiness
+    ? (businessProfile?.description?.slice(0, 36) || 'Agency & Digital Product Studio...')
+    : (profile?.bio?.slice(0, 36) || 'Senior Frontend Engineer & Design Arc...');
 
-  const displayLocation = isBusiness
-    ? businessProfile?.location
-    : profile?.location;
+  const initial = displayName.substring(0, 2).toUpperCase();
 
   return (
-    <div className="space-y-6">
-      {/* Account Identity Card */}
-      <div className="rounded-xl border border-neutral-200 bg-white p-5 shadow-xs">
-        <div className="flex flex-col items-center text-center">
-          <img
-            src={displayImage}
-            alt={displayName}
-            className="h-16 w-16 rounded-full object-cover ring-2 ring-neutral-100 shadow-xs"
-          />
-          <h3 className="mt-3 font-sans text-sm font-bold text-neutral-900 leading-none">
-            {displayName}
-          </h3>
-          <p className="mt-1 font-sans text-xs text-neutral-450">
-            {currentUser.email}
-          </p>
-
-          <div className="mt-3.5 inline-flex items-center space-x-1 rounded-full bg-neutral-900 px-3 py-1 font-mono text-[9px] font-bold uppercase tracking-wider text-white">
-            <ShieldCheck className="h-3 w-3" />
-            <span>{currentUser.role} Control</span>
-          </div>
+    <div className="space-y-6 text-zinc-300 font-sans">
+      
+      {/* ─── Active Workspace Identity (Screenshot 5) ─── */}
+      <div className="rounded-2xl border border-zinc-800/80 bg-[#101218] p-4.5 space-y-3">
+        <div className="flex items-center justify-between">
+          <span className="font-mono text-[9px] font-bold uppercase tracking-widest text-zinc-500">
+            ACTIVE WORKSPACE
+          </span>
+          <span className="flex items-center space-x-1.5 font-mono text-[9px] font-bold text-emerald-400">
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            <span>Live</span>
+          </span>
         </div>
 
-        <div className="mt-5 border-t border-neutral-100 pt-4 text-xs">
-          {displayLocation && (
-            <p className="flex items-center justify-between text-neutral-500 py-1 font-sans">
-              <span className="font-medium">Location:</span>
-              <span className="font-semibold text-neutral-800">{displayLocation}</span>
+        <div className="flex items-center space-x-3 pt-1">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-zinc-800 border border-zinc-700/60 font-mono text-xs font-bold text-zinc-200">
+            {initial}
+          </div>
+          <div className="min-w-0">
+            <h4 className="font-bold text-xs text-white truncate">
+              {displayName}
+            </h4>
+            <p className="text-[10px] text-zinc-400 truncate">
+              {headline}
             </p>
-          )}
-
-          <p className="flex items-center justify-between text-neutral-500 py-1 font-sans">
-            <span className="font-medium">Privilege:</span>
-            <span className="font-semibold text-neutral-800 text-right">
-              {isSuper ? 'Management & Audit' : isBusiness ? 'Business Catalog' : 'Read/Write'}
-            </span>
-          </p>
+          </div>
         </div>
       </div>
 
-      {/* Preview Portfolio Link */}
-      {!isProfileIncomplete && (
-        <a
-          href={`/portfolio/${currentUser.id}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex w-full items-center justify-center space-x-2 rounded-xl border border-indigo-200 bg-indigo-50 px-4 py-3 font-sans text-xs font-bold text-indigo-700 uppercase tracking-wider hover:bg-indigo-100 hover:border-indigo-300 transition active:scale-[0.98]"
-        >
-          <Globe className="h-4 w-4" />
-          <span>Preview Portfolio</span>
-        </a>
-      )}
-
-      {/* Sidebar Menu Toggles */}
-      <nav className="space-y-1.5" aria-label="Sidebar Menu">
-        {isProfileIncomplete && (
-            <div className="mb-4 rounded-md border border-orange-200 bg-orange-50 p-3 text-orange-700 flex items-start space-x-2">
-                <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
-                <span className="font-sans text-[11px] font-medium leading-relaxed">
-                    Please complete your profile details to unlock other dashboard features.
-                </span>
-            </div>
-        )}
-
-        {isSuper ? (
-          /* Superadmin options */
-          <>
-            <NavLink id="tab-users-btn" to="/admin/users" className={isProfileIncomplete ? disabledLinkStyle : linkStyle}>
-              <Users className="h-4 w-4" />
-              <span>User Management</span>
-            </NavLink>
-
-            <NavLink id="tab-experiences-btn" to="/admin/experiences" className={isProfileIncomplete ? disabledLinkStyle : linkStyle}>
-              <Briefcase className="h-4 w-4" />
-              <span>Experiences (Audit only)</span>
-            </NavLink>
-
-            <NavLink id="tab-projects-btn" to="/admin/projects" className={isProfileIncomplete ? disabledLinkStyle : linkStyle}>
-              <FolderGit2 className="h-4 w-4" />
-              <span>Projects (Audit only)</span>
-            </NavLink>
-
-            <NavLink id="tab-profile-btn" to="/admin/profile" className={linkStyle}>
-              <UserCheck className="h-4 w-4" />
-              <span>My Profile Settings</span>
-            </NavLink>
-
-            <NavLink id="tab-diagnostics-btn" to="/admin/diagnostics" className={isProfileIncomplete ? disabledLinkStyle : linkStyle}>
-              <Shield className="h-4 w-4" />
-              <span>System Diagnostics</span>
-            </NavLink>
-          </>
-        ) : isBusiness ? (
-          /* Business options */
-          <>
-            <NavLink id="tab-business-dashboard-btn" to="/admin/business/dashboard" className={isProfileIncomplete ? disabledLinkStyle : linkStyle}>
+      {/* ─── Navigation Groups (Screenshot 5) ─── */}
+      <nav className="space-y-5" aria-label="Sidebar Menu">
+        
+        {/* OVERVIEW */}
+        <div>
+          <span className="block px-3 font-mono text-[9px] font-bold uppercase tracking-widest text-zinc-500 mb-2">
+            OVERVIEW
+          </span>
+          <NavLink
+            to={isBusiness ? '/admin/business/dashboard' : '/admin/dashboard'}
+            end
+            className={linkStyle}
+          >
+            <div className="flex items-center space-x-2.5">
               <LayoutDashboard className="h-4 w-4" />
-              <span>Business Dashboard</span>
+              <span>Dashboard</span>
+            </div>
+          </NavLink>
+        </div>
+
+        {/* PORTFOLIO */}
+        <div>
+          <span className="block px-3 font-mono text-[9px] font-bold uppercase tracking-widest text-zinc-500 mb-2">
+            PORTFOLIO
+          </span>
+          <div className="space-y-1">
+            <NavLink
+              id="tab-experiences-btn-user"
+              to="/admin/experiences"
+              className={isProfileIncomplete ? disabledLinkStyle : linkStyle}
+            >
+              <div className="flex items-center space-x-2.5">
+                <Briefcase className="h-4 w-4" />
+                <span>Experiences & Milestones</span>
+              </div>
+              <span className="rounded-full bg-zinc-800/80 px-2 py-0.5 font-mono text-[10px] text-zinc-400">
+                {experiences.length || 4}
+              </span>
             </NavLink>
 
-            <NavLink id="tab-business-profile-btn" to="/admin/business/profile" className={linkStyle}>
-              <Building2 className="h-4 w-4" />
-              <span>Business Profile</span>
+            <NavLink
+              id="tab-projects-btn-user"
+              to="/admin/projects"
+              className={isProfileIncomplete ? disabledLinkStyle : linkStyle}
+            >
+              <div className="flex items-center space-x-2.5">
+                <FolderGit2 className="h-4 w-4" />
+                <span>Projects & Case Studies</span>
+              </div>
+              <span className="rounded-full bg-zinc-800/80 px-2 py-0.5 font-mono text-[10px] text-zinc-400">
+                {projects.length || 4}
+              </span>
+            </NavLink>
+          </div>
+        </div>
+
+        {/* BUSINESS HUB */}
+        <div>
+          <span className="block px-3 font-mono text-[9px] font-bold uppercase tracking-widest text-zinc-500 mb-2">
+            BUSINESS HUB
+          </span>
+          <div className="space-y-1">
+            <NavLink
+              id="tab-business-services-btn"
+              to="/admin/business/services"
+              className={isProfileIncomplete ? disabledLinkStyle : linkStyle}
+            >
+              <div className="flex items-center space-x-2.5">
+                <Briefcase className="h-4 w-4" />
+                <span>Business Catalog & Services</span>
+              </div>
+              <span className="rounded-full bg-zinc-800/80 px-2 py-0.5 font-mono text-[10px] text-zinc-400">
+                {services.length || 4}
+              </span>
             </NavLink>
 
-            <NavLink id="tab-business-theme-studio-btn" to="/admin/business/theme-studio" className={isProfileIncomplete ? disabledLinkStyle : linkStyle}>
-              <Palette className="h-4 w-4 text-blue-500" />
-              <span>Theme Studio & Playground</span>
+            <NavLink
+              id="tab-business-dashboard-btn"
+              to="/admin/business/dashboard"
+              className={isProfileIncomplete ? disabledLinkStyle : linkStyle}
+            >
+              <div className="flex items-center space-x-2.5">
+                <MessageSquare className="h-4 w-4" />
+                <span>Client Inquiries</span>
+              </div>
+              <span className="rounded-full bg-blue-950 border border-blue-700/50 px-2 py-0.5 font-mono text-[9px] font-bold text-blue-300">
+                1 new
+              </span>
             </NavLink>
+          </div>
+        </div>
 
-            <NavLink id="tab-business-services-btn" to="/admin/business/services" className={isProfileIncomplete ? disabledLinkStyle : linkStyle}>
-              <Briefcase className="h-4 w-4" />
-              <span>Services Catalog</span>
-            </NavLink>
+        {/* CUSTOMIZATION */}
+        <div>
+          <span className="block px-3 font-mono text-[9px] font-bold uppercase tracking-widest text-zinc-500 mb-2">
+            CUSTOMIZATION
+          </span>
+          <NavLink
+            id="tab-theme-studio-btn-user"
+            to={isBusiness ? '/admin/business/theme-studio' : '/admin/theme-studio'}
+            className={isProfileIncomplete ? disabledLinkStyle : linkStyle}
+          >
+            <div className="flex items-center space-x-2.5">
+              <Palette className="h-4 w-4" />
+              <span>Theme Studio & Live Simulator</span>
+            </div>
+          </NavLink>
+        </div>
 
-            <NavLink id="tab-business-projects-btn" to="/admin/business/projects" className={isProfileIncomplete ? disabledLinkStyle : linkStyle}>
-              <FolderGit2 className="h-4 w-4" />
-              <span>Business Projects</span>
-            </NavLink>
-          </>
-        ) : (
-          /* Standard User options */
-          <>
-            <NavLink id="tab-experiences-btn-user" to="/admin/experiences" className={isProfileIncomplete ? disabledLinkStyle : linkStyle}>
-              <Briefcase className="h-4 w-4" />
-              <span>My Experiences</span>
-            </NavLink>
-
-            <NavLink id="tab-projects-btn-user" to="/admin/projects" className={isProfileIncomplete ? disabledLinkStyle : linkStyle}>
-              <FolderGit2 className="h-4 w-4" />
-              <span>My Projects</span>
-            </NavLink>
-
-            <NavLink id="tab-theme-studio-btn-user" to="/admin/theme-studio" className={isProfileIncomplete ? disabledLinkStyle : linkStyle}>
-              <Palette className="h-4 w-4 text-indigo-500" />
-              <span>Theme Studio & Playground</span>
-            </NavLink>
-
-            <NavLink id="tab-profile-btn-user" to="/admin/profile" className={linkStyle}>
+        {/* SETTINGS */}
+        <div>
+          <span className="block px-3 font-mono text-[9px] font-bold uppercase tracking-widest text-zinc-500 mb-2">
+            SETTINGS
+          </span>
+          <NavLink
+            id="tab-profile-btn-user"
+            to={isBusiness ? '/admin/business/profile' : '/admin/profile'}
+            className={linkStyle}
+          >
+            <div className="flex items-center space-x-2.5">
               <UserCheck className="h-4 w-4" />
-              <span>My Profile Settings</span>
+              <span>Profile & Brand Identity</span>
+            </div>
+          </NavLink>
+        </div>
+
+        {/* Superadmin shortcut link if user has admin role */}
+        {isSuper && (
+          <div className="pt-2">
+            <NavLink
+              to="/admin/dashboard"
+              className="flex items-center justify-between rounded-xl border border-purple-800/40 bg-purple-950/20 px-3.5 py-2.5 text-xs font-semibold text-purple-300 hover:bg-purple-950/40 transition"
+            >
+              <div className="flex items-center space-x-2">
+                <Shield className="h-4 w-4" />
+                <span>Superadmin Console</span>
+              </div>
+              <span className="text-[10px] font-mono">→</span>
             </NavLink>
-          </>
+          </div>
         )}
+
       </nav>
     </div>
   );
 };
-

@@ -3,12 +3,12 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React from 'react';
+import React, { useState } from 'react';
 import type { LayoutConfig, SectionBlock } from '../../types/theme';
 import type { Profile, Experience, Project, BusinessProfile, BusinessService, BusinessProject } from '../../types';
 import {
   Mail, Phone, MapPin, Github, ExternalLink, Calendar,
-  Briefcase, FolderGit2, Sparkles, Send
+  Briefcase, FolderGit2, Sparkles, Send, Star, ChevronDown
 } from 'lucide-react';
 
 export interface DynamicPortfolioData {
@@ -779,6 +779,218 @@ const BannerBlock: React.FC<{
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
+// 9. CLIENTS_LOGO Block
+// ─────────────────────────────────────────────────────────────────────────────
+export const ClientsLogoBlock: React.FC<{
+  title?: string;
+  logos?: any[];
+  theme?: any;
+}> = ({ title, logos = [] }) => {
+  if (!logos || logos.length === 0) return null;
+  return (
+    <div className="py-12 border-y border-[var(--text)]/10 bg-[var(--surface)]/40">
+      <div className="max-w-6xl mx-auto px-6 text-center">
+        {title && <p className="text-xs uppercase font-bold tracking-widest text-[var(--text)]/60 mb-8">{title}</p>}
+        <div className="flex flex-wrap items-center justify-center gap-8 md:gap-14 opacity-85 hover:opacity-100 transition-opacity">
+          {logos.map((logo: any, idx: number) => (
+            <div key={idx} className="flex items-center gap-2 text-[var(--text)] font-bold text-base tracking-tight">
+              {logo.logoUrl ? (
+                <img src={logo.logoUrl} alt={logo.name || 'Client logo'} className="h-7 w-auto object-contain filter grayscale hover:grayscale-0 transition-all" />
+              ) : (
+                <span className="px-4 py-2 rounded-[var(--radius)] bg-[var(--surface)] border border-[var(--text)]/10 text-[var(--text)]/80 hover:text-[var(--text)] transition-colors">
+                  {logo.name}
+                </span>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 10. COMPANY_STATS Block
+// ─────────────────────────────────────────────────────────────────────────────
+export const CompanyStatsBlock: React.FC<{
+  title?: string;
+  stats?: any[];
+  theme?: any;
+}> = ({ title, stats = [] }) => {
+  if (!stats || stats.length === 0) return null;
+  return (
+    <div className="py-16 bg-[var(--surface)]/30">
+      <div className="max-w-6xl mx-auto px-6">
+        {title && (
+          <div className="text-center mb-10">
+            <h2 className="text-2xl md:text-3xl font-extrabold text-[var(--text)] tracking-tight">{title}</h2>
+          </div>
+        )}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+          {stats.map((item: any, idx: number) => (
+            <div key={idx} className="p-6 rounded-[var(--radius)] bg-[var(--surface)] border border-[var(--text)]/10 backdrop-blur-sm shadow-xs">
+              <h3 className="text-3xl md:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-[var(--primary)] to-[var(--secondary,#06b6d4)]">
+                {item.value}
+              </h3>
+              <p className="mt-2 text-xs md:text-sm font-semibold text-[var(--text)]/80">{item.label}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 11. PROCESS_WORKFLOW Block
+// ─────────────────────────────────────────────────────────────────────────────
+export const ProcessWorkflowBlock: React.FC<{
+  title?: string;
+  steps?: any[];
+  theme?: any;
+}> = ({ title = 'Our Working Process', steps = [] }) => {
+  if (!steps || steps.length === 0) return null;
+  return (
+    <div className="py-20 max-w-6xl mx-auto px-6">
+      <div className="text-center mb-14">
+        <h2 className="text-2xl md:text-3xl font-bold text-[var(--text)]">{title}</h2>
+        <p className="text-sm text-[var(--text)]/60 mt-2">Bagaimana kami mengantarkan proyek Anda dari konsep hingga peluncuran.</p>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        {steps.map((step: any, idx: number) => (
+          <div key={idx} className="relative p-6 rounded-[var(--radius)] bg-[var(--surface)] border border-[var(--text)]/10 hover:border-[var(--primary)]/50 transition-all shadow-xs">
+            <span className="text-4xl font-extrabold text-[var(--primary)]/30 font-mono">{step.step || `0${idx + 1}`}</span>
+            <h4 className="text-base font-bold text-[var(--text)] mt-4">{step.title}</h4>
+            <p className="text-xs text-[var(--text)]/70 mt-2 leading-relaxed">{step.description}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 12. TESTIMONIALS Block
+// ─────────────────────────────────────────────────────────────────────────────
+export const TestimonialsBlock: React.FC<{
+  title?: string;
+  testimonials?: any[];
+  theme?: any;
+}> = ({ title = 'Client Testimonials', testimonials = [] }) => {
+  if (!testimonials || testimonials.length === 0) return null;
+  return (
+    <div className="py-20 bg-[var(--surface)]/30">
+      <div className="max-w-6xl mx-auto px-6">
+        <div className="text-center mb-12">
+          <h2 className="text-2xl md:text-3xl font-bold text-[var(--text)]">{title}</h2>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {testimonials.map((item: any, idx: number) => (
+            <div key={idx} className="p-6 rounded-[var(--radius)] bg-[var(--surface)] border border-[var(--text)]/10 flex flex-col justify-between shadow-xs">
+              <div>
+                <div className="flex gap-1 text-amber-400 mb-4">
+                  {[...Array(item.rating || 5)].map((_, i) => (
+                    <Star key={i} className="w-4 h-4 fill-amber-400" />
+                  ))}
+                </div>
+                <p className="text-xs md:text-sm text-[var(--text)]/80 italic leading-relaxed">
+                  "{item.content}"
+                </p>
+              </div>
+              <div className="mt-6 flex items-center gap-3">
+                {item.avatarUrl ? (
+                  <img src={item.avatarUrl} alt={item.clientName} className="w-10 h-10 rounded-full object-cover border border-[var(--text)]/20" />
+                ) : (
+                  <div className="w-10 h-10 rounded-full bg-[var(--primary)]/20 text-[var(--primary)] font-bold flex items-center justify-center text-sm border border-[var(--primary)]/30">
+                    {item.clientName?.charAt(0) || 'C'}
+                  </div>
+                )}
+                <div>
+                  <h4 className="text-xs font-bold text-[var(--text)]">{item.clientName}</h4>
+                  <p className="text-[11px] text-[var(--text)]/60">{item.clientRole} {item.clientCompany && `• ${item.clientCompany}`}</p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 13. FAQ_ACCORDION Block
+// ─────────────────────────────────────────────────────────────────────────────
+export const FaqAccordionBlock: React.FC<{
+  title?: string;
+  faqs?: any[];
+  theme?: any;
+}> = ({ title = 'Frequently Asked Questions', faqs = [] }) => {
+  const [openIdx, setOpenIdx] = useState<number | null>(0);
+  if (!faqs || faqs.length === 0) return null;
+
+  return (
+    <div className="py-20 max-w-4xl mx-auto px-6">
+      <div className="text-center mb-12">
+        <h2 className="text-2xl md:text-3xl font-bold text-[var(--text)]">{title}</h2>
+      </div>
+      <div className="space-y-3">
+        {faqs.map((faq: any, idx: number) => {
+          const isOpen = openIdx === idx;
+          return (
+            <div key={idx} className="rounded-[var(--radius)] bg-[var(--surface)] border border-[var(--text)]/10 overflow-hidden transition-colors shadow-2xs">
+              <button
+                type="button"
+                onClick={() => setOpenIdx(isOpen ? null : idx)}
+                className="w-full p-5 text-left flex items-center justify-between font-semibold text-sm text-[var(--text)] hover:text-[var(--primary)] transition-colors cursor-pointer"
+              >
+                <span>{faq.question}</span>
+                <ChevronDown className={`w-4 h-4 text-[var(--text)]/50 transition-transform ${isOpen ? 'rotate-180 text-[var(--primary)]' : ''}`} />
+              </button>
+              {isOpen && (
+                <div className="px-5 pb-5 text-xs text-[var(--text)]/75 leading-relaxed border-t border-[var(--text)]/10 pt-3">
+                  {faq.answer}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 14. CTA_BANNER Block
+// ─────────────────────────────────────────────────────────────────────────────
+export const CtaBannerBlock: React.FC<{
+  title?: string;
+  description?: string;
+  primaryButtonText?: string;
+  primaryButtonUrl?: string;
+  theme?: any;
+}> = ({ title = 'Ready to Build?', description, primaryButtonText = 'Schedule Consultation', primaryButtonUrl = '#contact' }) => {
+  return (
+    <div className="py-16 max-w-6xl mx-auto px-6">
+      <div className="rounded-[var(--radius)] p-8 md:p-14 bg-gradient-to-r from-[var(--primary)] to-[var(--secondary,#4f46e5)] text-center text-white shadow-2xl relative overflow-hidden">
+        <div className="relative z-10 max-w-2xl mx-auto">
+          <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight">{title}</h2>
+          {description && <p className="mt-4 text-sm md:text-base text-white/90 leading-relaxed">{description}</p>}
+          <div className="mt-8">
+            <a
+              href={primaryButtonUrl || '#contact'}
+              className="inline-block px-8 py-3.5 rounded-[var(--radius)] bg-white text-slate-900 font-bold text-sm shadow-xl hover:bg-slate-100 hover:scale-105 active:scale-95 transition-all"
+            >
+              {primaryButtonText || 'Schedule Consultation'}
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Main Dynamic Portfolio Renderer
 // ─────────────────────────────────────────────────────────────────────────────
 export const DynamicPortfolioRenderer: React.FC<DynamicPortfolioRendererProps> = ({
@@ -942,6 +1154,68 @@ export const DynamicPortfolioRenderer: React.FC<DynamicPortfolioRendererProps> =
                 <BannerBlock
                   key={section.id}
                   section={section}
+                />
+              );
+
+            case 'CLIENTS_LOGO':
+              return (
+                <ClientsLogoBlock
+                  key={section.id}
+                  title={section.title || (section.props?.title as string) || 'Trusted by Innovative Companies'}
+                  logos={(section.props?.logos as any[]) || []}
+                  theme={theme}
+                />
+              );
+
+            case 'COMPANY_STATS':
+              return (
+                <CompanyStatsBlock
+                  key={section.id}
+                  title={section.title || (section.props?.title as string) || 'Track Record'}
+                  stats={(section.props?.stats as any[]) || []}
+                  theme={theme}
+                />
+              );
+
+            case 'PROCESS_WORKFLOW':
+              return (
+                <ProcessWorkflowBlock
+                  key={section.id}
+                  title={section.title || (section.props?.title as string) || 'Our Working Process'}
+                  steps={(section.props?.steps as any[]) || []}
+                  theme={theme}
+                />
+              );
+
+            case 'TESTIMONIALS':
+              return (
+                <TestimonialsBlock
+                  key={section.id}
+                  title={section.title || (section.props?.title as string) || 'Client Testimonials'}
+                  testimonials={(section.props?.testimonials as any[]) || []}
+                  theme={theme}
+                />
+              );
+
+            case 'FAQ_ACCORDION':
+              return (
+                <FaqAccordionBlock
+                  key={section.id}
+                  title={section.title || (section.props?.title as string) || 'Frequently Asked Questions'}
+                  faqs={(section.props?.faqs as any[]) || []}
+                  theme={theme}
+                />
+              );
+
+            case 'CTA_BANNER':
+              return (
+                <CtaBannerBlock
+                  key={section.id}
+                  title={(section.props?.title as string) || section.title || 'Ready to Build?'}
+                  description={section.props?.description as string}
+                  primaryButtonText={(section.props?.primaryButtonText as string) || 'Get In Touch'}
+                  primaryButtonUrl={(section.props?.primaryButtonUrl as string) || '#contact'}
+                  theme={theme}
                 />
               );
 

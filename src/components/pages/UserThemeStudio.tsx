@@ -10,7 +10,7 @@ import {
   ArrowLeft, RotateCcw, Monitor, Tablet, Smartphone, Palette,
   Layers, Sliders, Moon, Sun, Check, Loader2, GripVertical,
   Eye, EyeOff, CheckCircle2, ShieldAlert, ArrowUpDown, ExternalLink,
-  AlertTriangle
+  AlertTriangle, Pencil
 } from 'lucide-react';
 import type { AxiosError } from 'axios';
 import {
@@ -31,6 +31,7 @@ import { useBusinessProfile } from '../../hooks/useBusinessProfile';
 import type { User } from '../../types';
 import type { Template, TemplateCategory, SectionBlock, LayoutConfig } from '../../types/theme';
 import { DynamicPortfolioRenderer } from '../organisms/DynamicPortfolioRenderer';
+import { EditSectionContentModal } from '../organisms/EditSectionContentModal';
 
 interface UserThemeStudioProps {
   currentUser: User;
@@ -64,7 +65,7 @@ export const UserThemeStudio: React.FC<UserThemeStudioProps> = ({
   const location = useLocation();
 
   // Detect whether we are editing business or personal profile
-  const isBusiness = isBusinessMode || location.pathname.includes('/business') || !!currentUser.businessProfile;
+  const isBusiness = isBusinessMode || location.pathname.includes('/business');
 
   // ─── 1. FETCH PROFILE DATA ────────────────────────────────────────────────
   const { data: profile } = useProfile({ enabled: !isBusiness });
@@ -110,6 +111,13 @@ export const UserThemeStudio: React.FC<UserThemeStudioProps> = ({
   const [previewDevice, setPreviewDevice] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
   const [statusMessage, setStatusMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
   const [showResetConfirm, setShowResetConfirm] = useState<boolean>(false);
+  const [editingSection, setEditingSection] = useState<SectionBlock | null>(null);
+
+  // Section types with editable rich content (business blocks)
+  const RICH_BLOCK_TYPES = new Set([
+    'CLIENTS_LOGO', 'COMPANY_STATS', 'PROCESS_WORKFLOW',
+    'TESTIMONIALS', 'FAQ_ACCORDION', 'CTA_BANNER',
+  ]);
 
   // Sync state when backend returns data
   useEffect(() => {
@@ -204,6 +212,15 @@ export const UserThemeStudio: React.FC<UserThemeStudioProps> = ({
         },
       }
     );
+  };
+
+  // ─── 4b. HANDLE SECTION CONTENT SAVE ────────────────────────────────────
+  const handleSectionContentSaved = (updatedSection: SectionBlock) => {
+    setSections((prev) =>
+      prev.map((s) => (s.id === updatedSection.id ? updatedSection : s))
+    );
+    setEditingSection(null);
+    showFeedback(`Konten "${updatedSection.title || updatedSection.type}" berhasil disimpan!`);
   };
 
   const handleConfirmReset = () => {
@@ -494,26 +511,52 @@ export const UserThemeStudio: React.FC<UserThemeStudioProps> = ({
                                     {section.variant}
                                   </span>
                                 )}
+                                {RICH_BLOCK_TYPES.has(section.type) && (
+                                  <span className="font-mono text-[9px] text-blue-300 bg-blue-500/15 border border-blue-500/20 px-1.5 py-0.2 rounded font-semibold">
+                                    Rich Block
+                                  </span>
+                                )}
                               </div>
                             </div>
                           </div>
 
-                          <button
-                            type="button"
-                            onClick={() => handleToggleVisibility(section.id)}
-                            className={`p-1.5 rounded-lg border transition cursor-pointer ${
-                              section.isVisible
-                                ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20'
-                                : 'border-slate-700 bg-slate-800 text-slate-500 hover:text-slate-300'
-                            }`}
-                            title={section.isVisible ? 'Hide Section' : 'Show Section'}
-                          >
-                            {section.isVisible ? (
-                              <Eye className="w-3.5 h-3.5" />
-                            ) : (
-                              <EyeOff className="w-3.5 h-3.5 text-rose-400" />
-                            )}
-                          </button>
+                          {/* Action Buttons */}
+                          <div className="flex items-center gap-1.5 shrink-0">
+                            {/* Edit Content Button */}
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setEditingSection(section);
+                              }}
+                              className={`p-1.5 rounded-lg border transition cursor-pointer ${
+                                RICH_BLOCK_TYPES.has(section.type)
+                                  ? 'border-blue-500/40 bg-blue-500/15 text-blue-300 hover:bg-blue-500/25'
+                                  : 'border-blue-500/30 bg-blue-500/10 text-blue-400 hover:bg-blue-500/20'
+                              }`}
+                              title={RICH_BLOCK_TYPES.has(section.type) ? "Edit Rich Business Content" : "Edit Section Content"}
+                            >
+                              <Pencil className="w-3.5 h-3.5" />
+                            </button>
+
+                            {/* Toggle Visibility Button */}
+                            <button
+                              type="button"
+                              onClick={() => handleToggleVisibility(section.id)}
+                              className={`p-1.5 rounded-lg border transition cursor-pointer ${
+                                section.isVisible
+                                  ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20'
+                                  : 'border-slate-700 bg-slate-800 text-slate-500 hover:text-slate-300'
+                              }`}
+                              title={section.isVisible ? 'Hide Section' : 'Show Section'}
+                            >
+                              {section.isVisible ? (
+                                <Eye className="w-3.5 h-3.5" />
+                              ) : (
+                                <EyeOff className="w-3.5 h-3.5 text-rose-400" />
+                              )}
+                            </button>
+                          </div>
                         </Reorder.Item>
                       ))}
                     </Reorder.Group>
@@ -748,6 +791,15 @@ export const UserThemeStudio: React.FC<UserThemeStudioProps> = ({
           </div>
         </main>
       </div>
+
+      {/* ─── Edit Section Content Modal ─── */}
+      <EditSectionContentModal
+        isOpen={!!editingSection}
+        section={editingSection}
+        isBusiness={isBusiness}
+        onClose={() => setEditingSection(null)}
+        onSaveSuccess={handleSectionContentSaved}
+      />
 
       {/* ─── Reset Confirmation Modal ─── */}
       {showResetConfirm && (

@@ -22,7 +22,8 @@ import { AdminDashboardOverview } from './components/pages/AdminDashboardOvervie
 import { AdminExperienceDetail } from './components/pages/AdminExperienceDetail';
 import { AdminProjectDetail } from './components/pages/AdminProjectDetail';
 import { AdminLayout } from './components/templates/AdminLayout';
-import { getSessionPayload, clearAccessToken } from './lib/auth';
+import { getSessionPayload, clearAccessToken, getAccessToken } from './lib/auth';
+import { api } from './lib/api';
 import { initializeDB } from './utils/db';
 import { Cpu } from 'lucide-react';
 import { ProtectedLayout } from './components/templates/ProtectedLayout';
@@ -61,7 +62,7 @@ function AppContent({ currentUser, handleLoginSuccess, handleLogout }: AppConten
   const hideChrome = isAuthPage || isPortfolioPage || isBuilderPage || isStudioPage || (isAdminPage && isAdmin);
 
   return (
-    <div className="flex min-h-screen flex-col bg-neutral-50/50">
+    <div className="flex min-h-screen flex-col bg-[#08090d] text-white">
       {/* Universal Navigation Header */}
       {!hideChrome && (
         <Navbar
@@ -272,14 +273,14 @@ function AppContent({ currentUser, handleLoginSuccess, handleLogout }: AppConten
 
       {/* Modern High Contrast Footer */}
       {!hideChrome && (
-        <footer className="border-t border-neutral-200 bg-white py-8">
+        <footer className="border-t border-zinc-800/80 bg-[#0a0b0f] py-8 text-zinc-400">
           <div className="mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8">
             <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
-              <span className="font-sans text-xs text-neutral-450">
-                © {new Date().getFullYear()} Foliowalaweh Hub. Complete persistent sandbox directory.
+              <span className="font-sans text-xs text-zinc-500">
+                © {new Date().getFullYear()} Foliowalaweh Hub. Complete dual-engine portfolio & business platform.
               </span>
-              <div className="flex items-center space-x-1 font-mono text-[10px] text-neutral-400">
-                <Cpu className="h-3 w-3" />
+              <div className="flex items-center space-x-1.5 font-mono text-[10px] text-zinc-500">
+                <Cpu className="h-3 w-3 text-indigo-400" />
                 <span>SYSTEM COMPILED WITH VITE & TAILWIND v4</span>
               </div>
             </div>
@@ -294,11 +295,12 @@ export default function App() {
   const [currentUser, setUserState] = useState<User | null>(() => {
     const payload = getSessionPayload();
     if (payload) {
+      const hasStoredBusiness = localStorage.getItem('has_business_profile') === 'true';
       return {
         id: payload.sub,
         email: payload.email,
         role: payload.role,
-        businessProfile: payload.hasBusinessProfile ? {} as never : null,
+        businessProfile: (payload.hasBusinessProfile || hasStoredBusiness) ? {} as never : null,
         createdAt: '',
         updatedAt: '',
       };
@@ -306,17 +308,42 @@ export default function App() {
     return null;
   });
 
-  // Initialize DB on mount
+  // Initialize DB on mount and sync user info from /auth/me
   useEffect(() => {
     initializeDB();
+
+    const token = getAccessToken();
+    if (token) {
+      api.get('/auth/me').then((res) => {
+        if (res.data) {
+          if (res.data.hasBusinessProfile) {
+            localStorage.setItem('has_business_profile', 'true');
+          }
+          setUserState((prev) => {
+            if (!prev) return prev;
+            return {
+              ...prev,
+              role: res.data.role,
+              businessProfile: res.data.hasBusinessProfile ? (prev.businessProfile || ({} as never)) : null,
+            };
+          });
+        }
+      }).catch(() => {
+        // ignore offline or unauthenticated
+      });
+    }
   }, []);
 
   const handleLoginSuccess = (user: User) => {
+    if (user.businessProfile) {
+      localStorage.setItem('has_business_profile', 'true');
+    }
     setUserState(user);
   };
 
   const handleLogout = () => {
     clearAccessToken();
+    localStorage.removeItem('has_business_profile');
     setUserState(null);
   };
 

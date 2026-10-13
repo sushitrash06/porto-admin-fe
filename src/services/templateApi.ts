@@ -169,6 +169,53 @@ export const templateApi = {
     const res = await api.post('/templates/business/me/reset');
     return res.data;
   },
+
+  // ─── RICH SECTION CONTENT PROPS & ASSETS ───────────────────────────────────
+
+  // Update spesifik 1 section (props, title, isVisible) untuk profil personal
+  updateUserSection: async (sectionId: string, payload: {
+    title?: string;
+    variant?: string;
+    isVisible?: boolean;
+    props?: Record<string, any>;
+  }) => {
+    const res = await api.patch(`/templates/me/sections/${sectionId}`, payload);
+    return res.data;
+  },
+
+  // Update spesifik 1 section (props, title, isVisible) untuk profil bisnis
+  updateBusinessSection: async (sectionId: string, payload: {
+    title?: string;
+    variant?: string;
+    isVisible?: boolean;
+    props?: Record<string, any>;
+  }) => {
+    const res = await api.patch(`/templates/business/me/sections/${sectionId}`, payload);
+    return res.data;
+  },
+
+  // Upload aset gambar untuk custom blocks (logo klien, foto review, avatar)
+  uploadThemeAsset: async (file: File): Promise<{ url: string }> => {
+    const formData = new FormData();
+    formData.append('file', file);
+    const res = await api.post('/templates/upload-asset', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return res.data;
+  },
+
+  // Aktivasi profil bisnis untuk user personal yang sedang login
+  activateBusinessProfile: async (payload: {
+    businessName: string;
+    description?: string;
+    contactEmail?: string;
+    phoneNumber?: string;
+    location?: string;
+    website?: string;
+  }) => {
+    const res = await api.post('/business-profiles', payload);
+    return res.data;
+  },
 };
 
 export default templateApi;

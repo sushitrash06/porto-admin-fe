@@ -8,9 +8,10 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import type { User } from '../../types';
 import {
     LayoutDashboard, Users, Briefcase, FolderGit2,
-    Shield, Settings, LogOut, Palette
+    Shield, Settings, LogOut, Palette, Layers
 } from 'lucide-react';
 import { clearAccessToken } from '../../lib/auth';
+import { useUsers } from '../../hooks/useUsers';
 
 interface AdminSidebarProps {
     currentUser: User;
@@ -26,6 +27,12 @@ const navItems = [
         label: 'User Management',
         path: '/admin/users',
         icon: Users,
+        showUserCount: true,
+    },
+    {
+        label: 'System Diagnostics',
+        path: '/admin/diagnostics',
+        icon: Shield,
     },
     {
         label: 'Theme Templates',
@@ -47,15 +54,12 @@ const navItems = [
         path: '/admin/profile',
         icon: Settings,
     },
-    {
-        label: 'System Diagnostics',
-        path: '/admin/diagnostics',
-        icon: Shield,
-    },
 ];
 
 export const AdminSidebar: React.FC<AdminSidebarProps> = ({ currentUser }) => {
     const navigate = useNavigate();
+    const { data: usersData } = useUsers({ page: 1, limit: 1 });
+    const totalUsers = usersData?.meta?.total ?? 6;
 
     const handleLogout = () => {
         clearAccessToken();
@@ -64,43 +68,56 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({ currentUser }) => {
     };
 
     return (
-        <div className="flex h-full flex-col bg-[#27273f] text-slate-300 admin-sidebar overflow-y-auto">
-            {/* User Profile Header (Optional, but let's keep a brand header) */}
-            <div className="px-6 py-8">
-                <div className="flex items-center space-x-3">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-500 text-white">
-                        <LayoutDashboard className="h-4 w-4" />
+        <div className="flex h-full flex-col bg-[#090a0f] text-zinc-300 admin-sidebar border-r border-zinc-800/80 overflow-y-auto">
+            {/* Superadmin Console Brand Header */}
+            <div className="px-5 py-6 border-b border-zinc-800/60">
+                <div className="flex items-center space-x-2.5">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-zinc-900 border border-zinc-800 text-white shadow-inner">
+                        <Layers className="h-4 w-4" />
                     </div>
-                    <span className="font-sans text-lg font-bold text-white tracking-wide">
-                        Foliowalaweh
-                    </span>
+                    <div>
+                        <span className="font-sans text-base font-bold text-white tracking-wide block leading-none">
+                            Foliowalaweh
+                        </span>
+                        <span className="mt-1 inline-block font-mono text-[9px] font-bold text-purple-400 tracking-wider uppercase bg-purple-950/50 px-1.5 py-0.2 rounded border border-purple-800/30">
+                            SUPERADMIN CONSOLE
+                        </span>
+                    </div>
                 </div>
             </div>
 
+            {/* Core Administration Section */}
+            <div className="px-5 pt-5 pb-2">
+                <span className="font-mono text-[9px] font-bold uppercase tracking-widest text-zinc-500">
+                    CORE ADMINISTRATION
+                </span>
+            </div>
+
             {/* Navigation Links */}
-            <nav className="flex-1 space-y-1 px-3 mt-4">
+            <nav className="flex-1 space-y-1 px-3">
                 {navItems.map((item) => (
                     <NavLink
                         key={item.path}
                         to={item.path}
                         end={item.path === '/admin/dashboard'}
                         className={({ isActive }) =>
-                            `group relative flex items-center space-x-3 rounded-lg px-4 py-3 font-sans text-sm font-medium transition-colors ${isActive
-                                ? 'bg-white/10 text-white'
-                                : 'text-slate-400 hover:bg-white/5 hover:text-slate-200'
+                            `group flex items-center justify-between rounded-xl px-3.5 py-2.5 font-sans text-xs font-medium transition-all ${isActive
+                                ? 'bg-[#1a1c24] text-white font-semibold shadow-xs'
+                                : 'text-zinc-400 hover:bg-zinc-900/80 hover:text-white'
                             }`
                         }
                     >
                         {({ isActive }) => (
                             <>
-                                {/* Active Indicator Bar */}
-                                {isActive && (
-                                    <div className="absolute left-0 top-1/2 h-8 w-1 -translate-y-1/2 rounded-r-full bg-white"></div>
+                                <div className="flex items-center space-x-3">
+                                    <item.icon className={`h-4 w-4 transition-colors ${isActive ? 'text-white' : 'text-zinc-500 group-hover:text-zinc-300'}`} />
+                                    <span>{item.label}</span>
+                                </div>
+                                {item.showUserCount && (
+                                    <span className="rounded-full bg-zinc-800 px-2 py-0.5 font-mono text-[10px] font-bold text-zinc-400">
+                                        {totalUsers}
+                                    </span>
                                 )}
-
-                                <item.icon className={`h-[18px] w-[18px] transition-colors ${isActive ? 'text-white' : 'text-slate-400 group-hover:text-slate-300'
-                                    }`} />
-                                <span>{item.label}</span>
                             </>
                         )}
                     </NavLink>
@@ -108,27 +125,25 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({ currentUser }) => {
             </nav>
 
             {/* User Info / Logout at Bottom */}
-            <div className="p-4 mb-4">
-                <div className="flex items-center space-x-3 rounded-xl bg-white/5 p-3 hover:bg-white/10 transition">
-                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/10">
-                        <span className="font-sans text-xs font-bold text-white uppercase">
-                            {currentUser.email.charAt(0)}
-                        </span>
+            <div className="p-4 border-t border-zinc-800/60">
+                <div className="flex items-center space-x-3 rounded-xl bg-zinc-900/60 border border-zinc-800/80 p-3">
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-zinc-800 text-zinc-300 font-bold text-xs">
+                        {currentUser.email.charAt(0).toUpperCase()}
                     </div>
                     <div className="flex-1 min-w-0">
                         <p className="font-sans text-xs font-semibold text-white truncate">
                             {currentUser.email.split('@')[0]}
                         </p>
-                        <p className="font-mono text-[9px] text-slate-400 uppercase tracking-widest mt-0.5">
+                        <p className="font-mono text-[9px] text-zinc-500 uppercase tracking-widest">
                             v4.0.0
                         </p>
                     </div>
                     <button
                         onClick={handleLogout}
-                        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-slate-400 hover:text-red-400 transition cursor-pointer"
+                        className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-zinc-500 hover:text-red-400 hover:bg-red-950/30 transition cursor-pointer"
                         title="Logout"
                     >
-                        <LogOut className="h-4 w-4" />
+                        <LogOut className="h-3.5 w-3.5" />
                     </button>
                 </div>
             </div>
