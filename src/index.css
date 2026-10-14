@@ -1,89 +1,95 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Outfit", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Plus Jakarta Sans", "Outfit", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+
+  /* Foliowalaweh Official Brand Palette */
+  --color-brand-violet: #8B6CF6;
+  --color-brand-violet-hover: #7A56F4;
+  --color-brand-blue: #4697F5;
+  --color-brand-blue-hover: #3284EB;
+  --color-brand-yellow: #FFC45B;
+  --color-brand-yellow-hover: #F7B540;
+  --color-brand-navy: #202744;
+  --color-brand-lavender: #E8E0FF;
+  --color-brand-lavender-subtle: #F3EEFF;
+  --color-brand-warm-white: #FAF8F5;
+  --color-brand-muted: #69718A;
+  --color-brand-border: #E8E4DF;
+  --color-brand-border-focus: #8B6CF6;
 }
 
 @layer base {
   body {
-    @apply bg-[#08090d] text-white font-sans antialiased selection:bg-indigo-500 selection:text-white;
+    @apply bg-[#FAF8F5] text-[#202744] font-sans antialiased selection:bg-[#8B6CF6] selection:text-white;
   }
 }
 
-/* Custom transitions and scrollbars */
+/* Custom refined scrollbars */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #08090d;
+  background: #FAF8F5;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #27272a;
+  background: #D8D2C9;
   border-radius: 999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #3f3f46;
+  background: #8B6CF6;
 }
 
-/* Admin dark sidebar scrollbar */
-.admin-sidebar::-webkit-scrollbar {
-  width: 4px;
+/* Brand Card Utility */
+.brand-card {
+  background: #FFFFFF;
+  border: 1px solid #EAE5DD;
+  box-shadow: 0 2px 10px rgba(32, 39, 68, 0.03);
+  border-radius: 1rem;
 }
 
-.admin-sidebar::-webkit-scrollbar-track {
-  background: transparent;
+.brand-card:hover {
+  border-color: #D3CBFF;
 }
 
-.admin-sidebar::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.15);
-  border-radius: 999px;
+/* Brand Card Lift Transition */
+.brand-card-hover {
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease, border-color 0.25s ease;
 }
 
-.admin-sidebar::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.3);
+.brand-card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px -4px rgba(32, 39, 68, 0.08), 0 4px 10px -2px rgba(32, 39, 68, 0.04);
+  border-color: #8B6CF6;
 }
 
-/* Admin sidebar nav link active glow */
+/* Glass panel light with brand tint */
+.glass-panel-light {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(232, 224, 255, 0.7);
+}
+
+/* Admin workspace sidebar link styles */
 .admin-nav-link-active {
-  background: #1c1f26;
-  color: #ffffff;
+  background: #E8E0FF;
+  color: #202744;
+  font-weight: 700;
   border-radius: 0.75rem;
 }
 
 .admin-nav-link-active .admin-nav-icon {
-  color: #ffffff;
+  color: #8B6CF6;
 }
 
-/* Dark surface card utilities */
-.dark-surface-card {
-  background: #101218;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.dark-surface-card:hover {
-  border-color: rgba(255, 255, 255, 0.15);
-}
-
-/* Glassmorphism dark effect */
-.glass-card {
-  background: rgba(16, 18, 24, 0.8);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.glass-panel-light {
-  background: #101218;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-/* Smooth page transition */
+/* Smooth page transitions */
 .admin-page-enter {
   animation: adminPageIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
@@ -99,7 +105,7 @@
   }
 }
 
-/* Pulse dot animation for sidebar active indicator */
+/* Pulse dot animation for status badges */
 .pulse-dot {
   animation: pulseDot 2s ease-in-out infinite;
 }
@@ -109,11 +115,16 @@
   50% { opacity: 0.5; transform: scale(0.85); }
 }
 
-/* Premium Hover Lift */
-.hover-lift {
-  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease;
+/* Input focus ring helper */
+.brand-input {
+  background: #FFFFFF;
+  border: 1px solid #E5E1DA;
+  color: #202744;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
-.hover-lift:hover {
-  transform: translateY(-2px);
-  border-color: rgba(255, 255, 255, 0.2);
+
+.brand-input:focus {
+  border-color: #8B6CF6;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(139, 108, 246, 0.15);
 }

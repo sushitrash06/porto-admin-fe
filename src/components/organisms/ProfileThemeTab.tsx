@@ -35,13 +35,13 @@ interface ProfileThemeTabProps {
 }
 
 const PRESET_ACCENT_COLORS = [
-  { name: 'Indigo Aura', color: '#6366f1' },
+  { name: 'Brand Violet', color: '#8B6CF6' },
+  { name: 'Brand Blue', color: '#4697F5' },
+  { name: 'Warm Amber', color: '#FFC45B' },
   { name: 'Emerald Spark', color: '#10b981' },
-  { name: 'Purple Bloom', color: '#8b5cf6' },
   { name: 'Rose Velvet', color: '#f43f5e' },
-  { name: 'Amber Sunset', color: '#f59e0b' },
   { name: 'Ocean Cyan', color: '#06b6d4' },
-  { name: 'Monochrome Noir', color: '#09090b' },
+  { name: 'Deep Navy', color: '#202744' },
 ];
 
 const CATEGORY_TABS: Array<{ label: string; value: TemplateCategory | 'ALL' }> = [
@@ -222,17 +222,21 @@ export const ProfileThemeTab: React.FC<ProfileThemeTabProps> = ({ profile: _prof
       {/* ─────────────────────────────────────────────────────────────────────────────
           1. HERO HEADER WITH ACTIVE TEMPLATE STATUS & LIVE PREVIEW LINK
          ───────────────────────────────────────────────────────────────────────────── */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 p-6 text-white shadow-xl border border-slate-800">
+      <div className="relative overflow-hidden rounded-2xl bg-linear-to-br from-[#202744] via-[#2a3359] to-[#202744] p-6 text-white shadow-md border border-[#202744]">
+        {/* Subtle decorative ribbons */}
+        <div className="absolute top-0 right-0 w-96 h-96 bg-radial from-[#8B6CF6]/20 to-transparent pointer-events-none -mr-20 -mt-20 blur-2xl" />
+        <div className="absolute bottom-0 right-1/4 w-64 h-64 bg-radial from-[#4697F5]/20 to-transparent pointer-events-none -mb-20 blur-xl" />
+
         <div className="relative z-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-5">
           <div className="space-y-1.5">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-indigo-300 font-mono text-[10px] font-bold uppercase tracking-wider backdrop-blur-xs border border-white/10">
-              <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-[#E8E0FF] font-mono text-[10px] font-bold uppercase tracking-wider backdrop-blur-xs border border-white/15">
+              <Sparkles className="w-3.5 h-3.5 text-[#FFC45B]" />
               <span>Theme Studio & Section Reorder</span>
             </div>
             <h3 className="text-xl sm:text-2xl font-black tracking-tight text-white">
               Portfolio Customizer
             </h3>
-            <p className="text-xs text-slate-300 max-w-xl leading-relaxed">
+            <p className="text-xs text-[#E8E0FF]/80 max-w-xl leading-relaxed">
               Choose your favorite blueprint template, reorder sections with drag & drop,
               toggle visibility, and pick your personal color accent.
             </p>
@@ -241,20 +245,20 @@ export const ProfileThemeTab: React.FC<ProfileThemeTabProps> = ({ profile: _prof
           <div className="flex flex-wrap items-center gap-2.5 shrink-0">
             <Link
               to="/admin/theme-studio"
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white text-xs font-bold uppercase tracking-wider transition active:scale-95 shadow-lg cursor-pointer"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#8B6CF6] hover:bg-[#7857ED] text-white text-xs font-bold uppercase tracking-wider transition active:scale-95 shadow-md cursor-pointer"
               title="Open full-screen side-by-side studio playground"
             >
-              <Sparkles className="w-4 h-4 text-amber-300" />
+              <Sparkles className="w-4 h-4 text-[#FFC45B]" />
               <span>Open Theme Studio</span>
             </Link>
 
             <button
               type="button"
               onClick={() => setShowSimulator(true)}
-              className="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-slate-800/90 hover:bg-slate-800 text-slate-200 text-xs font-bold uppercase tracking-wider transition active:scale-95 border border-slate-700 cursor-pointer"
+              className="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-white text-xs font-bold uppercase tracking-wider transition active:scale-95 border border-white/15 cursor-pointer backdrop-blur-xs"
               title="Open quick simulator modal"
             >
-              <Monitor className="w-4 h-4 text-indigo-300" />
+              <Monitor className="w-4 h-4 text-[#4697F5]" />
               <span>Simulator</span>
             </button>
 
@@ -263,10 +267,10 @@ export const ProfileThemeTab: React.FC<ProfileThemeTabProps> = ({ profile: _prof
                 href={`/portfolio/${userId}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white text-slate-950 text-xs font-bold uppercase tracking-wider hover:bg-slate-100 transition active:scale-95 shadow-md"
+                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white text-[#202744] text-xs font-bold uppercase tracking-wider hover:bg-[#FAF8F5] transition active:scale-95 shadow-md"
               >
-                <ExternalLink className="w-3.5 h-3.5" />
-                <span>View Live Portfolio</span>
+                <ExternalLink className="w-3.5 h-3.5 text-[#8B6CF6]" />
+                <span>View Live</span>
               </a>
             )}
 
@@ -274,10 +278,10 @@ export const ProfileThemeTab: React.FC<ProfileThemeTabProps> = ({ profile: _prof
               type="button"
               onClick={() => setShowResetConfirm(true)}
               disabled={resetThemeMutation.isPending}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-700/80 text-xs font-semibold transition active:scale-95 cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-white/80 hover:text-white border border-white/10 text-xs font-semibold transition active:scale-95 cursor-pointer"
               title="Reset all customized sections and colors to template defaults"
             >
-              <RotateCcw className="w-3.5 h-3.5 text-amber-400" />
+              <RotateCcw className="w-3.5 h-3.5 text-[#FFC45B]" />
               <span>Reset Defaults</span>
             </button>
           </div>
@@ -285,17 +289,17 @@ export const ProfileThemeTab: React.FC<ProfileThemeTabProps> = ({ profile: _prof
 
         {/* Active Template Bar */}
         {activeTemplate && (
-          <div className="mt-5 pt-4 border-t border-slate-800/80 flex flex-wrap items-center justify-between gap-3 text-xs">
+          <div className="mt-5 pt-4 border-t border-white/10 flex flex-wrap items-center justify-between gap-3 text-xs">
             <div className="flex items-center gap-2">
               <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="text-slate-400">Current Active Template:</span>
+              <span className="text-white/70">Current Active Template:</span>
               <strong className="text-white font-bold">{activeTemplate.name}</strong>
-              <span className="px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 font-mono text-[10px] uppercase">
+              <span className="px-2 py-0.5 rounded bg-[#8B6CF6]/30 text-[#E8E0FF] font-mono text-[10px] uppercase border border-[#8B6CF6]/30">
                 {activeTemplate.category}
               </span>
             </div>
 
-            <div className="flex items-center gap-4 text-[11px] font-mono text-slate-400">
+            <div className="flex items-center gap-4 text-[11px] font-mono text-white/70">
               <span>{sections.length} Sections Configured</span>
               <span>{sections.filter((s) => s.isVisible).length} Visible</span>
             </div>
@@ -445,7 +449,7 @@ export const ProfileThemeTab: React.FC<ProfileThemeTabProps> = ({ profile: _prof
                     type="button"
                     onClick={handleSaveReorder}
                     disabled={reorderSectionsMutation.isPending}
-                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-black text-white text-xs font-bold uppercase tracking-wider hover:bg-slate-800 transition active:scale-95 shadow-sm cursor-pointer"
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#8B6CF6] text-white text-xs font-bold uppercase tracking-wider hover:bg-[#7857ED] transition active:scale-95 shadow-xs cursor-pointer"
                   >
                     {reorderSectionsMutation.isPending && (
                       <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -459,19 +463,19 @@ export const ProfileThemeTab: React.FC<ProfileThemeTabProps> = ({ profile: _prof
 
           {/* ─── RIGHT: COLOR ACCENT PICKER & PREFERENCE (5 Cols) ─── */}
           <div className="lg:col-span-5 space-y-5">
-            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-2xs space-y-5">
-              <div className="border-b border-slate-100 pb-3 flex items-center justify-between">
-                <h4 className="text-sm font-bold uppercase tracking-wider text-slate-900 flex items-center gap-2">
-                  <Sliders className="w-4 h-4 text-indigo-600" />
+            <div className="rounded-2xl border border-[#EAE5DD] bg-white p-6 shadow-xs space-y-5">
+              <div className="border-b border-[#EAE5DD] pb-3 flex items-center justify-between">
+                <h4 className="text-sm font-bold uppercase tracking-wider text-[#202744] flex items-center gap-2">
+                  <Sliders className="w-4 h-4 text-[#8B6CF6]" />
                   <span>Personal Accent & Colors</span>
                 </h4>
-                <span className="text-[10px] font-mono text-slate-400">User Overrides</span>
+                <span className="text-[10px] font-mono text-[#69718A]">User Overrides</span>
               </div>
 
               <form onSubmit={handleSaveAppearance} className="space-y-5">
                 {/* Preset Palettes */}
                 <div>
-                  <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">
+                  <label className="block text-[11px] font-bold uppercase tracking-wider text-[#202744] mb-2">
                     Quick Preset Accents
                   </label>
                   <div className="grid grid-cols-4 sm:grid-cols-7 gap-2">
@@ -484,7 +488,7 @@ export const ProfileThemeTab: React.FC<ProfileThemeTabProps> = ({ profile: _prof
                           onClick={() => setAccentColor(preset.color)}
                           className={`w-9 h-9 rounded-xl flex items-center justify-center transition shadow-2xs cursor-pointer ${
                             isSelected
-                              ? 'ring-2 ring-black ring-offset-2 scale-110'
+                              ? 'ring-2 ring-[#8B6CF6] ring-offset-2 scale-110'
                               : 'hover:scale-105'
                           }`}
                           style={{ backgroundColor: preset.color }}
@@ -499,7 +503,7 @@ export const ProfileThemeTab: React.FC<ProfileThemeTabProps> = ({ profile: _prof
 
                 {/* Custom Color Picker Input */}
                 <div>
-                  <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">
+                  <label className="block text-[11px] font-bold uppercase tracking-wider text-[#202744] mb-2">
                     Custom Hex Color
                   </label>
                   <div className="flex items-center gap-3">
@@ -507,38 +511,38 @@ export const ProfileThemeTab: React.FC<ProfileThemeTabProps> = ({ profile: _prof
                       type="color"
                       value={accentColor}
                       onChange={(e) => setAccentColor(e.target.value)}
-                      className="w-11 h-11 rounded-xl bg-transparent border border-slate-200 cursor-pointer shadow-3xs"
+                      className="w-11 h-11 rounded-xl bg-transparent border border-[#EAE5DD] cursor-pointer shadow-3xs"
                     />
                     <input
                       type="text"
                       value={accentColor}
                       onChange={(e) => setAccentColor(e.target.value)}
                       placeholder="#000000"
-                      className="flex-1 px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 font-mono text-xs text-slate-900 focus:bg-white focus:outline-hidden focus:border-indigo-500 font-bold"
+                      className="flex-1 px-3.5 py-2.5 rounded-xl border border-[#EAE5DD] bg-[#FAF8F5] font-mono text-xs text-[#202744] focus:bg-white focus:outline-hidden focus:border-[#8B6CF6] font-bold"
                     />
                   </div>
-                  <p className="text-[11px] text-slate-400 mt-1.5 leading-relaxed">
+                  <p className="text-[11px] text-[#69718A] mt-1.5 leading-relaxed">
                     This color will apply to primary call-to-actions, badges, and highlights on your portfolio.
                   </p>
                 </div>
 
                 {/* Dark Mode Preference Toggle */}
                 <div>
-                  <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">
+                  <label className="block text-[11px] font-bold uppercase tracking-wider text-[#202744] mb-2">
                     Color Scheme Preference
                   </label>
-                  <div className="flex items-center justify-between p-3.5 rounded-xl border border-slate-200 bg-slate-50">
+                  <div className="flex items-center justify-between p-3.5 rounded-xl border border-[#EAE5DD] bg-[#FAF8F5]">
                     <div className="flex items-center gap-2.5">
                       {darkMode ? (
-                        <Moon className="w-4 h-4 text-indigo-600" />
+                        <Moon className="w-4 h-4 text-[#8B6CF6]" />
                       ) : (
-                        <Sun className="w-4 h-4 text-amber-500" />
+                        <Sun className="w-4 h-4 text-[#FFC45B]" />
                       )}
                       <div>
-                        <span className="text-xs font-bold text-slate-800 block">
+                        <span className="text-xs font-bold text-[#202744] block">
                           {darkMode ? 'Dark Mode Surface' : 'Light Mode Surface'}
                         </span>
-                        <span className="text-[10px] text-slate-400">
+                        <span className="text-[10px] text-[#69718A]">
                           Overrides default background contrast
                         </span>
                       </div>
@@ -551,7 +555,7 @@ export const ProfileThemeTab: React.FC<ProfileThemeTabProps> = ({ profile: _prof
                         onChange={(e) => setDarkMode(e.target.checked)}
                         className="sr-only peer"
                       />
-                      <div className="w-11 h-6 bg-slate-200 peer-focus:outline-hidden rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-black" />
+                      <div className="w-11 h-6 bg-slate-200 peer-focus:outline-hidden rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#8B6CF6]" />
                     </label>
                   </div>
                 </div>
@@ -561,7 +565,7 @@ export const ProfileThemeTab: React.FC<ProfileThemeTabProps> = ({ profile: _prof
                   <button
                     type="submit"
                     disabled={updateCustomConfigMutation.isPending}
-                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-black text-white text-xs font-bold uppercase tracking-wider hover:bg-slate-800 transition active:scale-95 disabled:opacity-50 shadow-xs cursor-pointer"
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[#8B6CF6] text-white text-xs font-bold uppercase tracking-wider hover:bg-[#7857ED] transition active:scale-95 disabled:opacity-50 shadow-xs cursor-pointer"
                   >
                     {updateCustomConfigMutation.isPending && (
                       <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -581,11 +585,11 @@ export const ProfileThemeTab: React.FC<ProfileThemeTabProps> = ({ profile: _prof
       <div className="space-y-5 pt-4">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h4 className="text-base font-bold text-slate-900 flex items-center gap-2">
-              <Layers className="w-5 h-5 text-indigo-600" />
+            <h4 className="text-base font-bold text-[#202744] flex items-center gap-2">
+              <Layers className="w-5 h-5 text-[#8B6CF6]" />
               <span>Available Portfolio Templates</span>
             </h4>
-            <p className="text-xs text-slate-500 mt-0.5">
+            <p className="text-xs text-[#69718A] mt-0.5">
               Select any of the master templates created by our design team. Click "Use This Template" to adopt it instantly.
             </p>
           </div>
@@ -599,8 +603,8 @@ export const ProfileThemeTab: React.FC<ProfileThemeTabProps> = ({ profile: _prof
                 onClick={() => setSelectedCategory(cat.value)}
                 className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition cursor-pointer ${
                   selectedCategory === cat.value
-                    ? 'bg-black text-white shadow-xs'
-                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                    ? 'bg-[#8B6CF6] text-white shadow-xs'
+                    : 'bg-[#FAF8F5] text-[#69718A] hover:bg-[#E8E0FF]/50 hover:text-[#202744] border border-[#EAE5DD]'
                 }`}
               >
                 {cat.label}
@@ -610,15 +614,15 @@ export const ProfileThemeTab: React.FC<ProfileThemeTabProps> = ({ profile: _prof
         </div>
 
         {isLoadingTemplates ? (
-          <div className="py-20 flex flex-col items-center justify-center text-slate-400">
-            <Loader2 className="w-8 h-8 animate-spin text-slate-800 mb-2" />
+          <div className="py-20 flex flex-col items-center justify-center text-[#69718A]">
+            <Loader2 className="w-8 h-8 animate-spin text-[#8B6CF6] mb-2" />
             <p className="text-xs font-semibold">Loading available blueprints...</p>
           </div>
         ) : publishedTemplates.length === 0 ? (
-          <div className="py-16 border-2 border-dashed border-slate-200 rounded-2xl p-8 text-center text-slate-400 bg-white">
-            <Laptop className="w-8 h-8 mx-auto mb-2 text-slate-300" />
-            <p className="text-sm font-semibold text-slate-700">No published templates found</p>
-            <p className="text-xs mt-1 text-slate-400">
+          <div className="py-16 border-2 border-dashed border-[#EAE5DD] rounded-2xl p-8 text-center text-[#69718A] bg-white">
+            <Laptop className="w-8 h-8 mx-auto mb-2 text-[#8B6CF6]/40" />
+            <p className="text-sm font-semibold text-[#202744]">No published templates found</p>
+            <p className="text-xs mt-1 text-[#69718A]">
               There are currently no published templates in this category.
             </p>
           </div>
@@ -626,7 +630,7 @@ export const ProfileThemeTab: React.FC<ProfileThemeTabProps> = ({ profile: _prof
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {publishedTemplates.map((tpl) => {
               const isActive = activeTemplate?.id === tpl.id;
-              const primary = tpl.layoutConfig?.theme?.primaryColor || '#000000';
+              const primary = tpl.layoutConfig?.theme?.primaryColor || '#8B6CF6';
               const bg = tpl.layoutConfig?.theme?.backgroundColor || '#ffffff';
               const sectionCount = tpl.layoutConfig?.sections?.length || 0;
 
@@ -635,13 +639,13 @@ export const ProfileThemeTab: React.FC<ProfileThemeTabProps> = ({ profile: _prof
                   key={tpl.id}
                   className={`group rounded-2xl bg-white overflow-hidden transition-all duration-300 flex flex-col justify-between border ${
                     isActive
-                      ? 'border-emerald-500 ring-2 ring-emerald-500/20 shadow-lg'
-                      : 'border-slate-200 hover:border-slate-300 hover:shadow-md'
+                      ? 'border-[#8B6CF6] ring-2 ring-[#8B6CF6]/20 shadow-md'
+                      : 'border-[#EAE5DD] hover:border-[#8B6CF6]/40 hover:shadow-md'
                   }`}
                 >
                   <div>
                     {/* Thumbnail / Swatch Banner */}
-                    <div className="relative aspect-video w-full bg-slate-100 overflow-hidden border-b border-slate-100">
+                    <div className="relative aspect-video w-full bg-[#FAF8F5] overflow-hidden border-b border-[#EAE5DD]">
                       {tpl.thumbnail ? (
                         <img
                           src={tpl.thumbnail}
@@ -654,12 +658,12 @@ export const ProfileThemeTab: React.FC<ProfileThemeTabProps> = ({ profile: _prof
                           style={{ backgroundColor: bg }}
                         >
                           <div
-                            className="w-12 h-12 rounded-xl flex items-center justify-center shadow-sm mb-2"
+                            className="w-12 h-12 rounded-xl flex items-center justify-center shadow-xs mb-2"
                             style={{ backgroundColor: primary }}
                           >
                             <Palette className="w-6 h-6 text-white" />
                           </div>
-                          <span className="font-mono text-[9px] font-bold text-slate-400 uppercase tracking-widest">
+                          <span className="font-mono text-[9px] font-bold text-[#69718A] uppercase tracking-widest">
                             {tpl.slug}
                           </span>
                         </div>
@@ -667,26 +671,26 @@ export const ProfileThemeTab: React.FC<ProfileThemeTabProps> = ({ profile: _prof
 
                       {/* Active Badge */}
                       {isActive && (
-                        <div className="absolute top-3 left-3 bg-emerald-600 text-white font-mono text-[9px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full shadow-md flex items-center gap-1">
+                        <div className="absolute top-3 left-3 bg-[#8B6CF6] text-white font-mono text-[9px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full shadow-md flex items-center gap-1">
                           <Check className="w-3 h-3" />
                           <span>Active Template</span>
                         </div>
                       )}
 
-                      <span className="absolute bottom-3 right-3 px-2 py-0.5 rounded-md bg-black/60 text-white font-mono text-[9px] font-bold uppercase backdrop-blur-xs">
+                      <span className="absolute bottom-3 right-3 px-2 py-0.5 rounded-md bg-[#202744]/70 text-white font-mono text-[9px] font-bold uppercase backdrop-blur-xs">
                         {sectionCount} Sections
                       </span>
                     </div>
 
                     <div className="p-5">
-                      <div className="flex items-center justify-between text-[10px] font-mono text-slate-400 uppercase mb-1">
+                      <div className="flex items-center justify-between text-[10px] font-mono text-[#69718A] uppercase mb-1">
                         <span>{tpl.category}</span>
                         <span>v{tpl.version}</span>
                       </div>
-                      <h4 className="font-bold text-sm text-slate-900 group-hover:text-indigo-600 transition leading-snug">
+                      <h4 className="font-bold text-sm text-[#202744] group-hover:text-[#8B6CF6] transition leading-snug">
                         {tpl.name}
                       </h4>
-                      <p className="text-xs text-slate-500 line-clamp-2 mt-1.5 leading-relaxed">
+                      <p className="text-xs text-[#69718A] line-clamp-2 mt-1.5 leading-relaxed">
                         {tpl.description || 'Modern AST portfolio template blueprint.'}
                       </p>
                     </div>
@@ -699,8 +703,8 @@ export const ProfileThemeTab: React.FC<ProfileThemeTabProps> = ({ profile: _prof
                       disabled={isActive || applyTemplateMutation.isPending}
                       className={`w-full py-2.5 px-4 rounded-xl text-xs font-bold uppercase tracking-wider transition active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer ${
                         isActive
-                          ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 cursor-default'
-                          : 'bg-black text-white hover:bg-slate-800 shadow-xs'
+                          ? 'bg-[#E8E0FF]/60 text-[#8B6CF6] border border-[#8B6CF6]/30 cursor-default'
+                          : 'bg-[#8B6CF6] text-white hover:bg-[#7857ED] shadow-xs'
                       }`}
                     >
                       {applyTemplateMutation.isPending && (

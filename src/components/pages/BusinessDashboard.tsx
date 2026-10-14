@@ -10,32 +10,41 @@ import { useBusinessServices } from '../../hooks/useBusinessServices';
 import { useBusinessProjects } from '../../hooks/useBusinessProjects';
 import { useMyExperiences } from '../../hooks/useExperiences';
 import { useMyProjects } from '../../hooks/useProjects';
+import { useDashboardAnalytics } from '../../hooks/useAnalytics';
 import {
-  Briefcase, FolderGit2, ArrowRight, Loader2,
-  Eye, MessageSquare, Plus, Palette
+  Briefcase, FolderGit2, Loader2,
+  Eye, MessageSquare, Plus, Palette,
+  ChevronRight, Building2
 } from 'lucide-react';
+import { Badge } from '../atoms/Badge';
+import { Button } from '../atoms/Button';
 
 export const BusinessDashboard: React.FC = () => {
   const navigate = useNavigate();
 
   // Load queries
-  const { isLoading: isProfileLoading } = useBusinessProfile();
+  const { isLoading: isProfileLoading, data: businessProfile } = useBusinessProfile();
   const { data: services = [], isLoading: isServicesLoading } = useBusinessServices();
   const { data: businessProjects = [], isLoading: isProjectsLoading } = useBusinessProjects();
   const { data: experiences = [] } = useMyExperiences({ enabled: true });
   const { data: myProjects = [] } = useMyProjects({ enabled: true });
+  const { data: analytics } = useDashboardAnalytics(30);
+
+  const totalViews = analytics?.summary?.totalProfileViews ?? 0;
+  const uniqueVisitors = analytics?.summary?.uniqueVisitors ?? 0;
 
   const isDataLoading = isProfileLoading || isServicesLoading || isProjectsLoading;
 
-  // Inquiries mock data aligned with Screenshot 5
+  // Inbound client leads
   const inquiries = [
     {
       id: '1',
       client: 'PT Nusantara Cipta Karya',
       time: 'Hari ini, 09:30',
       isNew: true,
-      message: 'Kami ingin mendigitalkan katalog 60+ produk furniture kami ke platform modern yang bisa langsung direct WA.',
-      package: 'Interactive Digital Catalog & Show...',
+      message:
+        'Kami ingin mendigitalkan katalog 60+ produk furniture kami ke platform modern yang bisa langsung direct WA.',
+      package: 'Interactive Digital Catalog & Showcase',
       budget: 'Rp 10.000.000 - Rp 15.000.000',
       phone: '6281234567890',
     },
@@ -44,7 +53,8 @@ export const BusinessDashboard: React.FC = () => {
       client: 'Reza Fahlevi (Founder Finflow)',
       time: 'Kemarin, 16:45',
       isNew: false,
-      message: 'Perlu bantuan pembangunan dashboard MVP financial planner kami, deadline bulan depan untuk demo investor.',
+      message:
+        'Perlu bantuan pembangunan dashboard MVP financial planner kami, deadline bulan depan untuk demo investor.',
       package: 'MVP Fast-Track Web Application',
       budget: 'Rp 20.000.000+',
       phone: '6289876543210',
@@ -55,22 +65,24 @@ export const BusinessDashboard: React.FC = () => {
       time: '3 hari yang lalu',
       isNew: false,
       message: 'Mau kolaborasi untuk overhaul website client agensi kami.',
-      package: 'UI/UX Design Sprint & Design Sy...',
+      package: 'UI/UX Design Sprint & Design System',
       budget: 'Rp 8.000.000',
       phone: '6281122334455',
     },
   ];
 
   const handleOpenWhatsApp = (phone: string, client: string) => {
-    const text = encodeURIComponent(`Halo ${client}, terima kasih telah menghubungi kami via Foliowalaweh portfolio.`);
+    const text = encodeURIComponent(
+      `Halo ${client}, terima kasih telah menghubungi kami via Foliowalaweh portfolio.`
+    );
     window.open(`https://wa.me/${phone}?text=${text}`, '_blank');
   };
 
   if (isDataLoading) {
     return (
-      <div className="flex flex-col items-center justify-center py-20 text-zinc-500">
-        <Loader2 className="h-8 w-8 animate-spin text-zinc-400 mb-3" />
-        <p className="font-sans text-xs">Loading workspace dashboard...</p>
+      <div className="flex flex-col items-center justify-center py-24 text-[#69718A]">
+        <Loader2 className="h-8 w-8 animate-spin text-[#8B6CF6] mb-3" />
+        <p className="font-sans text-xs font-semibold">Loading commercial dashboard...</p>
       </div>
     );
   }
@@ -78,134 +90,155 @@ export const BusinessDashboard: React.FC = () => {
   const statCards = [
     {
       label: 'Portfolio & Catalog Views',
-      value: '14,820',
+      value: totalViews.toLocaleString(),
       icon: Eye,
-      changeBadge: '+18.4%',
-      subtitle: 'Unique visitors past 30 days',
+      iconBg: 'bg-[#E7F2FF] text-[#4697F5]',
+      changeBadge: `${uniqueVisitors} unique`,
+      subtitle: `${uniqueVisitors} unique visitors past 30 days`,
     },
     {
       label: 'Showcase Projects',
-      value: (businessProjects.length || myProjects.length || 4).toString(),
+      value: (businessProjects.length || myProjects.length || 0).toString(),
       icon: FolderGit2,
-      subtitle: 'Featured case studies & code repos',
-      subBadge: '8 draft',
+      iconBg: 'bg-[#E8E0FF] text-[#8B6CF6]',
+      subtitle: 'Published case studies',
+      subBadge: `${businessProjects.length} active`,
     },
     {
       label: 'Career Milestones',
-      value: (experiences.length || 4).toString(),
+      value: (experiences.length || 0).toString(),
       icon: Briefcase,
-      subtitle: '4+ years proven track record',
+      iconBg: 'bg-[#FFF6E3] text-[#A66E00]',
+      subtitle: 'Proven track records',
       statusTag: 'Active Now',
     },
     {
       label: 'Client Inquiries',
       value: '3',
       icon: MessageSquare,
-      subtitle: 'From catalog & WhatsApp quote CTA',
+      iconBg: 'bg-emerald-50 text-emerald-600',
+      subtitle: 'From catalog WhatsApp quote CTA',
       statusTag: '2 active',
     },
   ];
 
   return (
-    <div className="space-y-7 text-white font-sans admin-page-enter">
-      
-      {/* ─── Header Subtitle (Screenshot 5) ─── */}
-      <div>
-        <p className="font-sans text-xs sm:text-sm text-zinc-400">
-          Oversee your career timeline milestones, showcase projects, and real-time live portfolio preview.
-        </p>
+    <div className="space-y-8 text-[#202744] font-sans admin-page-enter">
+      {/* ─── Header ─── */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-[#F0EBE3] pb-6">
+        <div>
+          <div className="flex items-center gap-2 mb-1">
+            <h2 className="font-sans text-2xl font-extrabold tracking-tight text-[#202744]">
+              {businessProfile?.businessName || 'Business Studio'}
+            </h2>
+            <Badge variant="blue" dot>Commercial Hub</Badge>
+          </div>
+          <p className="font-sans text-xs sm:text-sm text-[#69718A]">
+            Oversee commercial service catalogs, inbound WhatsApp client inquiries, and live portfolios.
+          </p>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2.5">
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => navigate('/admin/business/services')}
+            leftIcon={<Plus className="h-3.5 w-3.5" />}
+          >
+            Add Service
+          </Button>
+          <Button
+            variant="primary"
+            size="sm"
+            onClick={() => navigate('/admin/business/theme-studio')}
+            leftIcon={<Palette className="h-3.5 w-3.5" />}
+          >
+            Studio Theme
+          </Button>
+        </div>
       </div>
 
-      {/* ─── 4 Stat Cards Row (Screenshot 5) ─── */}
+      {/* ─── 4 Stat Cards Row ─── */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {statCards.map((card, idx) => (
           <div
             key={idx}
-            className="rounded-2xl border border-zinc-800/80 bg-[#101218] p-5 hover:border-zinc-700 transition"
+            className="rounded-2xl border border-[#EAE5DD] bg-white p-5 hover:border-[#8B6CF6]/40 transition shadow-3xs"
           >
-            <div className="flex items-center justify-between text-zinc-400 mb-2">
-              <span className="font-sans text-xs font-medium text-zinc-400">
+            <div className="flex items-center justify-between mb-3">
+              <span className="font-sans text-xs font-semibold text-[#69718A]">
                 {card.label}
               </span>
-              <card.icon className="h-4 w-4 text-zinc-500" />
+              <div className={`flex h-8 w-8 items-center justify-center rounded-xl ${card.iconBg}`}>
+                <card.icon className="h-4 w-4" />
+              </div>
             </div>
 
             <div className="flex items-baseline space-x-2">
-              <span className="font-sans text-3xl font-black tracking-tight text-white">
+              <span className="font-sans text-3xl font-black tracking-tight text-[#202744]">
                 {card.value}
               </span>
               {card.changeBadge && (
-                <span className="font-mono text-[10px] font-bold text-emerald-400 bg-emerald-950/40 border border-emerald-500/30 px-1.5 py-0.2 rounded">
+                <span className="font-mono text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
                   {card.changeBadge}
                 </span>
               )}
               {card.subBadge && (
-                <span className="font-mono text-[10px] text-zinc-500">
+                <span className="font-mono text-[10px] text-[#69718A]">
                   {card.subBadge}
-                </span>
-              )}
-              {card.statusTag && (
-                <span className="font-mono text-[10px] font-semibold text-emerald-400">
-                  {card.statusTag}
                 </span>
               )}
             </div>
 
-            <p className="font-sans text-[11px] text-zinc-500 mt-2 truncate">
+            <p className="font-sans text-[11px] text-[#69718A] mt-2 truncate">
               {card.subtitle}
             </p>
           </div>
         ))}
       </div>
 
-      {/* ─── Content Grid: Leads & Timeline vs Quick Actions & Rate Card ─── */}
+      {/* ─── Content Grid: Leads vs Quick Actions ─── */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-12 items-start">
-
-        {/* ─── LEFT COLUMN (8 COLS) ─── */}
+        {/* LEFT COLUMN: Leads & Timeline */}
         <div className="lg:col-span-8 space-y-6">
-
-          {/* Card 1: Recent Inbound Inquiries & Catalog Leads */}
-          <div className="rounded-2xl border border-zinc-800/80 bg-[#101218] p-6 space-y-5">
-            <div className="flex items-center justify-between">
+          {/* Card 1: Inbound Inquiries */}
+          <div className="rounded-3xl border border-[#EAE5DD] bg-white p-6 sm:p-7 space-y-5 shadow-3xs">
+            <div className="flex items-center justify-between border-b border-[#F0EBE3] pb-4">
               <div>
                 <div className="flex items-center space-x-2">
-                  <MessageSquare className="h-4 w-4 text-blue-400" />
-                  <h3 className="font-sans text-sm font-bold text-white">
+                  <MessageSquare className="h-4 w-4 text-[#4697F5]" />
+                  <h3 className="font-sans text-sm font-bold text-[#202744]">
                     Recent Inbound Inquiries & Catalog Leads
                   </h3>
                 </div>
-                <p className="font-sans text-xs text-zinc-400 mt-1">
-                  Potential clients reaching out directly from your portfolio & service catalog.
+                <p className="font-sans text-xs text-[#69718A] mt-1">
+                  Prospective clients reaching out directly through your WhatsApp service CTA.
                 </p>
               </div>
 
-              <button
-                type="button"
-                className="flex items-center space-x-1 font-sans text-xs font-semibold text-zinc-400 hover:text-white transition cursor-pointer"
-              >
-                <span>View all</span>
-                <ArrowRight className="h-3.5 w-3.5" />
-              </button>
+              <span className="rounded-full bg-[#E7F2FF] border border-[#BFDEFF] px-2.5 py-0.5 font-mono text-[10px] font-bold text-[#1E6FD6]">
+                3 Inquiries
+              </span>
             </div>
 
             {/* Inquiries List */}
-            <div className="space-y-3">
+            <div className="space-y-3.5">
               {inquiries.map((inq) => (
                 <div
                   key={inq.id}
-                  className="rounded-xl border border-zinc-800/80 bg-[#14161e] p-4 space-y-2.5 hover:border-zinc-700 transition"
+                  className="rounded-2xl border border-[#EAE5DD] bg-[#FAF8F5]/70 p-4.5 space-y-2.5 hover:bg-white hover:border-[#4697F5]/50 transition shadow-3xs"
                 >
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <div className="flex items-center space-x-2">
-                      <span className="font-sans text-xs font-bold text-white">
+                      <span className="font-sans text-xs font-bold text-[#202744]">
                         {inq.client}
                       </span>
-                      <span className="text-zinc-600 font-mono text-xs">·</span>
-                      <span className="font-sans text-[11px] text-zinc-400">
+                      <span className="text-slate-300 font-mono text-xs">•</span>
+                      <span className="font-sans text-[11px] text-[#69718A]">
                         {inq.time}
                       </span>
                       {inq.isNew && (
-                        <span className="rounded bg-blue-950 border border-blue-700/50 px-1.5 py-0.2 font-mono text-[9px] font-bold text-blue-300 uppercase">
+                        <span className="rounded-full bg-emerald-50 border border-emerald-200 px-2 py-0.5 font-mono text-[9px] font-bold text-emerald-700 uppercase">
                           NEW
                         </span>
                       )}
@@ -214,23 +247,24 @@ export const BusinessDashboard: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => handleOpenWhatsApp(inq.phone, inq.client)}
-                      className="inline-flex items-center space-x-1.5 rounded-lg border border-emerald-600/50 bg-emerald-950/30 px-3 py-1 font-sans text-xs font-semibold text-emerald-400 hover:bg-emerald-900/40 hover:text-emerald-300 transition cursor-pointer"
+                      className="inline-flex items-center space-x-1.5 rounded-full border border-emerald-300 bg-emerald-50 px-3 py-1 font-sans text-xs font-bold text-emerald-700 hover:bg-emerald-100 transition active:scale-95 cursor-pointer shadow-3xs"
                     >
-                      <MessageSquare className="h-3.5 w-3.5" />
-                      <span>WhatsApp</span>
+                      <MessageSquare className="h-3.5 w-3.5 text-emerald-600" />
+                      <span>Reply on WhatsApp</span>
                     </button>
                   </div>
 
-                  <p className="font-sans text-xs text-zinc-300 leading-relaxed">
-                    {inq.message}
+                  <p className="font-sans text-xs text-[#202744] leading-relaxed">
+                    "{inq.message}"
                   </p>
 
-                  <div className="flex flex-wrap items-center gap-3 pt-1 text-[11px] font-sans text-zinc-400">
+                  <div className="flex flex-wrap items-center gap-3 pt-1 text-[11px] font-sans text-[#69718A] border-t border-[#EAE5DD]/60">
                     <span>
-                      Package: <strong className="text-zinc-200 font-medium">{inq.package}</strong>
+                      Package: <strong className="text-[#202744] font-semibold">{inq.package}</strong>
                     </span>
+                    <span className="text-slate-300">•</span>
                     <span>
-                      Budget: <strong className="text-zinc-200 font-medium">{inq.budget}</strong>
+                      Budget: <strong className="text-[#4697F5] font-semibold">{inq.budget}</strong>
                     </span>
                   </div>
                 </div>
@@ -238,174 +272,140 @@ export const BusinessDashboard: React.FC = () => {
             </div>
           </div>
 
-          {/* Card 2: Active Career Experience Timeline */}
-          <div className="rounded-2xl border border-zinc-800/80 bg-[#101218] p-6 space-y-4">
-            <div className="flex items-center justify-between">
+          {/* Card 2: Commercial Services Quick Preview */}
+          <div className="rounded-3xl border border-[#EAE5DD] bg-white p-6 sm:p-7 space-y-4 shadow-3xs">
+            <div className="flex items-center justify-between border-b border-[#F0EBE3] pb-4">
               <div className="flex items-center space-x-2">
-                <Briefcase className="h-4 w-4 text-zinc-400" />
-                <h3 className="font-sans text-sm font-bold text-white">
-                  Active Career Experience Timeline
+                <Briefcase className="h-4 w-4 text-[#8B6CF6]" />
+                <h3 className="font-sans text-sm font-bold text-[#202744]">
+                  Published Service Offerings ({services.length})
                 </h3>
               </div>
               <button
                 type="button"
-                onClick={() => navigate('/admin/experiences')}
-                className="flex items-center space-x-1 font-sans text-xs font-semibold text-zinc-400 hover:text-white transition cursor-pointer"
+                onClick={() => navigate('/admin/business/services')}
+                className="flex items-center space-x-1 font-sans text-xs font-bold text-[#8B6CF6] hover:underline cursor-pointer"
               >
-                <span>Manage</span>
-                <ArrowRight className="h-3.5 w-3.5" />
+                <span>Manage Catalog</span>
+                <ChevronRight className="h-3.5 w-3.5" />
               </button>
             </div>
 
-            <p className="font-sans text-xs text-zinc-500">
-              Synchronized with your live portfolio experience section.
-            </p>
-
-            <div className="rounded-xl border border-zinc-800/80 bg-[#14161e] p-4 flex items-center justify-between">
-              <div className="space-y-1">
-                <span className="font-mono text-[9px] font-bold uppercase tracking-wider text-emerald-400">
-                  LATEST ROLE · ACTIVE NOW
-                </span>
-                <h4 className="font-bold text-sm text-white">
-                  Associate Application Developer (Frontend)
-                </h4>
-                <p className="text-xs text-zinc-400">
-                  PT Metrodata Electronics Tbk · Nov 2024 – Present
-                </p>
+            {services.length === 0 ? (
+              <div className="rounded-2xl border border-dashed border-[#E5E1DA] bg-[#FAF8F5] p-6 text-center text-[#69718A]">
+                <p className="text-xs mb-2">No commercial services published yet.</p>
+                <Button
+                  variant="primary"
+                  size="xs"
+                  onClick={() => navigate('/admin/business/services')}
+                >
+                  Create First Service
+                </Button>
               </div>
-              <button
-                type="button"
-                onClick={() => navigate('/admin/experiences')}
-                className="px-3 py-1.5 rounded-lg border border-zinc-800 bg-zinc-900 text-xs font-semibold text-zinc-300 hover:text-white transition cursor-pointer"
-              >
-                Edit
-              </button>
-            </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                {services.slice(0, 4).map((svc) => (
+                  <div
+                    key={svc.id}
+                    className="rounded-2xl border border-[#EAE5DD] bg-[#FAF8F5] p-4 flex flex-col justify-between"
+                  >
+                    <div>
+                      <div className="flex items-center justify-between mb-1">
+                        <h4 className="font-sans text-xs font-bold text-[#202744] truncate">
+                          {svc.name}
+                        </h4>
+                        <Badge variant="blue" size="xs">
+                          {svc.isPublic ? 'Public' : 'Hidden'}
+                        </Badge>
+                      </div>
+                      <p className="text-[11px] text-[#69718A] line-clamp-2 mb-2">
+                        {svc.description || 'No description entered.'}
+                      </p>
+                    </div>
+                    {svc.priceStartFrom && (
+                      <span className="font-mono text-xs font-bold text-[#4697F5]">
+                        From Rp {svc.priceStartFrom.toLocaleString('id-ID')}
+                      </span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
-
         </div>
 
-        {/* ─── RIGHT COLUMN (4 COLS) ─── */}
+        {/* RIGHT COLUMN: Quick Actions */}
         <div className="lg:col-span-4 space-y-6">
-
-          {/* Quick Actions Panel */}
-          <div className="rounded-2xl border border-zinc-800/80 bg-[#101218] p-6 space-y-3">
-            <h3 className="font-sans text-xs font-bold uppercase tracking-wider text-zinc-400 mb-4">
-              Quick Actions
+          <div className="rounded-3xl border border-[#EAE5DD] bg-white p-6 space-y-3.5 shadow-3xs">
+            <h3 className="font-sans text-xs font-bold uppercase tracking-wider text-[#69718A] mb-3">
+              Commercial Shortcuts
             </h3>
 
             <button
-              onClick={() => navigate('/admin/experiences')}
-              className="w-full flex items-center justify-between rounded-xl border border-zinc-800/70 bg-[#14161e] p-3 text-left transition hover:border-zinc-700 hover:bg-[#181b24] cursor-pointer"
-            >
-              <div className="flex items-center space-x-2.5">
-                <Briefcase className="h-4 w-4 text-zinc-400" />
-                <span className="font-sans text-xs font-medium text-zinc-200">
-                  Add Career Experience
-                </span>
-              </div>
-              <Plus className="h-3.5 w-3.5 text-zinc-500" />
-            </button>
-
-            <button
-              onClick={() => navigate('/admin/projects')}
-              className="w-full flex items-center justify-between rounded-xl border border-zinc-800/70 bg-[#14161e] p-3 text-left transition hover:border-zinc-700 hover:bg-[#181b24] cursor-pointer"
-            >
-              <div className="flex items-center space-x-2.5">
-                <FolderGit2 className="h-4 w-4 text-zinc-400" />
-                <span className="font-sans text-xs font-medium text-zinc-200">
-                  Add Portfolio Project
-                </span>
-              </div>
-              <Plus className="h-3.5 w-3.5 text-zinc-500" />
-            </button>
-
-            <button
               onClick={() => navigate('/admin/business/services')}
-              className="w-full flex items-center justify-between rounded-xl border border-zinc-800/70 bg-[#14161e] p-3 text-left transition hover:border-zinc-700 hover:bg-[#181b24] cursor-pointer"
+              className="w-full flex items-center justify-between rounded-2xl border border-[#EAE5DD] bg-[#FAF8F5] p-3.5 text-left transition hover:border-[#8B6CF6]/40 hover:bg-white cursor-pointer shadow-3xs"
             >
-              <div className="flex items-center space-x-2.5">
-                <Briefcase className="h-4 w-4 text-zinc-400" />
-                <span className="font-sans text-xs font-medium text-zinc-200">
-                  Add Service Package
-                </span>
+              <div className="flex items-center space-x-3">
+                <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#E8E0FF] text-[#8B6CF6]">
+                  <Briefcase className="h-4 w-4" />
+                </div>
+                <div>
+                  <h4 className="font-sans text-xs font-bold text-[#202744]">Add New Service</h4>
+                  <p className="text-[10px] text-[#69718A]">Publish pricing & delivery SLA</p>
+                </div>
               </div>
-              <Plus className="h-3.5 w-3.5 text-zinc-500" />
+              <ChevronRight className="h-4 w-4 text-[#69718A]" />
             </button>
 
             <button
-              onClick={() => navigate('/admin/theme-studio')}
-              className="w-full flex items-center justify-between rounded-xl border border-zinc-800/70 bg-[#14161e] p-3 text-left transition hover:border-zinc-700 hover:bg-[#181b24] cursor-pointer"
+              onClick={() => navigate('/admin/business/projects')}
+              className="w-full flex items-center justify-between rounded-2xl border border-[#EAE5DD] bg-[#FAF8F5] p-3.5 text-left transition hover:border-[#4697F5]/40 hover:bg-white cursor-pointer shadow-3xs"
             >
-              <div className="flex items-center space-x-2.5">
-                <Palette className="h-4 w-4 text-indigo-400" />
-                <span className="font-sans text-xs font-medium text-zinc-200">
-                  Customize Theme Studio
-                </span>
+              <div className="flex items-center space-x-3">
+                <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#E7F2FF] text-[#4697F5]">
+                  <FolderGit2 className="h-4 w-4" />
+                </div>
+                <div>
+                  <h4 className="font-sans text-xs font-bold text-[#202744]">Business Case Studies</h4>
+                  <p className="text-[10px] text-[#69718A]">Manage client showcase work</p>
+                </div>
               </div>
-              <ArrowRight className="h-3.5 w-3.5 text-zinc-500" />
+              <ChevronRight className="h-4 w-4 text-[#69718A]" />
+            </button>
+
+            <button
+              onClick={() => navigate('/admin/business/theme-studio')}
+              className="w-full flex items-center justify-between rounded-2xl border border-[#EAE5DD] bg-[#FAF8F5] p-3.5 text-left transition hover:border-[#FFC45B]/50 hover:bg-white cursor-pointer shadow-3xs"
+            >
+              <div className="flex items-center space-x-3">
+                <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#FFF6E3] text-[#A66E00]">
+                  <Palette className="h-4 w-4" />
+                </div>
+                <div>
+                  <h4 className="font-sans text-xs font-bold text-[#202744]">Agency Theme Studio</h4>
+                  <p className="text-[10px] text-[#69718A]">Customize commercial styling</p>
+                </div>
+              </div>
+              <ChevronRight className="h-4 w-4 text-[#69718A]" />
+            </button>
+
+            <button
+              onClick={() => navigate('/admin/business/profile')}
+              className="w-full flex items-center justify-between rounded-2xl border border-[#EAE5DD] bg-[#FAF8F5] p-3.5 text-left transition hover:border-[#8B6CF6]/40 hover:bg-white cursor-pointer shadow-3xs"
+            >
+              <div className="flex items-center space-x-3">
+                <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-slate-100 text-[#202744]">
+                  <Building2 className="h-4 w-4" />
+                </div>
+                <div>
+                  <h4 className="font-sans text-xs font-bold text-[#202744]">Brand & Logo Settings</h4>
+                  <p className="text-[10px] text-[#69718A]">Update agency branding</p>
+                </div>
+              </div>
+              <ChevronRight className="h-4 w-4 text-[#69718A]" />
             </button>
           </div>
-
-          {/* Digital Services & Rate Card Panel */}
-          <div className="rounded-2xl border border-zinc-800/80 bg-[#101218] p-6 space-y-4">
-            <div>
-              <div className="flex items-center justify-between">
-                <span className="font-mono text-[9px] font-bold uppercase tracking-widest text-blue-400">
-                  BUSINESS & CATALOG MODE
-                </span>
-                <span className="font-mono text-[9px] text-zinc-500">
-                  {services.length || 4} Packages
-                </span>
-              </div>
-              <h3 className="font-sans text-sm font-bold text-white mt-1">
-                Digital Services & Rate Card
-              </h3>
-              <p className="font-sans text-xs text-zinc-400 mt-1 leading-relaxed">
-                Offer clients ready-to-book development packages with automatic WhatsApp inquiry routing.
-              </p>
-            </div>
-
-            <div className="space-y-2.5">
-              <div className="rounded-xl border border-zinc-800/70 bg-[#14161e] p-3 flex items-center justify-between">
-                <div>
-                  <p className="font-bold text-xs text-white">
-                    MVP Fast-Track Web Application
-                  </p>
-                  <p className="font-mono text-[10px] text-zinc-400 mt-0.5">
-                    Rp 14.500.000
-                  </p>
-                </div>
-                <span className="rounded bg-emerald-950 border border-emerald-500/30 px-2 py-0.5 font-mono text-[9px] font-bold text-emerald-400">
-                  Active
-                </span>
-              </div>
-
-              <div className="rounded-xl border border-zinc-800/70 bg-[#14161e] p-3 flex items-center justify-between">
-                <div>
-                  <p className="font-bold text-xs text-white">
-                    Interactive Digital Catalog & Showcase Website
-                  </p>
-                  <p className="font-mono text-[10px] text-zinc-400 mt-0.5">
-                    Rp 8.000.000
-                  </p>
-                </div>
-                <span className="rounded bg-emerald-950 border border-emerald-500/30 px-2 py-0.5 font-mono text-[9px] font-bold text-emerald-400">
-                  Active
-                </span>
-              </div>
-            </div>
-
-            <button
-              onClick={() => navigate('/admin/business/services')}
-              className="w-full py-2 rounded-xl border border-zinc-800 bg-zinc-900 hover:bg-zinc-800 text-xs font-semibold text-zinc-300 hover:text-white transition cursor-pointer"
-            >
-              Manage Catalog Offerings
-            </button>
-          </div>
-
         </div>
-
       </div>
     </div>
   );

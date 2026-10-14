@@ -35,28 +35,33 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ currentUser }) => {
 
   if (isLoading) {
     return (
-      <div className="flex h-96 items-center justify-center text-zinc-500">
-        <Loader2 className="h-8 w-8 animate-spin text-zinc-400 mr-2" />
-        <span className="font-sans text-xs">Initializing admin session...</span>
+      <div className="flex h-96 flex-col items-center justify-center text-[#69718A]">
+        <Loader2 className="h-8 w-8 animate-spin text-[#8B6CF6] mb-2" />
+        <span className="font-sans text-xs font-semibold">Initializing admin session...</span>
       </div>
     );
   }
 
   // Determine if active workspace profile is incomplete
-  const isProfileIncomplete = isSuper ? false : isBusiness 
-    ? (!businessProfile || !businessProfile.businessName)
-    : (!profile || !profile.fullName);
+  const isProfileIncomplete = isSuper
+    ? false
+    : isBusiness
+    ? !businessProfile || !businessProfile.businessName
+    : !profile || !profile.fullName;
 
   // Determine the correct profile path
   const targetProfilePath = isBusiness ? '/admin/business/profile' : '/admin/profile';
 
   // Force redirect if incomplete and not already on the profile page
   if (isProfileIncomplete && location.pathname !== targetProfilePath) {
-     return <Navigate to={targetProfilePath} replace />;
+    return <Navigate to={targetProfilePath} replace />;
   }
 
   // Builder Studio & User Theme Studio use their own full-screen studio layout
-  if (location.pathname.startsWith('/admin/templates/builder') || location.pathname.includes('/theme-studio')) {
+  if (
+    location.pathname.startsWith('/admin/templates/builder') ||
+    location.pathname.includes('/theme-studio')
+  ) {
     return <Outlet />;
   }
 
@@ -65,14 +70,14 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ currentUser }) => {
   // ═══════════════════════════════════════════════════════════════════
   if (isSuper && !location.pathname.includes('/business')) {
     return (
-      <div className="flex h-screen w-full bg-[#08090d] text-white font-sans overflow-hidden">
-        {/* Fixed Dark Sidebar (Screenshot 4) */}
+      <div className="flex h-screen w-full bg-[#FAF8F5] text-[#202744] font-sans overflow-hidden">
+        {/* Fixed Left Admin Sidebar */}
         <aside className="hidden lg:flex w-[260px] shrink-0">
           <AdminSidebar currentUser={currentUser} />
         </aside>
 
         {/* Main Content Area */}
-        <main className="flex-1 overflow-y-auto bg-[#08090d] relative p-6 lg:p-10">
+        <main className="flex-1 overflow-y-auto bg-[#FAF8F5] relative p-6 lg:p-10">
           <div className="mx-auto max-w-7xl">
             <Outlet />
           </div>
@@ -82,23 +87,25 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ currentUser }) => {
   }
 
   // ═══════════════════════════════════════════════════════════════════
-  // USER & BUSINESS WORKSPACE (Screenshot 5)
+  // USER & BUSINESS WORKSPACE
   // ═══════════════════════════════════════════════════════════════════
   const publicPortfolioUrl = `/portfolio/${currentUser.id}`;
 
   return (
-    <div className="min-h-screen bg-[#08090d] text-white font-sans flex flex-col">
-      {/* ─── Top Workspace Bar (Screenshot 5) ─── */}
-      <header className="sticky top-0 z-40 w-full border-b border-zinc-800/80 bg-[#0c0d12]/90 backdrop-blur-md px-4 sm:px-6 lg:px-8 py-2.5">
+    <div className="min-h-screen bg-[#FAF8F5] text-[#202744] font-sans flex flex-col">
+      {/* ─── Top Workspace Bar ─── */}
+      <header className="sticky top-0 z-40 w-full border-b border-[#EAE5DD] bg-white/95 backdrop-blur-md px-4 sm:px-6 lg:px-8 py-2.5 shadow-3xs">
         <div className="mx-auto max-w-7xl flex flex-wrap items-center justify-between gap-3">
-          
           {/* Left/Center: Workspace Switcher Dropdown */}
           <WorkspaceSwitcher
             currentUser={{
               name: profile?.fullName || businessProfile?.businessName || currentUser.email,
               email: currentUser.email,
               hasProfile: !!profile,
-              hasBusinessProfile: !!currentUser.businessProfile || !!businessProfile || localStorage.getItem('has_business_profile') === 'true',
+              hasBusinessProfile:
+                !!currentUser.businessProfile ||
+                !!businessProfile ||
+                localStorage.getItem('has_business_profile') === 'true',
             }}
             currentWorkspace={isBusiness ? 'BUSINESS' : 'PERSONAL'}
           />
@@ -107,13 +114,13 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ currentUser }) => {
           <div className="flex items-center space-x-2.5 sm:space-x-3">
             {/* Quick Find Search */}
             <div className="relative hidden md:block">
-              <Search className="absolute top-1/2 left-3 h-3.5 w-3.5 -translate-y-1/2 text-zinc-500" />
+              <Search className="absolute top-1/2 left-3 h-3.5 w-3.5 -translate-y-1/2 text-[#69718A]" />
               <input
                 type="text"
                 value={searchVal}
                 onChange={(e) => setSearchVal(e.target.value)}
                 placeholder="Quick Find... ⌘K"
-                className="rounded-lg border border-zinc-800 bg-[#12141a] py-1.5 pr-3 pl-8 font-sans text-xs text-zinc-300 placeholder:text-zinc-500 focus:border-zinc-700 focus:outline-hidden"
+                className="rounded-xl border border-[#E5E1DA] bg-[#FAF8F5] py-1.5 pr-3 pl-8 font-sans text-xs text-[#202744] placeholder-[#69718A] focus:border-[#8B6CF6] focus:bg-white focus:outline-hidden transition-all"
               />
             </div>
 
@@ -121,10 +128,10 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ currentUser }) => {
             {isSuper && (
               <button
                 onClick={() => navigate('/admin/dashboard')}
-                className="flex items-center space-x-1 rounded-full border border-purple-700/50 bg-purple-950/40 px-3 py-1 font-mono text-xs font-bold text-purple-300 hover:bg-purple-900/40 transition cursor-pointer"
+                className="flex items-center space-x-1.5 rounded-full border border-[#D5C6FF] bg-[#E8E0FF] px-3.5 py-1.5 font-sans text-xs font-bold text-[#5533CC] hover:bg-[#DCD0FF] transition cursor-pointer"
                 title="Open Superadmin Console"
               >
-                <Shield className="h-3 w-3" />
+                <Shield className="h-3 w-3 text-[#8B6CF6]" />
                 <span>Superadmin</span>
               </button>
             )}
@@ -134,7 +141,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ currentUser }) => {
               href={publicPortfolioUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center space-x-1.5 rounded-full bg-white hover:bg-zinc-200 px-3.5 py-1.5 font-sans text-xs font-bold text-zinc-950 transition active:scale-95 shadow-xs"
+              className="flex items-center space-x-1.5 rounded-full bg-[#8B6CF6] hover:bg-[#7A56F4] px-4 py-1.5 font-sans text-xs font-bold text-white transition active:scale-95 shadow-xs"
             >
               <Globe className="h-3.5 w-3.5" />
               <span>View Live Site</span>
@@ -143,12 +150,11 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ currentUser }) => {
             {/* Exit Link */}
             <button
               onClick={() => navigate('/')}
-              className="font-sans text-xs font-semibold text-zinc-400 hover:text-white transition px-2 py-1 cursor-pointer"
+              className="font-sans text-xs font-semibold text-[#69718A] hover:text-[#202744] transition px-2 py-1 cursor-pointer"
             >
               Exit
             </button>
           </div>
-
         </div>
       </header>
 
@@ -166,7 +172,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ currentUser }) => {
           </div>
 
           {/* MAIN VIEW OUTLET COLUMN */}
-          <div className="lg:col-span-9 rounded-2xl border border-zinc-800/80 bg-[#0c0d12] p-6 lg:p-8 shadow-xl min-h-[550px]">
+          <div className="lg:col-span-9 rounded-3xl border border-[#EAE5DD] bg-white p-6 lg:p-8 shadow-sm min-h-[580px]">
             <Outlet />
           </div>
         </div>

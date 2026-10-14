@@ -24,6 +24,8 @@ export interface DynamicPortfolioData {
 interface DynamicPortfolioRendererProps {
   data: DynamicPortfolioData;
   isInteractivePreview?: boolean;
+  onProjectClick?: (projectId: string, title?: string) => void;
+  onSocialClick?: (platform: string, label?: string) => void;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -32,7 +34,8 @@ interface DynamicPortfolioRendererProps {
 const HeroBlock: React.FC<{
   section: SectionBlock;
   profile?: Partial<Profile> | null;
-}> = ({ section, profile }) => {
+  onSocialClick?: (platform: string, label?: string) => void;
+}> = ({ section, profile, onSocialClick }) => {
   const variant = section.variant || 'MODERN_SPLIT';
   const name = profile?.fullName || 'Alex Rivera';
   const headline = profile?.headline || 'Staff Systems & Frontend Architect';
@@ -65,6 +68,7 @@ const HeroBlock: React.FC<{
           {email && (
             <a
               href={`mailto:${email}`}
+              onClick={() => onSocialClick?.('email', 'Email Direct')}
               className="inline-flex items-center gap-2 px-6 py-3 rounded-[var(--radius)] bg-[var(--primary)] text-white font-bold text-xs uppercase tracking-wider hover:opacity-90 transition shadow-md"
             >
               <Mail className="w-4 h-4" />
@@ -311,7 +315,9 @@ const SkillsBlock: React.FC<{
 const ProjectsBlock: React.FC<{
   section: SectionBlock;
   projects?: Project[];
-}> = ({ section, projects = [] }) => {
+  onProjectClick?: (projectId: string, title?: string) => void;
+  onSocialClick?: (platform: string, label?: string) => void;
+}> = ({ section, projects = [], onProjectClick, onSocialClick }) => {
   const title = section.title || 'Selected Projects';
   const variant = section.variant || 'BENTO_GRID_3COL';
 
@@ -410,7 +416,8 @@ const ProjectsBlock: React.FC<{
                   href={proj.projectUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex items-center gap-1 hover:underline"
+                  onClick={() => onProjectClick?.(proj.id || '', proj.title)}
+                  className="inline-flex items-center gap-1 hover:underline cursor-pointer"
                 >
                   <ExternalLink className="w-3.5 h-3.5" />
                   <span>Live App</span>
@@ -422,7 +429,8 @@ const ProjectsBlock: React.FC<{
                   href={proj.githubUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex items-center gap-1 hover:underline text-[var(--text)]/70"
+                  onClick={() => onSocialClick?.('github', `GitHub: ${proj.title}`)}
+                  className="inline-flex items-center gap-1 hover:underline text-[var(--text)]/70 cursor-pointer"
                 >
                   <Github className="w-3.5 h-3.5" />
                   <span>Source</span>
@@ -651,7 +659,8 @@ const ServicesBlock: React.FC<{
 const ContactBlock: React.FC<{
   section: SectionBlock;
   profile?: Partial<Profile> | null;
-}> = ({ section, profile }) => {
+  onSocialClick?: (platform: string, label?: string) => void;
+}> = ({ section, profile, onSocialClick }) => {
   const variant = section.variant || 'FORM_AND_DETAILS';
   const title = section.title || "Let's Work Together";
   const email = profile?.contactEmail || 'hello@developer.io';
@@ -671,6 +680,7 @@ const ContactBlock: React.FC<{
           {email && (
             <a
               href={`mailto:${email}`}
+              onClick={() => onSocialClick?.('email', 'Email Direct')}
               className="inline-flex items-center gap-2 px-5 py-2.5 rounded-[var(--radius)] bg-[var(--primary)] text-white font-bold text-xs uppercase tracking-wider hover:opacity-90 transition shadow-sm"
             >
               <Mail className="w-3.5 h-3.5" />
@@ -680,6 +690,7 @@ const ContactBlock: React.FC<{
           {phone && (
             <a
               href={`tel:${phone}`}
+              onClick={() => onSocialClick?.('phone', 'Phone Direct')}
               className="inline-flex items-center gap-2 px-5 py-2.5 rounded-[var(--radius)] bg-[var(--surface)] border border-[var(--text)]/15 text-[var(--text)] font-bold text-xs uppercase tracking-wider hover:bg-[var(--text)]/5 transition"
             >
               <Phone className="w-3.5 h-3.5" />
@@ -995,6 +1006,8 @@ export const CtaBannerBlock: React.FC<{
 // ─────────────────────────────────────────────────────────────────────────────
 export const DynamicPortfolioRenderer: React.FC<DynamicPortfolioRendererProps> = ({
   data,
+  onProjectClick,
+  onSocialClick,
 }) => {
   const {
     layout,
@@ -1092,6 +1105,7 @@ export const DynamicPortfolioRenderer: React.FC<DynamicPortfolioRendererProps> =
                   key={section.id}
                   section={section}
                   profile={effectiveProfile}
+                  onSocialClick={onSocialClick}
                 />
               );
 
@@ -1119,6 +1133,8 @@ export const DynamicPortfolioRenderer: React.FC<DynamicPortfolioRendererProps> =
                   key={section.id}
                   section={section}
                   projects={effectiveProjects}
+                  onProjectClick={onProjectClick}
+                  onSocialClick={onSocialClick}
                 />
               );
 
@@ -1146,6 +1162,7 @@ export const DynamicPortfolioRenderer: React.FC<DynamicPortfolioRendererProps> =
                   key={section.id}
                   section={section}
                   profile={effectiveProfile}
+                  onSocialClick={onSocialClick}
                 />
               );
 

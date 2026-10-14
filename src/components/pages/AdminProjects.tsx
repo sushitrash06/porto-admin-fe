@@ -398,18 +398,18 @@ export const AdminProjects: React.FC = () => {
         <div className="space-y-6 admin-page-enter">
             {/* Self-contained header display */}
             <div className="mb-6">
-                <h2 className="font-sans text-2xl font-extrabold tracking-tight text-neutral-900">
+                <h2 className="font-sans text-2xl font-extrabold tracking-tight text-[#202744]">
                     {isSuper ? 'Project Audit' : 'My Project Repositories'}
                 </h2>
-                <p className="font-sans text-sm text-neutral-500 mt-1">
+                <p className="font-sans text-sm text-[#69718A] mt-1">
                     {isSuper ? 'Audit, filter, and inspect project portfolios submitted by all platform users.' : 'Document your open-source projects, link relevant jobs, and customize stack tags.'}
                 </p>
             </div>
 
             {/* Superadmin Information Banner */}
             {isSuper && (
-                <div className="flex items-center space-x-2 rounded-md border border-slate-200 bg-slate-50 px-4 py-3 text-xs text-slate-500">
-                    <Info className="h-4 w-4 shrink-0 text-slate-400" />
+                <div className="flex items-center space-x-2.5 rounded-2xl border border-[#4697F5]/20 bg-[#4697F5]/5 px-4 py-3 text-xs text-[#202744]">
+                    <Info className="h-4 w-4 shrink-0 text-[#4697F5]" />
                     <p className="font-sans font-medium leading-relaxed">
                         <strong>System Privilege: Read Only Sandbox</strong>. You are logged as a <strong>Super Administrator</strong>. Project files can only be created or modified by their respective creative owners.
                     </p>
@@ -417,19 +417,19 @@ export const AdminProjects: React.FC = () => {
             )}
 
             {/* Control panel & Filter suite */}
-            <div className="flex flex-col gap-4 border-b border-slate-200 pb-5">
+            <div className="flex flex-col gap-4 border-b border-[#EAE5DD] pb-5">
                 <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
 
                     {/* Query search */}
                     <div className="relative flex-1 max-w-md">
-                        <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                        <Search className="absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-[#69718A]" />
                         <input
                             id="project-search"
                             type="text"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             placeholder="Filter by title, keywords, or tech stack..."
-                            className="w-full rounded-md border border-slate-200 bg-slate-50 py-2 pr-4 pl-9.5 font-sans text-xs focus:border-slate-400 focus:bg-white focus:outline-hidden text-slate-900"
+                            className="w-full rounded-xl border border-[#EAE5DD] bg-white py-2.5 pr-4 pl-10 font-sans text-xs text-[#202744] focus:border-[#8B6CF6] focus:outline-hidden focus:ring-2 focus:ring-[#8B6CF6]/20 shadow-xs"
                         />
                     </div>
 
@@ -440,26 +440,26 @@ export const AdminProjects: React.FC = () => {
                                 <div className="relative">
                                     <ListboxButton
                                         id="proj-developer-select"
-                                        className="relative rounded-md border border-slate-200 bg-slate-50 py-2 pr-8 pl-3 text-left font-sans text-xs focus:border-slate-400 focus:bg-white focus:outline-hidden text-slate-700 cursor-pointer min-w-[160px]"
+                                        className="relative rounded-xl border border-[#EAE5DD] bg-white py-2.5 pr-9 pl-3.5 text-left font-sans text-xs focus:border-[#8B6CF6] focus:outline-hidden text-[#202744] cursor-pointer min-w-[160px] shadow-xs"
                                     >
-                                        <span className="block truncate">{developerFilterLabel}</span>
-                                        <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-                                            <ChevronDown className="h-3.5 w-3.5 text-slate-400" />
+                                        <span className="block truncate font-medium">{developerFilterLabel}</span>
+                                        <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2.5">
+                                            <ChevronDown className="h-3.5 w-3.5 text-[#69718A]" />
                                         </span>
                                     </ListboxButton>
-                                    <ListboxOptions className="absolute z-30 mt-1 max-h-60 w-56 overflow-auto rounded-md bg-white py-1 text-xs shadow-lg ring-1 ring-black/5 focus:outline-hidden font-sans border border-slate-200">
+                                    <ListboxOptions className="absolute z-30 mt-1 max-h-60 w-56 overflow-auto rounded-xl bg-white py-1 text-xs shadow-lg ring-1 ring-black/5 focus:outline-hidden font-sans border border-[#EAE5DD]">
                                         <ListboxOption
                                             value="all"
-                                            className="relative cursor-pointer select-none py-1.5 pr-8 pl-3 text-slate-900 data-[focus]:bg-slate-50"
+                                            className="relative cursor-pointer select-none py-2 pr-8 pl-3.5 text-[#202744] data-[focus]:bg-[#FAF8F5]"
                                         >
                                             {({ selected }) => (
                                                 <>
-                                                    <span className={`block truncate ${selected ? 'font-bold' : 'font-normal'}`}>
+                                                    <span className={`block truncate ${selected ? 'font-bold text-[#8B6CF6]' : 'font-normal'}`}>
                                                         Creators: All Users
                                                     </span>
                                                     {selected && (
-                                                        <span className="absolute inset-y-0 right-0 flex items-center pr-2 text-black">
-                                                            <Check className="h-3 w-3" />
+                                                        <span className="absolute inset-y-0 right-0 flex items-center pr-2.5 text-[#8B6CF6]">
+                                                            <Check className="h-3.5 w-3.5" />
                                                         </span>
                                                     )}
                                                 </>
@@ -469,16 +469,16 @@ export const AdminProjects: React.FC = () => {
                                             <ListboxOption
                                                 key={u.id}
                                                 value={u.id}
-                                                className="relative cursor-pointer select-none py-1.5 pr-8 pl-3 text-slate-900 data-[focus]:bg-slate-50"
+                                                className="relative cursor-pointer select-none py-2 pr-8 pl-3.5 text-[#202744] data-[focus]:bg-[#FAF8F5]"
                                             >
                                                 {({ selected }) => (
                                                     <>
-                                                        <span className={`block truncate ${selected ? 'font-bold' : 'font-normal'}`}>
+                                                        <span className={`block truncate ${selected ? 'font-bold text-[#8B6CF6]' : 'font-normal'}`}>
                                                             {u.profile?.fullName || u.email}
                                                         </span>
                                                         {selected && (
-                                                            <span className="absolute inset-y-0 right-0 flex items-center pr-2 text-black">
-                                                                <Check className="h-3 w-3" />
+                                                            <span className="absolute inset-y-0 right-0 flex items-center pr-2.5 text-[#8B6CF6]">
+                                                                <Check className="h-3.5 w-3.5" />
                                                             </span>
                                                         )}
                                                     </>
@@ -495,26 +495,26 @@ export const AdminProjects: React.FC = () => {
                             <div className="relative">
                                 <ListboxButton
                                     id="proj-type-select"
-                                    className="relative rounded-md border border-slate-200 bg-slate-50 py-2 pr-8 pl-3 text-left font-sans text-xs focus:border-slate-400 focus:bg-white focus:outline-hidden text-slate-700 cursor-pointer min-w-[150px]"
+                                    className="relative rounded-xl border border-[#EAE5DD] bg-white py-2.5 pr-9 pl-3.5 text-left font-sans text-xs focus:border-[#8B6CF6] focus:outline-hidden text-[#202744] cursor-pointer min-w-[150px] shadow-xs"
                                 >
-                                    <span className="block truncate">{typeFilterLabel}</span>
-                                    <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-                                        <ChevronDown className="h-3.5 w-3.5 text-slate-400" />
+                                    <span className="block truncate font-medium">{typeFilterLabel}</span>
+                                    <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2.5">
+                                        <ChevronDown className="h-3.5 w-3.5 text-[#69718A]" />
                                     </span>
                                 </ListboxButton>
-                                <ListboxOptions className="absolute z-30 mt-1 max-h-60 w-44 overflow-auto rounded-md bg-white py-1 text-xs shadow-lg ring-1 ring-black/5 focus:outline-hidden font-sans border border-slate-200">
+                                <ListboxOptions className="absolute z-30 mt-1 max-h-60 w-44 overflow-auto rounded-xl bg-white py-1 text-xs shadow-lg ring-1 ring-black/5 focus:outline-hidden font-sans border border-[#EAE5DD]">
                                     <ListboxOption
                                         value="all"
-                                        className="relative cursor-pointer select-none py-1.5 pr-8 pl-3 text-slate-900 data-[focus]:bg-slate-50"
+                                        className="relative cursor-pointer select-none py-2 pr-8 pl-3.5 text-[#202744] data-[focus]:bg-[#FAF8F5]"
                                     >
                                         {({ selected }) => (
                                             <>
-                                                <span className={`block truncate ${selected ? 'font-bold' : 'font-normal'}`}>
+                                                <span className={`block truncate ${selected ? 'font-bold text-[#8B6CF6]' : 'font-normal'}`}>
                                                     Types: All Projects
                                                 </span>
                                                 {selected && (
-                                                    <span className="absolute inset-y-0 right-0 flex items-center pr-2 text-black">
-                                                        <Check className="h-3 w-3" />
+                                                    <span className="absolute inset-y-0 right-0 flex items-center pr-2.5 text-[#8B6CF6]">
+                                                        <Check className="h-3.5 w-3.5" />
                                                     </span>
                                                 )}
                                             </>
@@ -522,16 +522,16 @@ export const AdminProjects: React.FC = () => {
                                     </ListboxOption>
                                     <ListboxOption
                                         value="PERSONAL"
-                                        className="relative cursor-pointer select-none py-1.5 pr-8 pl-3 text-slate-900 data-[focus]:bg-slate-50"
+                                        className="relative cursor-pointer select-none py-2 pr-8 pl-3.5 text-[#202744] data-[focus]:bg-[#FAF8F5]"
                                     >
                                         {({ selected }) => (
                                             <>
-                                                <span className={`block truncate ${selected ? 'font-bold' : 'font-normal'}`}>
+                                                <span className={`block truncate ${selected ? 'font-bold text-[#8B6CF6]' : 'font-normal'}`}>
                                                     📍 Personal
                                                 </span>
                                                 {selected && (
-                                                    <span className="absolute inset-y-0 right-0 flex items-center pr-2 text-black">
-                                                        <Check className="h-3 w-3" />
+                                                    <span className="absolute inset-y-0 right-0 flex items-center pr-2.5 text-[#8B6CF6]">
+                                                        <Check className="h-3.5 w-3.5" />
                                                     </span>
                                                 )}
                                             </>
@@ -539,16 +539,16 @@ export const AdminProjects: React.FC = () => {
                                     </ListboxOption>
                                     <ListboxOption
                                         value="WORK"
-                                        className="relative cursor-pointer select-none py-1.5 pr-8 pl-3 text-slate-900 data-[focus]:bg-slate-50"
+                                        className="relative cursor-pointer select-none py-2 pr-8 pl-3.5 text-[#202744] data-[focus]:bg-[#FAF8F5]"
                                     >
                                         {({ selected }) => (
                                             <>
-                                                <span className={`block truncate ${selected ? 'font-bold' : 'font-normal'}`}>
+                                                <span className={`block truncate ${selected ? 'font-bold text-[#8B6CF6]' : 'font-normal'}`}>
                                                     💼 Work Products
                                                 </span>
                                                 {selected && (
-                                                    <span className="absolute inset-y-0 right-0 flex items-center pr-2 text-black">
-                                                        <Check className="h-3 w-3" />
+                                                    <span className="absolute inset-y-0 right-0 flex items-center pr-2.5 text-[#8B6CF6]">
+                                                        <Check className="h-3.5 w-3.5" />
                                                     </span>
                                                 )}
                                             </>
@@ -563,26 +563,26 @@ export const AdminProjects: React.FC = () => {
                             <div className="relative">
                                 <ListboxButton
                                     id="proj-public-select"
-                                    className="relative rounded-md border border-slate-200 bg-slate-50 py-2 pr-8 pl-3 text-left font-sans text-xs focus:border-slate-400 focus:bg-white focus:outline-hidden text-slate-700 cursor-pointer min-w-[140px]"
+                                    className="relative rounded-xl border border-[#EAE5DD] bg-white py-2.5 pr-9 pl-3.5 text-left font-sans text-xs focus:border-[#8B6CF6] focus:outline-hidden text-[#202744] cursor-pointer min-w-[140px] shadow-xs"
                                 >
-                                    <span className="block truncate">{publicFilterLabel}</span>
-                                    <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-                                        <ChevronDown className="h-3.5 w-3.5 text-slate-400" />
+                                    <span className="block truncate font-medium">{publicFilterLabel}</span>
+                                    <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2.5">
+                                        <ChevronDown className="h-3.5 w-3.5 text-[#69718A]" />
                                     </span>
                                 </ListboxButton>
-                                <ListboxOptions className="absolute z-30 mt-1 max-h-60 w-40 overflow-auto rounded-md bg-white py-1 text-xs shadow-lg ring-1 ring-black/5 focus:outline-hidden font-sans border border-slate-200">
+                                <ListboxOptions className="absolute z-30 mt-1 max-h-60 w-40 overflow-auto rounded-xl bg-white py-1 text-xs shadow-lg ring-1 ring-black/5 focus:outline-hidden font-sans border border-[#EAE5DD]">
                                     <ListboxOption
                                         value="all"
-                                        className="relative cursor-pointer select-none py-1.5 pr-8 pl-3 text-slate-900 data-[focus]:bg-slate-50"
+                                        className="relative cursor-pointer select-none py-2 pr-8 pl-3.5 text-[#202744] data-[focus]:bg-[#FAF8F5]"
                                     >
                                         {({ selected }) => (
                                             <>
-                                                <span className={`block truncate ${selected ? 'font-bold' : 'font-normal'}`}>
+                                                <span className={`block truncate ${selected ? 'font-bold text-[#8B6CF6]' : 'font-normal'}`}>
                                                     Status: All Records
                                                 </span>
                                                 {selected && (
-                                                    <span className="absolute inset-y-0 right-0 flex items-center pr-2 text-black">
-                                                        <Check className="h-3 w-3" />
+                                                    <span className="absolute inset-y-0 right-0 flex items-center pr-2.5 text-[#8B6CF6]">
+                                                        <Check className="h-3.5 w-3.5" />
                                                     </span>
                                                 )}
                                             </>
@@ -590,16 +590,16 @@ export const AdminProjects: React.FC = () => {
                                     </ListboxOption>
                                     <ListboxOption
                                         value="public"
-                                        className="relative cursor-pointer select-none py-1.5 pr-8 pl-3 text-slate-900 data-[focus]:bg-slate-50"
+                                        className="relative cursor-pointer select-none py-2 pr-8 pl-3.5 text-[#202744] data-[focus]:bg-[#FAF8F5]"
                                     >
                                         {({ selected }) => (
                                             <>
-                                                <span className={`block truncate ${selected ? 'font-bold' : 'font-normal'}`}>
+                                                <span className={`block truncate ${selected ? 'font-bold text-[#8B6CF6]' : 'font-normal'}`}>
                                                     🌐 Published
                                                 </span>
                                                 {selected && (
-                                                    <span className="absolute inset-y-0 right-0 flex items-center pr-2 text-black">
-                                                        <Check className="h-3 w-3" />
+                                                    <span className="absolute inset-y-0 right-0 flex items-center pr-2.5 text-[#8B6CF6]">
+                                                        <Check className="h-3.5 w-3.5" />
                                                     </span>
                                                 )}
                                             </>
@@ -607,16 +607,16 @@ export const AdminProjects: React.FC = () => {
                                     </ListboxOption>
                                     <ListboxOption
                                         value="private"
-                                        className="relative cursor-pointer select-none py-1.5 pr-8 pl-3 text-slate-900 data-[focus]:bg-slate-50"
+                                        className="relative cursor-pointer select-none py-2 pr-8 pl-3.5 text-[#202744] data-[focus]:bg-[#FAF8F5]"
                                     >
                                         {({ selected }) => (
                                             <>
-                                                <span className={`block truncate ${selected ? 'font-bold' : 'font-normal'}`}>
+                                                <span className={`block truncate ${selected ? 'font-bold text-[#8B6CF6]' : 'font-normal'}`}>
                                                     🔒 Hidden
                                                 </span>
                                                 {selected && (
-                                                    <span className="absolute inset-y-0 right-0 flex items-center pr-2 text-black">
-                                                        <Check className="h-3 w-3" />
+                                                    <span className="absolute inset-y-0 right-0 flex items-center pr-2.5 text-[#8B6CF6]">
+                                                        <Check className="h-3.5 w-3.5" />
                                                     </span>
                                                 )}
                                             </>
@@ -627,28 +627,28 @@ export const AdminProjects: React.FC = () => {
                         </Listbox>
 
                         {/* View Mode Switcher */}
-                        <div className="flex rounded-md border border-slate-200 bg-slate-105 p-0.5">
+                        <div className="flex rounded-xl border border-[#EAE5DD] bg-[#FAF8F5] p-1">
                             <button
                                 type="button"
                                 onClick={() => setViewMode('grid')}
-                                className={`rounded-md p-1.5 transition-all text-xs cursor-pointer flex items-center ${viewMode === 'grid'
-                                    ? 'bg-white text-slate-950 shadow-3xs'
-                                    : 'text-slate-400 hover:text-slate-700'
+                                className={`rounded-lg p-1.5 transition-all text-xs cursor-pointer flex items-center ${viewMode === 'grid'
+                                    ? 'bg-white text-[#8B6CF6] shadow-xs'
+                                    : 'text-[#69718A] hover:text-[#202744]'
                                     }`}
                                 title="Grid representation"
                             >
-                                <Grid className="h-3.5 w-3.5" />
+                                <Grid className="h-4 w-4" />
                             </button>
                             <button
                                 type="button"
                                 onClick={() => setViewMode('table')}
-                                className={`rounded-md p-1.5 transition-all text-xs cursor-pointer flex items-center ${viewMode === 'table'
-                                    ? 'bg-white text-slate-950 shadow-3xs'
-                                    : 'text-slate-400 hover:text-slate-700'
+                                className={`rounded-lg p-1.5 transition-all text-xs cursor-pointer flex items-center ${viewMode === 'table'
+                                    ? 'bg-white text-[#8B6CF6] shadow-xs'
+                                    : 'text-[#69718A] hover:text-[#202744]'
                                     }`}
                                 title="Table representation"
                             >
-                                <List className="h-3.5 w-3.5" />
+                                <List className="h-4 w-4" />
                             </button>
                         </div>
 
@@ -657,7 +657,7 @@ export const AdminProjects: React.FC = () => {
                             <button
                                 id="create-new-project-btn"
                                 onClick={handleOpenCreate}
-                                className="flex cursor-pointer items-center justify-center space-x-1.5 rounded-md bg-black px-4 py-2 font-sans text-xs font-bold uppercase tracking-wider text-white shadow-3xs transition hover:bg-slate-800 active:scale-95"
+                                className="flex cursor-pointer items-center justify-center space-x-1.5 rounded-xl bg-[#8B6CF6] px-4 py-2.5 font-sans text-xs font-bold text-white shadow-xs transition hover:bg-[#7A5CE5] active:scale-95"
                             >
                                 <Plus className="h-4 w-4" />
                                 <span>Add Project</span>
@@ -670,8 +670,8 @@ export const AdminProjects: React.FC = () => {
 
             {/* Error Message if fetching fails */}
             {isError && (
-                <div className="flex items-start space-x-2 rounded-md border border-red-100 bg-red-50 p-4 text-xs text-red-600 font-sans">
-                    <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0 text-red-600" />
+                <div className="flex items-start space-x-2.5 rounded-2xl border border-red-200 bg-red-50 p-4 text-xs text-red-700 font-sans">
+                    <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0 text-red-500" />
                     <div>
                         <p className="font-bold">Error loading project portfolios</p>
                         <p className="mt-1">{fetchError?.response?.data?.message || fetchError?.message || 'Check connection to backend server.'}</p>
@@ -681,15 +681,15 @@ export const AdminProjects: React.FC = () => {
 
             {/* Projects view conditional list */}
             {isLoading ? (
-                <div className="rounded-xl border border-slate-200 bg-white p-12 text-center text-slate-450">
-                    <Loader2 className="mx-auto h-8 w-8 animate-spin text-slate-400 mb-2" />
-                    <p className="font-sans text-xs">Querying project register...</p>
+                <div className="rounded-2xl border border-[#EAE5DD] bg-white p-16 text-center text-[#69718A]">
+                    <Loader2 className="mx-auto h-8 w-8 animate-spin text-[#8B6CF6] mb-2" />
+                    <p className="font-sans text-xs font-medium">Loading project portfolios...</p>
                 </div>
             ) : filteredProjects.length === 0 ? (
-                <div className="rounded-xl border border-dashed border-slate-200 bg-white p-12 text-center text-slate-400 font-sans">
-                    <FolderGit2 className="mx-auto h-8 w-8 text-slate-355 mb-2 stroke-1" />
-                    <h3 className="text-xs font-bold text-slate-705">No Projects Found</h3>
-                    <p className="text-[11px] text-slate-400 mt-1">Try resetting filter tags or search terms.</p>
+                <div className="rounded-2xl border border-dashed border-[#EAE5DD] bg-white p-16 text-center text-[#69718A] font-sans">
+                    <FolderGit2 className="mx-auto h-10 w-10 text-[#69718A]/40 mb-3 stroke-1" />
+                    <h3 className="text-sm font-bold text-[#202744]">No Projects Found</h3>
+                    <p className="text-xs text-[#69718A] mt-1">Try resetting filter tags or search terms.</p>
                 </div>
             ) : (
                 <>
@@ -700,66 +700,66 @@ export const AdminProjects: React.FC = () => {
                                 return (
                                     <div
                                         key={proj.id}
-                                        className="group flex flex-col justify-between overflow-hidden rounded-xl border border-slate-200 bg-white shadow-3xs transition hover:border-slate-450"
+                                        className="group flex flex-col justify-between overflow-hidden rounded-2xl border border-[#EAE5DD] bg-white shadow-xs transition duration-200 hover:border-[#8B6CF6]/40 hover:shadow-md"
                                     >
                                         <div>
 
                                             {/* Thumbnail Image */}
-                                            <div className="relative aspect-video w-full bg-slate-100 border-b border-slate-205 overflow-hidden">
+                                            <div className="relative aspect-video w-full bg-[#FAF8F5] border-b border-[#EAE5DD] overflow-hidden">
                                                 {proj.thumbnail ? (
                                                     <img
                                                         src={proj.thumbnail}
                                                         alt={proj.title}
                                                         referrerPolicy="no-referrer"
-                                                        className="h-full w-full object-cover transition duration-350 group-hover:scale-102"
+                                                        className="h-full w-full object-cover transition duration-300 group-hover:scale-103"
                                                     />
                                                 ) : (
-                                                    <div className="flex h-full w-full items-center justify-center text-slate-300 bg-slate-50">
-                                                        <FolderGit2 className="h-8 w-8 stroke-1" />
+                                                    <div className="flex h-full w-full items-center justify-center text-[#8B6CF6]/40 bg-[#FAF8F5]">
+                                                        <FolderGit2 className="h-10 w-10 stroke-1" />
                                                     </div>
                                                 )}
 
                                                 {/* Floating accessibility badges */}
-                                                <span className="absolute top-2.5 right-2.5 rounded-md px-1.5 py-0.5 font-mono text-[8px] font-bold uppercase tracking-wider bg-white/90 backdrop-blur-xs shadow-3xs text-slate-600 border border-slate-200">
+                                                <span className="absolute top-3 right-3 rounded-full px-2.5 py-0.5 font-sans text-[10px] font-bold uppercase tracking-wider bg-white/95 backdrop-blur-xs shadow-xs text-[#202744] border border-[#EAE5DD]">
                                                     {proj.type}
                                                 </span>
                                             </div>
 
                                             {/* Operational Data information */}
-                                            <div className="p-4.5 space-y-3">
+                                            <div className="p-5 space-y-3">
                                                 <div>
                                                     {isSuper && (
-                                                        <span className="block font-mono text-[8px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">
-                                                            Developer: {owner?.profile?.fullName || owner?.email || 'System Account'}
+                                                        <span className="block font-sans text-[10px] font-bold text-[#69718A] uppercase tracking-wider leading-none mb-1">
+                                                            {owner?.profile?.fullName || owner?.email || 'System Account'}
                                                         </span>
                                                     )}
-                                                    <h4 className="font-sans text-sm font-bold text-slate-900 group-hover:text-black leading-snug">
+                                                    <h4 className="font-sans text-base font-bold text-[#202744] group-hover:text-[#8B6CF6] transition-colors leading-snug">
                                                         {proj.title}
                                                     </h4>
                                                 </div>
 
                                                 {/* Role specification */}
                                                 {proj.role && (
-                                                    <p className="font-sans text-[11px] text-slate-550 leading-none">
-                                                        Role: <span className="text-slate-800 font-bold">{proj.role}</span>
+                                                    <p className="font-sans text-xs text-[#69718A] leading-none">
+                                                        Role: <span className="text-[#202744] font-semibold">{proj.role}</span>
                                                     </p>
                                                 )}
 
                                                 {/* Description */}
                                                 {proj.description && (
-                                                    <p className="line-clamp-3 font-sans text-xs text-slate-500 leading-relaxed whitespace-pre-wrap">
+                                                    <p className="line-clamp-3 font-sans text-xs text-[#69718A] leading-relaxed whitespace-pre-wrap">
                                                         {proj.description}
                                                     </p>
                                                 )}
 
                                                 {/* Tech Stacks Tags lists */}
-                                                <div className="flex flex-wrap gap-1 pt-1.5">
+                                                <div className="flex flex-wrap gap-1.5 pt-1">
                                                     {proj.techStacks.map((stack, idx) => (
                                                         <span
                                                             key={idx}
-                                                            className="inline-flex items-center space-x-0.5 rounded px-2 py-0.5 font-mono text-[9px] font-medium bg-slate-50 text-slate-500 border border-slate-200"
+                                                            className="inline-flex items-center space-x-1 rounded-md px-2 py-0.5 font-mono text-[10px] font-medium bg-[#FAF8F5] text-[#69718A] border border-[#EAE5DD]"
                                                         >
-                                                            <Code2 className="h-2.5 w-2.5 text-slate-400" />
+                                                            <Code2 className="h-2.5 w-2.5 text-[#8B6CF6]" />
                                                             <span>{stack}</span>
                                                         </span>
                                                     ))}
@@ -769,37 +769,40 @@ export const AdminProjects: React.FC = () => {
                                         </div>
 
                                         {/* Footer linking actions */}
-                                        <div className="bg-slate-50 border-t border-slate-100 px-4.5 py-3 flex items-center justify-between text-xs">
-                                            <span className={`inline-flex items-center space-x-1 font-mono text-[8px] font-bold uppercase tracking-wider ${proj.isPublic ? 'text-slate-500' : 'text-slate-400'}`}>
-                                                {proj.isPublic ? '🌐 Public Web' : '🔒 Hidden'}
+                                        <div className="bg-[#FAF8F5]/80 border-t border-[#EAE5DD] px-5 py-3.5 flex items-center justify-between text-xs">
+                                            <span className={`inline-flex items-center space-x-1.5 rounded-full px-2 py-0.5 text-[10px] font-bold ${proj.isPublic
+                                                ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                                                : 'bg-white text-[#69718A] border border-[#EAE5DD]'
+                                            }`}>
+                                                {proj.isPublic ? '🌐 Public' : '🔒 Hidden'}
                                             </span>
 
                                             <div className="flex items-center space-x-1.5">
                                                 <button
                                                     id={`view-project-${proj.id}-btn`}
                                                     onClick={() => navigate(`/admin/projects/${proj.id}`)}
-                                                    className="rounded-md border border-slate-200 bg-white p-1.5 text-slate-500 hover:border-slate-400 hover:text-black transition cursor-pointer"
+                                                    className="rounded-lg border border-[#EAE5DD] bg-white p-2 text-[#69718A] hover:border-[#8B6CF6]/40 hover:text-[#8B6CF6] hover:bg-[#8B6CF6]/5 transition shadow-xs cursor-pointer"
                                                     title="View Detail"
                                                 >
-                                                    <Eye className="h-3 w-3" />
+                                                    <Eye className="h-3.5 w-3.5" />
                                                 </button>
                                                 {!isSuper ? (
                                                     <>
                                                         <button
                                                             id={`edit-project-${proj.id}-btn`}
                                                             onClick={() => handleOpenEdit(proj)}
-                                                            className="rounded-md border border-slate-200 bg-white p-1.5 text-slate-500 hover:border-slate-400 hover:text-black transition cursor-pointer"
+                                                            className="rounded-lg border border-[#EAE5DD] bg-white p-2 text-[#69718A] hover:border-[#8B6CF6]/40 hover:text-[#8B6CF6] hover:bg-[#8B6CF6]/5 transition shadow-xs cursor-pointer"
                                                             title="Edit Project"
                                                         >
-                                                            <Edit className="h-3 w-3" />
+                                                            <Edit className="h-3.5 w-3.5" />
                                                         </button>
                                                         <button
                                                             id={`delete-project-${proj.id}-btn`}
                                                             onClick={() => handleDelete(proj.id)}
-                                                            className="rounded-md border border-slate-200 bg-white p-1.5 text-slate-500 hover:border-red-200 hover:text-red-650 hover:bg-red-50 transition cursor-pointer"
+                                                            className="rounded-lg border border-[#EAE5DD] bg-white p-2 text-[#69718A] hover:border-red-200 hover:text-red-600 hover:bg-red-50 transition shadow-xs cursor-pointer"
                                                             title="Delete project"
                                                         >
-                                                            <Trash2 className="h-3 w-3" />
+                                                            <Trash2 className="h-3.5 w-3.5" />
                                                         </button>
                                                     </>
                                                 ) : (
@@ -809,7 +812,7 @@ export const AdminProjects: React.FC = () => {
                                                                 href={proj.projectUrl}
                                                                 target="_blank"
                                                                 rel="noopener noreferrer"
-                                                                className="text-slate-400 hover:text-black"
+                                                                className="rounded-lg border border-[#EAE5DD] bg-white p-2 text-[#69718A] hover:text-[#8B6CF6] hover:border-[#8B6CF6]/40 shadow-xs transition"
                                                                 title="View Live Webpage"
                                                             >
                                                                 <Globe className="h-3.5 w-3.5" />
@@ -820,7 +823,7 @@ export const AdminProjects: React.FC = () => {
                                                                 href={proj.githubUrl}
                                                                 target="_blank"
                                                                 rel="noopener noreferrer"
-                                                                className="text-slate-400 hover:text-black"
+                                                                className="rounded-lg border border-[#EAE5DD] bg-white p-2 text-[#69718A] hover:text-[#8B6CF6] hover:border-[#8B6CF6]/40 shadow-xs transition"
                                                                 title="Review repository link"
                                                             >
                                                                 <Github className="h-3.5 w-3.5" />
@@ -836,26 +839,26 @@ export const AdminProjects: React.FC = () => {
                             })}
                         </div>
                     ) : (
-                        <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-3xs">
+                        <div className="overflow-x-auto rounded-2xl border border-[#EAE5DD] bg-white shadow-xs">
                             <table className="w-full min-w-[800px] border-collapse text-left text-xs font-sans">
-                                <thead className="bg-slate-50 border-b border-slate-200/60 text-slate-500 uppercase tracking-wider text-[9px] font-bold">
+                                <thead className="bg-[#FAF8F5] border-b border-[#EAE5DD] text-[#69718A] uppercase tracking-wider text-[10px] font-bold">
                                     <tr>
-                                        {isSuper && <th className="px-6 py-3.5">Developer</th>}
-                                        <th className="px-6 py-3.5">Project Title</th>
-                                        <th className="px-6 py-3.5">Specification Tools</th>
-                                        <th className="px-6 py-3.5 text-center">Status</th>
-                                        <th className="px-6 py-3.5 text-right">Actions</th>
+                                        {isSuper && <th className="px-6 py-4">Developer</th>}
+                                        <th className="px-6 py-4">Project Title</th>
+                                        <th className="px-6 py-4">Tech Stack</th>
+                                        <th className="px-6 py-4 text-center">Status</th>
+                                        <th className="px-6 py-4 text-right">Actions</th>
                                     </tr>
                                 </thead>
-                                <tbody className="divide-y divide-slate-100 text-slate-700">
+                                <tbody className="divide-y divide-[#F0EBE1] text-[#69718A]">
                                     {filteredProjects.slice((activePage - 1) * ITEMS_PER_PAGE, activePage * ITEMS_PER_PAGE).map(proj => {
                                         const owner = usersList.find(u => u.id === proj.userId);
                                         return (
-                                            <tr key={proj.id} className="hover:bg-slate-50/55 transition">
+                                            <tr key={proj.id} className="hover:bg-[#FAF8F5]/60 transition">
                                                 {isSuper && (
                                                     <td className="px-6 py-4">
-                                                        <div className="font-bold text-slate-900">{owner?.profile?.fullName || 'Sandbox Member'}</div>
-                                                        <div className="text-[10px] font-mono text-slate-400">{owner?.email}</div>
+                                                        <div className="font-bold text-[#202744]">{owner?.profile?.fullName || 'Sandbox Member'}</div>
+                                                        <div className="text-[10px] font-mono text-[#69718A]">{owner?.email}</div>
                                                     </td>
                                                 )}
                                                 <td className="px-6 py-4">
@@ -865,16 +868,16 @@ export const AdminProjects: React.FC = () => {
                                                                 src={proj.thumbnail}
                                                                 alt={proj.title}
                                                                 referrerPolicy="no-referrer"
-                                                                className="h-10 w-16 rounded-md object-cover bg-slate-50 border border-slate-200/50"
+                                                                className="h-10 w-16 rounded-xl object-cover bg-white border border-[#EAE5DD] shadow-xs"
                                                             />
                                                         ) : (
-                                                            <div className="flex h-10 w-16 items-center justify-center rounded-md bg-slate-50 border border-slate-200 text-slate-350">
+                                                            <div className="flex h-10 w-16 items-center justify-center rounded-xl bg-[#FAF8F5] border border-[#EAE5DD] text-[#8B6CF6]/50">
                                                                 <FolderGit2 className="h-5 w-5 stroke-1" />
                                                             </div>
                                                         )}
                                                         <div>
-                                                            <div className="font-bold text-slate-900 leading-snug">{proj.title}</div>
-                                                            <span className="inline-block mt-0.5 rounded px-1.5 py-0.5 font-mono text-[8px] font-bold bg-slate-100 border border-slate-200 text-slate-500 uppercase">
+                                                            <div className="font-bold text-[#202744] leading-snug">{proj.title}</div>
+                                                            <span className="inline-block mt-0.5 rounded-full px-2 py-0.5 font-sans text-[9px] font-bold bg-[#FAF8F5] border border-[#EAE5DD] text-[#69718A] uppercase">
                                                                 {proj.type}
                                                             </span>
                                                         </div>
@@ -885,7 +888,7 @@ export const AdminProjects: React.FC = () => {
                                                         {proj.techStacks.map((stack, idx) => (
                                                             <span
                                                                 key={idx}
-                                                                className="inline-flex items-center space-x-0.5 rounded px-2 py-0.5 font-mono text-[8px] font-bold bg-slate-50 text-slate-550 border border-slate-155"
+                                                                className="inline-flex items-center space-x-0.5 rounded-md px-2 py-0.5 font-mono text-[9px] font-medium bg-[#FAF8F5] text-[#69718A] border border-[#EAE5DD]"
                                                             >
                                                                 {stack}
                                                             </span>
@@ -893,22 +896,22 @@ export const AdminProjects: React.FC = () => {
                                                     </div>
                                                 </td>
                                                 <td className="px-6 py-4 text-center">
-                                                    <span className={`inline-block rounded-md px-1.5 py-0.5 font-mono text-[8px] font-bold uppercase tracking-wider ${proj.isPublic
-                                                        ? 'bg-slate-50 text-slate-500 border border-slate-200'
-                                                        : 'bg-slate-100 text-slate-450 border border-slate-200'
+                                                    <span className={`inline-block rounded-full px-2.5 py-0.5 text-[10px] font-bold ${proj.isPublic
+                                                        ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                                                        : 'bg-[#FAF8F5] text-[#69718A] border border-[#EAE5DD]'
                                                         }`}>
                                                         {proj.isPublic ? '🌐 Public' : '🔒 Hidden'}
                                                     </span>
                                                 </td>
                                                 <td className="px-6 py-4 text-right">
-                                                    <div className="flex items-center justify-end space-x-3">
-                                                        <div className="flex items-center space-x-1.5">
+                                                    <div className="flex items-center justify-end space-x-2">
+                                                        <div className="flex items-center space-x-1">
                                                             {proj.projectUrl && (
                                                                 <a
                                                                     href={proj.projectUrl}
                                                                     target="_blank"
                                                                     rel="noopener noreferrer"
-                                                                    className="text-slate-450 hover:text-black p-1 bg-slate-50 rounded-md border border-slate-200"
+                                                                    className="text-[#69718A] hover:text-[#8B6CF6] p-1.5 bg-white rounded-lg border border-[#EAE5DD] shadow-xs"
                                                                 >
                                                                     <Globe className="h-3.5 w-3.5" />
                                                                 </a>
@@ -918,37 +921,37 @@ export const AdminProjects: React.FC = () => {
                                                                     href={proj.githubUrl}
                                                                     target="_blank"
                                                                     rel="noopener noreferrer"
-                                                                    className="text-slate-450 hover:text-black p-1 bg-slate-50 rounded-md border border-slate-200"
+                                                                    className="text-[#69718A] hover:text-[#8B6CF6] p-1.5 bg-white rounded-lg border border-[#EAE5DD] shadow-xs"
                                                                 >
                                                                     <Github className="h-3.5 w-3.5" />
                                                                 </a>
                                                             )}
                                                         </div>
 
-                                                        <div className="flex items-center space-x-1 border-l border-slate-200 pl-3">
+                                                        <div className="flex items-center space-x-1 border-l border-[#EAE5DD] pl-2">
                                                             <button
                                                                 id={`view-project-tbl-${proj.id}-btn`}
                                                                 onClick={() => navigate(`/admin/projects/${proj.id}`)}
-                                                                className="rounded-md border border-slate-200 bg-white p-1 text-slate-500 hover:border-slate-400 hover:text-black transition cursor-pointer"
+                                                                className="rounded-lg border border-[#EAE5DD] bg-white p-1.5 text-[#69718A] hover:border-[#8B6CF6]/40 hover:text-[#8B6CF6] hover:bg-[#8B6CF6]/5 transition shadow-xs cursor-pointer"
                                                                 title="View Detail"
                                                             >
-                                                                <Eye className="h-3 w-3" />
+                                                                <Eye className="h-3.5 w-3.5" />
                                                             </button>
                                                             {!isSuper && (
                                                                 <>
                                                                     <button
                                                                         onClick={() => handleOpenEdit(proj)}
-                                                                        className="rounded-md border border-slate-200 bg-white p-1 text-slate-500 hover:border-slate-400 hover:text-black transition cursor-pointer"
+                                                                        className="rounded-lg border border-[#EAE5DD] bg-white p-1.5 text-[#69718A] hover:border-[#8B6CF6]/40 hover:text-[#8B6CF6] hover:bg-[#8B6CF6]/5 transition shadow-xs cursor-pointer"
                                                                         title="Edit Project"
                                                                     >
-                                                                        <Edit className="h-3 w-3" />
+                                                                        <Edit className="h-3.5 w-3.5" />
                                                                     </button>
                                                                     <button
                                                                         onClick={() => handleDelete(proj.id)}
-                                                                        className="rounded-md border border-slate-200 bg-white p-1 text-slate-500 hover:border-red-200 hover:text-red-650 hover:bg-red-50 transition cursor-pointer"
+                                                                        className="rounded-lg border border-[#EAE5DD] bg-white p-1.5 text-[#69718A] hover:border-red-200 hover:text-red-600 hover:bg-red-50 transition shadow-xs cursor-pointer"
                                                                         title="Delete Project"
                                                                     >
-                                                                        <Trash2 className="h-3 w-3" />
+                                                                        <Trash2 className="h-3.5 w-3.5" />
                                                                     </button>
                                                                 </>
                                                             )}
@@ -965,23 +968,23 @@ export const AdminProjects: React.FC = () => {
 
                     {/* Pagination Controls */}
                     {totalPages > 1 && (
-                        <div className="flex items-center justify-between border-t border-slate-200 bg-slate-50 px-6 py-3 font-sans text-xs mt-4 rounded-lg">
-                            <div className="text-slate-450">
-                                Showing page <span className="font-semibold text-slate-700">{activePage}</span> of{' '}
-                                <span className="font-semibold text-slate-700">{totalPages}</span> ({filteredProjects.length} projects)
+                        <div className="flex items-center justify-between border-t border-[#EAE5DD] bg-[#FAF8F5]/80 px-6 py-3.5 rounded-b-2xl font-sans text-xs">
+                            <div className="text-[#69718A]">
+                                Showing page <span className="font-semibold text-[#202744]">{activePage}</span> of{' '}
+                                <span className="font-semibold text-[#202744]">{totalPages}</span> ({filteredProjects.length} projects)
                             </div>
                             <div className="flex items-center space-x-2">
                                 <button
                                     onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                                     disabled={activePage <= 1}
-                                    className="rounded-md border border-slate-200 bg-white px-2.5 py-1 text-slate-650 transition hover:bg-slate-50 disabled:opacity-50 cursor-pointer"
+                                    className="rounded-lg border border-[#EAE5DD] bg-white px-3 py-1.5 text-xs font-semibold text-[#202744] transition hover:bg-[#FAF8F5] disabled:opacity-50 cursor-pointer shadow-xs"
                                 >
-                                    Prev
+                                    Previous
                                 </button>
                                 <button
                                     onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                                     disabled={activePage >= totalPages}
-                                    className="rounded-md border border-slate-200 bg-white px-2.5 py-1 text-slate-650 transition hover:bg-slate-50 disabled:opacity-50 cursor-pointer"
+                                    className="rounded-lg border border-[#EAE5DD] bg-white px-3 py-1.5 text-xs font-semibold text-[#202744] transition hover:bg-[#FAF8F5] disabled:opacity-50 cursor-pointer shadow-xs"
                                 >
                                     Next
                                 </button>
@@ -993,19 +996,20 @@ export const AdminProjects: React.FC = () => {
 
             {/* Creation / Edit Modal */}
             <Dialog open={isModalOpen} onClose={handleCloseModal} className="relative z-50">
-                <DialogBackdrop className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs transition-opacity" />
+                <DialogBackdrop className="fixed inset-0 bg-[#202744]/40 backdrop-blur-xs transition-opacity" />
 
                 <div className="fixed inset-0 flex w-screen items-center justify-center p-4">
-                    <DialogPanel className="w-full max-w-2xl overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg animate-in fade-in-50 zoom-in-95 duration-200">
+                    <DialogPanel className="w-full max-w-2xl overflow-hidden rounded-2xl border border-[#EAE5DD] bg-white shadow-xl animate-in fade-in-50 zoom-in-95 duration-200">
+                        <div className="h-1.5 w-full bg-linear-to-r from-[#8B6CF6] via-[#4697F5] to-[#FFC45B]" />
 
-                        <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
-                            <DialogTitle className="font-sans text-sm font-bold uppercase tracking-wider text-slate-800">
-                                {editingProject ? 'Modify Project Parameters' : 'Introduce Project Portfolio'}
+                        <div className="px-6 py-4 border-b border-[#EAE5DD] flex items-center justify-between">
+                            <DialogTitle className="font-sans text-sm font-bold text-[#202744]">
+                                {editingProject ? 'Edit Project' : 'Add Project'}
                             </DialogTitle>
                             <button
                                 type="button"
                                 onClick={handleCloseModal}
-                                className="h-8 w-8 text-slate-400 hover:text-slate-700 flex items-center justify-center rounded-md hover:bg-slate-50 font-sans text-lg cursor-pointer"
+                                className="h-8 w-8 text-[#69718A] hover:text-[#202744] flex items-center justify-center rounded-lg hover:bg-[#FAF8F5] font-sans text-lg cursor-pointer"
                             >
                                 ×
                             </button>
@@ -1014,41 +1018,41 @@ export const AdminProjects: React.FC = () => {
                         <div className="max-h-[75vh] overflow-y-auto p-6 space-y-6">
 
                             {error && (
-                                <div className="flex items-start space-x-2 rounded-md border border-red-100 bg-red-50 p-3 text-xs text-red-600 font-sans font-medium">
-                                    <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0" />
+                                <div className="flex items-start space-x-2.5 rounded-xl border border-red-200 bg-red-50 p-3 text-xs text-red-700 font-sans font-medium">
+                                    <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0 text-red-500" />
                                     <span>{error}</span>
                                 </div>
                             )}
 
                             {success && (
-                                <div className="rounded-md border border-green-100 bg-green-50 p-3 text-xs font-sans text-green-700 font-bold">
+                                <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-xs font-sans text-emerald-800 font-bold">
                                     {success}
                                 </div>
                             )}
 
                             {/* Assets Upload Section (Only visible during editing to avoid issues) */}
                             {editingProject && (
-                                <div className="p-4 rounded-lg bg-slate-50 border border-slate-200 space-y-4">
-                                    <h4 className="font-mono text-[9px] font-bold text-slate-400 uppercase tracking-widest">Project Media Assets</h4>
+                                <div className="p-4 rounded-xl bg-[#FAF8F5] border border-[#EAE5DD] space-y-4">
+                                    <h4 className="font-sans text-[10px] font-bold text-[#69718A] uppercase tracking-wider">Project Media Assets</h4>
 
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         {/* Thumbnail Upload */}
                                         <div className="space-y-2">
-                                            <span className="block font-sans text-[10px] font-bold text-slate-505 uppercase tracking-wider">Project Thumbnail</span>
+                                            <span className="block font-sans text-xs font-bold text-[#202744]">Project Thumbnail</span>
                                             <div className="flex items-center space-x-4">
                                                 {editingProject.thumbnail ? (
                                                     <img
                                                         src={editingProject.thumbnail}
                                                         alt="Thumbnail"
-                                                        className="h-12 w-20 rounded-md object-cover border border-slate-200"
+                                                        className="h-12 w-20 rounded-xl object-cover border border-[#EAE5DD] shadow-xs"
                                                     />
                                                 ) : (
-                                                    <div className="h-12 w-20 rounded-md bg-slate-200 flex items-center justify-center text-slate-400">
+                                                    <div className="h-12 w-20 rounded-xl bg-white border border-[#EAE5DD] flex items-center justify-center text-[#69718A]">
                                                         <ImageIcon className="h-5 w-5" />
                                                     </div>
                                                 )}
-                                                <label className="px-3 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 rounded-md font-sans text-[10px] font-bold uppercase tracking-wider text-slate-650 cursor-pointer flex items-center space-x-1.5 transition">
-                                                    {uploadThumbnailMutation.isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : <Camera className="h-3 w-3" />}
+                                                <label className="px-3.5 py-2 bg-white border border-[#EAE5DD] hover:bg-[#FAF8F5] rounded-xl font-sans text-xs font-bold text-[#202744] cursor-pointer flex items-center space-x-1.5 transition shadow-xs">
+                                                    {uploadThumbnailMutation.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin text-[#8B6CF6]" /> : <Camera className="h-3.5 w-3.5 text-[#8B6CF6]" />}
                                                     <span>Change Cover</span>
                                                     <input
                                                         type="file"
@@ -1063,14 +1067,14 @@ export const AdminProjects: React.FC = () => {
 
                                         {/* Screenshot Upload */}
                                         <div className="space-y-2">
-                                            <span className="block font-sans text-[10px] font-bold text-slate-505 uppercase tracking-wider">Add Screenshot</span>
-                                            <label className="px-4 py-3 bg-white border border-dashed border-slate-300 hover:border-slate-400 rounded-md font-sans text-[10px] text-slate-500 cursor-pointer flex flex-col items-center justify-center space-y-1 transition h-[50px]">
+                                            <span className="block font-sans text-xs font-bold text-[#202744]">Add Screenshot</span>
+                                            <label className="px-4 py-3 bg-white border border-dashed border-[#EAE5DD] hover:border-[#8B6CF6]/50 rounded-xl font-sans text-xs text-[#69718A] cursor-pointer flex flex-col items-center justify-center space-y-1 transition h-[52px]">
                                                 {uploadImageMutation.isPending ? (
-                                                    <Loader2 className="h-4 w-4 animate-spin text-slate-400" />
+                                                    <Loader2 className="h-4 w-4 animate-spin text-[#8B6CF6]" />
                                                 ) : (
                                                     <>
-                                                        <PlusCircle className="h-4 w-4 text-slate-400" />
-                                                        <span className="font-bold uppercase tracking-wider text-[8px]">Upload Screen Image</span>
+                                                        <PlusCircle className="h-4 w-4 text-[#8B6CF6]" />
+                                                        <span className="font-bold text-[10px] text-[#202744]">Upload Screen Image</span>
                                                     </>
                                                 )}
                                                 <input
@@ -1087,10 +1091,10 @@ export const AdminProjects: React.FC = () => {
                                     {/* Screenshots Gallery view */}
                                     {editingProject.images && editingProject.images.length > 0 && (
                                         <div className="pt-2">
-                                            <span className="block font-sans text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Screenshots Gallery ({editingProject.images.length})</span>
+                                            <span className="block font-sans text-xs font-bold text-[#202744] mb-2">Screenshots Gallery ({editingProject.images.length})</span>
                                             <div className="flex flex-wrap gap-2">
                                                 {editingProject.images.map((imgUrl, idx) => (
-                                                    <div key={idx} className="relative group/img h-14 w-24 rounded-md overflow-hidden border border-slate-205">
+                                                    <div key={idx} className="relative group/img h-14 w-24 rounded-xl overflow-hidden border border-[#EAE5DD] shadow-xs">
                                                         <img
                                                             src={imgUrl}
                                                             alt={`Screenshot ${idx}`}
@@ -1099,7 +1103,7 @@ export const AdminProjects: React.FC = () => {
                                                         <button
                                                             type="button"
                                                             onClick={() => handleScreenshotDelete(editingProject.id, imgUrl)}
-                                                            className="absolute inset-0 bg-black/55 text-white flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition duration-150 cursor-pointer text-xs"
+                                                            className="absolute inset-0 bg-[#202744]/70 text-white flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition duration-150 cursor-pointer text-xs"
                                                         >
                                                             <X className="h-4 w-4" />
                                                         </button>
@@ -1113,20 +1117,20 @@ export const AdminProjects: React.FC = () => {
 
                             {/* Assets Upload Section for Creation Mode */}
                             {!editingProject && (
-                                <div className="p-4 rounded-lg bg-slate-50 border border-slate-200 space-y-4">
-                                    <h4 className="font-mono text-[9px] font-bold text-slate-400 uppercase tracking-widest">Project Media Assets (Optional)</h4>
+                                <div className="p-4 rounded-xl bg-[#FAF8F5] border border-[#EAE5DD] space-y-4">
+                                    <h4 className="font-sans text-[10px] font-bold text-[#69718A] uppercase tracking-wider">Project Media Assets (Optional)</h4>
 
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         {/* Thumbnail Selection */}
                                         <div className="space-y-2">
-                                            <span className="block font-sans text-[10px] font-bold text-slate-505 uppercase tracking-wider">Project Cover Thumbnail</span>
+                                            <span className="block font-sans text-xs font-bold text-[#202744]">Cover Thumbnail</span>
                                             <div className="flex items-center space-x-4">
                                                 {createThumbnailPreview ? (
                                                     <div className="relative group/thumb">
                                                         <img
                                                             src={createThumbnailPreview}
                                                             alt="Thumbnail Preview"
-                                                            className="h-12 w-20 rounded-md object-cover border border-slate-200"
+                                                            className="h-12 w-20 rounded-xl object-cover border border-[#EAE5DD] shadow-xs"
                                                         />
                                                         <button
                                                             type="button"
@@ -1135,18 +1139,18 @@ export const AdminProjects: React.FC = () => {
                                                                 setCreateThumbnailFile(null);
                                                                 setCreateThumbnailPreview('');
                                                             }}
-                                                            className="absolute -top-1.5 -right-1.5 h-4 w-4 bg-red-500 text-white rounded-full flex items-center justify-center text-[10px] hover:bg-red-650 cursor-pointer"
+                                                            className="absolute -top-1.5 -right-1.5 h-4 w-4 bg-red-500 text-white rounded-full flex items-center justify-center text-[10px] hover:bg-red-600 cursor-pointer"
                                                         >
                                                             ×
                                                         </button>
                                                     </div>
                                                 ) : (
-                                                    <div className="h-12 w-20 rounded-md bg-slate-100 border border-slate-205 flex items-center justify-center text-slate-400">
+                                                    <div className="h-12 w-20 rounded-xl bg-white border border-[#EAE5DD] flex items-center justify-center text-[#69718A]">
                                                         <ImageIcon className="h-5 w-5 stroke-1" />
                                                     </div>
                                                 )}
-                                                <label className="px-3 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 rounded-md font-sans text-[10px] font-bold uppercase tracking-wider text-slate-650 cursor-pointer flex items-center space-x-1.5 transition">
-                                                    <Camera className="h-3 w-3" />
+                                                <label className="px-3.5 py-2 bg-white border border-[#EAE5DD] hover:bg-[#FAF8F5] rounded-xl font-sans text-xs font-bold text-[#202744] cursor-pointer flex items-center space-x-1.5 transition shadow-xs">
+                                                    <Camera className="h-3.5 w-3.5 text-[#8B6CF6]" />
                                                     <span>Select Cover</span>
                                                     <input
                                                         type="file"
@@ -1167,10 +1171,10 @@ export const AdminProjects: React.FC = () => {
 
                                         {/* Screenshots Selection */}
                                         <div className="space-y-2">
-                                            <span className="block font-sans text-[10px] font-bold text-slate-505 uppercase tracking-wider">Add Screenshots</span>
-                                            <label className="px-4 py-3 bg-white border border-dashed border-slate-300 hover:border-slate-400 rounded-md font-sans text-[10px] text-slate-500 cursor-pointer flex flex-col items-center justify-center space-y-1 transition h-[50px]">
-                                                <PlusCircle className="h-4 w-4 text-slate-400" />
-                                                <span className="font-bold uppercase tracking-wider text-[8px]">Choose Screenshots</span>
+                                            <span className="block font-sans text-xs font-bold text-[#202744]">Add Screenshots</span>
+                                            <label className="px-4 py-3 bg-white border border-dashed border-[#EAE5DD] hover:border-[#8B6CF6]/50 rounded-xl font-sans text-xs text-[#69718A] cursor-pointer flex flex-col items-center justify-center space-y-1 transition h-[52px]">
+                                                <PlusCircle className="h-4 w-4 text-[#8B6CF6]" />
+                                                <span className="font-bold text-[10px] text-[#202744]">Choose Screenshots</span>
                                                 <input
                                                     type="file"
                                                     accept="image/*"
@@ -1193,10 +1197,10 @@ export const AdminProjects: React.FC = () => {
                                     {/* Screenshots Gallery Previews */}
                                     {createScreenshotPreviews.length > 0 && (
                                         <div className="pt-2">
-                                            <span className="block font-sans text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Selected Screenshots ({createScreenshotPreviews.length})</span>
+                                            <span className="block font-sans text-xs font-bold text-[#202744] mb-2">Selected Screenshots ({createScreenshotPreviews.length})</span>
                                             <div className="flex flex-wrap gap-2">
                                                 {createScreenshotPreviews.map((url, idx) => (
-                                                    <div key={idx} className="relative group/img h-14 w-24 rounded-md overflow-hidden border border-slate-205">
+                                                    <div key={idx} className="relative group/img h-14 w-24 rounded-xl overflow-hidden border border-[#EAE5DD] shadow-xs">
                                                         <img
                                                             src={url}
                                                             alt={`Preview ${idx}`}
@@ -1213,7 +1217,7 @@ export const AdminProjects: React.FC = () => {
                                                                 setCreateScreenshotFiles(updatedFiles);
                                                                 setCreateScreenshotPreviews(updatedPreviews);
                                                             }}
-                                                            className="absolute inset-0 bg-black/55 text-white flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition duration-150 cursor-pointer text-xs"
+                                                            className="absolute inset-0 bg-[#202744]/70 text-white flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition duration-150 cursor-pointer text-xs"
                                                         >
                                                             <X className="h-4 w-4" />
                                                         </button>
@@ -1229,49 +1233,49 @@ export const AdminProjects: React.FC = () => {
                                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                     {/* Title */}
                                     <div>
-                                        <label className="block font-sans text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
-                                            Project Title <span className="text-red-500">*</span>
+                                        <label className="block font-sans text-xs font-bold text-[#202744] mb-1.5">
+                                            Project Title <span className="text-[#8B6CF6]">*</span>
                                         </label>
                                         <input
                                             type="text"
                                             required
                                             value={title}
                                             onChange={(e) => setTitle(e.target.value)}
-                                            placeholder="e.g. Antigravity AI Console"
-                                            className="w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 font-sans text-xs focus:border-slate-400 focus:bg-white focus:outline-hidden text-slate-900"
+                                            placeholder="e.g. Foliowalaweh Platform"
+                                            className="w-full rounded-xl border border-[#EAE5DD] bg-[#FAF8F5] px-3.5 py-2.5 font-sans text-xs text-[#202744] focus:border-[#8B6CF6] focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-[#8B6CF6]/20"
                                         />
                                     </div>
 
                                     {/* Project Type */}
                                     <div>
-                                        <label className="block font-sans text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
-                                            ProjectType Classification
+                                        <label className="block font-sans text-xs font-bold text-[#202744] mb-1.5">
+                                            Project Classification
                                         </label>
                                         <Listbox value={type} onChange={setType}>
                                             <div className="relative">
                                                 <ListboxButton
                                                     id="modal-project-type"
-                                                    className="relative w-full rounded-md border border-slate-200 bg-slate-50 py-2 pr-10 pl-3 text-left font-sans text-xs focus:border-slate-400 focus:bg-white focus:outline-hidden text-slate-900 cursor-pointer"
+                                                    className="relative w-full rounded-xl border border-[#EAE5DD] bg-[#FAF8F5] py-2.5 pr-10 pl-3.5 text-left font-sans text-xs focus:border-[#8B6CF6] focus:bg-white focus:outline-hidden text-[#202744] cursor-pointer"
                                                 >
                                                     <span className="block truncate text-left">
-                                                        {type === ProjectType.PERSONAL ? 'Personal / Hobby Node' : 'Work Product Assignment'}
+                                                        {type === ProjectType.PERSONAL ? '📍 Personal Project' : '💼 Work Product'}
                                                     </span>
                                                     <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-                                                        <ChevronDown className="h-4 w-4 text-slate-400" />
+                                                        <ChevronDown className="h-4 w-4 text-[#69718A]" />
                                                     </span>
                                                 </ListboxButton>
-                                                <ListboxOptions className="absolute z-60 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-xs shadow-lg ring-1 ring-black/5 focus:outline-hidden font-sans border border-slate-200">
+                                                <ListboxOptions className="absolute z-60 mt-1 max-h-60 w-full overflow-auto rounded-xl bg-white py-1 text-xs shadow-lg ring-1 ring-black/5 focus:outline-hidden font-sans border border-[#EAE5DD]">
                                                     <ListboxOption
                                                         value={ProjectType.PERSONAL}
-                                                        className="relative cursor-pointer select-none py-2 pr-10 pl-3 text-slate-900 data-[focus]:bg-slate-50"
+                                                        className="relative cursor-pointer select-none py-2 pr-10 pl-3.5 text-[#202744] data-[focus]:bg-[#FAF8F5]"
                                                     >
                                                         {({ selected }) => (
                                                             <>
-                                                                <span className={`block truncate ${selected ? 'font-bold' : 'font-normal'}`}>
-                                                                    Personal / Hobby Node
+                                                                <span className={`block truncate ${selected ? 'font-bold text-[#8B6CF6]' : 'font-normal'}`}>
+                                                                    📍 Personal Project
                                                                 </span>
                                                                 {selected && (
-                                                                    <span className="absolute inset-y-0 right-0 flex items-center pr-3 text-black">
+                                                                    <span className="absolute inset-y-0 right-0 flex items-center pr-3 text-[#8B6CF6]">
                                                                         <Check className="h-3.5 w-3.5" />
                                                                     </span>
                                                                 )}
@@ -1280,15 +1284,15 @@ export const AdminProjects: React.FC = () => {
                                                     </ListboxOption>
                                                     <ListboxOption
                                                         value={ProjectType.WORK}
-                                                        className="relative cursor-pointer select-none py-2 pr-10 pl-3 text-slate-900 data-[focus]:bg-slate-50"
+                                                        className="relative cursor-pointer select-none py-2 pr-10 pl-3.5 text-[#202744] data-[focus]:bg-[#FAF8F5]"
                                                     >
                                                         {({ selected }) => (
                                                             <>
-                                                                <span className={`block truncate ${selected ? 'font-bold' : 'font-normal'}`}>
-                                                                    Work Product Assignment
+                                                                <span className={`block truncate ${selected ? 'font-bold text-[#8B6CF6]' : 'font-normal'}`}>
+                                                                    💼 Work Product
                                                                 </span>
                                                                 {selected && (
-                                                                    <span className="absolute inset-y-0 right-0 flex items-center pr-3 text-black">
+                                                                    <span className="absolute inset-y-0 right-0 flex items-center pr-3 text-[#8B6CF6]">
                                                                         <Check className="h-3.5 w-3.5" />
                                                                     </span>
                                                                 )}
@@ -1304,37 +1308,37 @@ export const AdminProjects: React.FC = () => {
                                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                     {/* Link to Experience (For Standard users only) */}
                                     <div>
-                                        <label className="block font-sans text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
-                                            Affiliated Company Career
+                                        <label className="block font-sans text-xs font-bold text-[#202744] mb-1.5">
+                                            Affiliated Work Experience
                                         </label>
                                         <Listbox value={experienceId} onChange={setExperienceId}>
                                             <div className="relative">
                                                 <ListboxButton
                                                     id="modal-experience"
-                                                    className="relative w-full rounded-md border border-slate-200 bg-slate-50 py-2 pr-10 pl-3 text-left font-sans text-xs focus:border-slate-400 focus:bg-white focus:outline-hidden text-slate-900 cursor-pointer"
+                                                    className="relative w-full rounded-xl border border-[#EAE5DD] bg-[#FAF8F5] py-2.5 pr-10 pl-3.5 text-left font-sans text-xs focus:border-[#8B6CF6] focus:bg-white focus:outline-hidden text-[#202744] cursor-pointer"
                                                 >
                                                     <span className="block truncate text-left">
                                                         {(() => {
                                                             const selectedExp = ownExperiences.find(e => e.id === experienceId);
-                                                            return selectedExp ? `${selectedExp.position} at ${selectedExp.company}` : 'Independent (No Company Association)';
+                                                            return selectedExp ? `${selectedExp.position} at ${selectedExp.company}` : 'Independent (No Affiliation)';
                                                         })()}
                                                     </span>
                                                     <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-                                                        <ChevronDown className="h-4 w-4 text-slate-400" />
+                                                        <ChevronDown className="h-4 w-4 text-[#69718A]" />
                                                     </span>
                                                 </ListboxButton>
-                                                <ListboxOptions className="absolute z-60 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-xs shadow-lg ring-1 ring-black/5 focus:outline-hidden font-sans border border-slate-200">
+                                                <ListboxOptions className="absolute z-60 mt-1 max-h-60 w-full overflow-auto rounded-xl bg-white py-1 text-xs shadow-lg ring-1 ring-black/5 focus:outline-hidden font-sans border border-[#EAE5DD]">
                                                     <ListboxOption
                                                         value=""
-                                                        className="relative cursor-pointer select-none py-2 pr-10 pl-3 text-slate-900 data-[focus]:bg-slate-50"
+                                                        className="relative cursor-pointer select-none py-2 pr-10 pl-3.5 text-[#202744] data-[focus]:bg-[#FAF8F5]"
                                                     >
                                                         {({ selected }) => (
                                                             <>
-                                                                <span className={`block truncate ${selected ? 'font-bold' : 'font-normal'}`}>
-                                                                    Independent (No Company Association)
+                                                                <span className={`block truncate ${selected ? 'font-bold text-[#8B6CF6]' : 'font-normal'}`}>
+                                                                    Independent (No Affiliation)
                                                                 </span>
                                                                 {selected && (
-                                                                    <span className="absolute inset-y-0 right-0 flex items-center pr-3 text-black">
+                                                                    <span className="absolute inset-y-0 right-0 flex items-center pr-3 text-[#8B6CF6]">
                                                                         <Check className="h-3.5 w-3.5" />
                                                                     </span>
                                                                 )}
@@ -1345,15 +1349,15 @@ export const AdminProjects: React.FC = () => {
                                                         <ListboxOption
                                                             key={exp.id}
                                                             value={exp.id}
-                                                            className="relative cursor-pointer select-none py-2 pr-10 pl-3 text-slate-900 data-[focus]:bg-slate-50"
+                                                            className="relative cursor-pointer select-none py-2 pr-10 pl-3.5 text-[#202744] data-[focus]:bg-[#FAF8F5]"
                                                         >
                                                             {({ selected }) => (
                                                                 <>
-                                                                    <span className={`block truncate ${selected ? 'font-bold' : 'font-normal'}`}>
+                                                                    <span className={`block truncate ${selected ? 'font-bold text-[#8B6CF6]' : 'font-normal'}`}>
                                                                         {exp.position} at {exp.company}
                                                                     </span>
                                                                     {selected && (
-                                                                        <span className="absolute inset-y-0 right-0 flex items-center pr-3 text-black">
+                                                                        <span className="absolute inset-y-0 right-0 flex items-center pr-3 text-[#8B6CF6]">
                                                                             <Check className="h-3.5 w-3.5" />
                                                                         </span>
                                                                     )}
@@ -1368,15 +1372,15 @@ export const AdminProjects: React.FC = () => {
 
                                     {/* Role */}
                                     <div>
-                                        <label className="block font-sans text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
-                                            My Role in Project
+                                        <label className="block font-sans text-xs font-bold text-[#202744] mb-1.5">
+                                            Role in Project
                                         </label>
                                         <input
                                             type="text"
                                             value={role}
                                             onChange={(e) => setRole(e.target.value)}
-                                            placeholder="e.g. Lead Architect, Designer"
-                                            className="w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 font-sans text-xs focus:border-slate-400 focus:bg-white focus:outline-hidden text-slate-900"
+                                            placeholder="e.g. Lead Engineer, UI/UX Designer"
+                                            className="w-full rounded-xl border border-[#EAE5DD] bg-[#FAF8F5] px-3.5 py-2.5 font-sans text-xs text-[#202744] focus:border-[#8B6CF6] focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-[#8B6CF6]/20"
                                         />
                                     </div>
                                 </div>
@@ -1384,51 +1388,51 @@ export const AdminProjects: React.FC = () => {
                                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                     {/* Live URL */}
                                     <div>
-                                        <label className="block font-sans text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
-                                            Live Application URL
+                                        <label className="block font-sans text-xs font-bold text-[#202744] mb-1.5">
+                                            Live Project URL
                                         </label>
                                         <input
                                             type="url"
                                             value={projectUrl}
                                             onChange={(e) => setProjectUrl(e.target.value)}
                                             placeholder="https://example.com"
-                                            className="w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 font-sans text-xs focus:border-slate-400 focus:bg-white focus:outline-hidden text-slate-900"
+                                            className="w-full rounded-xl border border-[#EAE5DD] bg-[#FAF8F5] px-3.5 py-2.5 font-sans text-xs text-[#202744] focus:border-[#8B6CF6] focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-[#8B6CF6]/20"
                                         />
                                     </div>
 
                                     {/* GitHub URL */}
                                     <div>
-                                        <label className="block font-sans text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
-                                            Source Code Repository (GitHub)
+                                        <label className="block font-sans text-xs font-bold text-[#202744] mb-1.5">
+                                            Repository URL (GitHub)
                                         </label>
                                         <input
                                             type="url"
                                             value={githubUrl}
                                             onChange={(e) => setGithubUrl(e.target.value)}
                                             placeholder="https://github.com/..."
-                                            className="w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 font-sans text-xs focus:border-slate-400 focus:bg-white focus:outline-hidden text-slate-900"
+                                            className="w-full rounded-xl border border-[#EAE5DD] bg-[#FAF8F5] px-3.5 py-2.5 font-sans text-xs text-[#202744] focus:border-[#8B6CF6] focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-[#8B6CF6]/20"
                                         />
                                     </div>
                                 </div>
 
                                 {/* Tech Stacks Tags Input */}
                                 <div>
-                                    <label className="block font-sans text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
-                                        Tags (Press Enter)
+                                    <label className="block font-sans text-xs font-bold text-[#202744] mb-1.5">
+                                        Tech Stack Tags (Press Enter)
                                     </label>
                                     <TagsInput
                                         tags={techStacks}
                                         onChange={setTechStacks}
-                                        placeholder="insert project tags"
+                                        placeholder="Add technology tags..."
                                     />
                                 </div>
 
                                 {/* Visibility toggle */}
-                                <div className="rounded-md border border-slate-200 bg-slate-50 p-3.5">
+                                <div className="rounded-xl border border-[#EAE5DD] bg-[#FAF8F5] p-4">
                                     <div className="flex items-center justify-between">
                                         <div>
-                                            <h4 className="font-sans text-xs font-bold text-slate-950">Published Visibility Status</h4>
-                                            <p className="font-sans text-[11px] text-slate-400">Controls if this project node is public and visible on the landing showcase.</p>
+                                            <h4 className="font-sans text-xs font-bold text-[#202744]">Published Visibility</h4>
+                                            <p className="font-sans text-[11px] text-[#69718A]">Controls if this project is visible on your public portfolio.</p>
                                         </div>
                                         <label className="relative inline-flex items-center cursor-pointer select-none">
                                             <input
@@ -1437,38 +1441,38 @@ export const AdminProjects: React.FC = () => {
                                                 onChange={(e) => setIsPublic(e.target.checked)}
                                                 className="sr-only peer"
                                             />
-                                            <div className="w-11 h-6 bg-slate-200 peer-focus:outline-hidden rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-black"></div>
-                                            <span className="ml-2 font-sans text-xs font-bold text-slate-700">{isPublic ? 'Public' : 'Hidden'}</span>
+                                            <div className="w-11 h-6 bg-slate-200 peer-focus:outline-hidden rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#8B6CF6]"></div>
+                                            <span className="ml-2 font-sans text-xs font-bold text-[#202744]">{isPublic ? 'Public' : 'Hidden'}</span>
                                         </label>
                                     </div>
                                 </div>
 
                                 {/* Description */}
                                 <div>
-                                    <label className="block font-sans text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
-                                        Description Context
+                                    <label className="block font-sans text-xs font-bold text-[#202744] mb-1.5">
+                                        Description & Summary
                                     </label>
                                     <textarea
                                         value={description}
                                         onChange={(e) => setDescription(e.target.value)}
-                                        placeholder="Detail the core feature sets of the application, design choices..."
-                                        className="w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 font-sans text-xs focus:border-slate-400 focus:bg-white focus:outline-hidden text-slate-900 min-h-[90px]"
+                                        placeholder="Detail the core features, architectural choices, and impact..."
+                                        className="w-full rounded-xl border border-[#EAE5DD] bg-[#FAF8F5] px-3.5 py-2.5 font-sans text-xs text-[#202744] focus:border-[#8B6CF6] focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-[#8B6CF6]/20 min-h-[90px]"
                                     />
                                 </div>
 
                                 {/* Save Button */}
-                                <div className="bg-slate-50 border-t border-slate-100 px-6 py-4 -mx-6 -mb-6 flex items-center justify-end space-x-2">
+                                <div className="bg-[#FAF8F5] border-t border-[#EAE5DD] px-6 py-4 -mx-6 -mb-6 flex items-center justify-end space-x-2">
                                     <button
                                         type="button"
                                         onClick={handleCloseModal}
-                                        className="rounded-md border border-slate-200 bg-white px-4 py-2 font-sans text-[10px] font-bold uppercase tracking-wider text-slate-500 hover:bg-slate-50 cursor-pointer"
+                                        className="rounded-xl border border-[#EAE5DD] bg-white px-4 py-2 font-sans text-xs font-bold text-[#69718A] hover:bg-slate-50 cursor-pointer shadow-xs"
                                     >
                                         Cancel
                                     </button>
                                     <button
                                         type="submit"
                                         disabled={createMutation.isPending || updateMutation.isPending || isCreatingAndUploading}
-                                        className="flex items-center space-x-1.5 rounded-md bg-black px-4 py-2 font-sans text-[10px] font-bold uppercase tracking-wider text-white shadow-3xs hover:bg-slate-800 transition active:scale-95 cursor-pointer disabled:opacity-60"
+                                        className="flex items-center space-x-1.5 rounded-xl bg-[#8B6CF6] px-5 py-2 font-sans text-xs font-bold text-white shadow-xs hover:bg-[#7A5CE5] transition active:scale-95 cursor-pointer disabled:opacity-60"
                                     >
                                         {(createMutation.isPending || updateMutation.isPending || isCreatingAndUploading) && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
                                         <span>{editingProject ? 'Save Changes' : 'Create Project'}</span>

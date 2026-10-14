@@ -4,10 +4,11 @@
  */
 
 import { useState, useEffect } from 'react';
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation, Link } from 'react-router-dom';
 import type { User } from './types';
 import { Role } from './types';
 import { Navbar } from './components/organisms/Navbar';
+import { BrandLogo } from './components/atoms/BrandLogo';
 import { LandingPage } from './components/pages/LandingPage';
 import { LoginPage } from './components/pages/LoginPage';
 import { RegisterPage } from './components/pages/RegisterPage';
@@ -25,7 +26,6 @@ import { AdminLayout } from './components/templates/AdminLayout';
 import { getSessionPayload, clearAccessToken, getAccessToken } from './lib/auth';
 import { api } from './lib/api';
 import { initializeDB } from './utils/db';
-import { Cpu } from 'lucide-react';
 import { ProtectedLayout } from './components/templates/ProtectedLayout';
 import { BusinessDashboard } from './components/pages/BusinessDashboard';
 import { BusinessProfilePage } from './components/pages/BusinessProfile';
@@ -38,6 +38,7 @@ import { PublicPortfolioPage } from './components/pages/PublicPortfolioPage';
 import { ForgotPasswordPage } from './components/pages/ForgotPasswordPage';
 import { ResetPasswordPage } from './components/pages/ResetPasswordPage';
 import { UserThemeStudio } from './components/pages/UserThemeStudio';
+import { UserDashboard } from './components/pages/UserDashboard';
 
 interface AppContentProps {
   currentUser: User | null;
@@ -62,7 +63,7 @@ function AppContent({ currentUser, handleLoginSuccess, handleLogout }: AppConten
   const hideChrome = isAuthPage || isPortfolioPage || isBuilderPage || isStudioPage || (isAdminPage && isAdmin);
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#08090d] text-white">
+    <div className="flex min-h-screen flex-col bg-[#FAF8F5] text-[#202744]">
       {/* Universal Navigation Header */}
       {!hideChrome && (
         <Navbar
@@ -89,7 +90,7 @@ function AppContent({ currentUser, handleLoginSuccess, handleLogout }: AppConten
                       ? '/admin/dashboard'
                       : currentUser.businessProfile
                         ? '/admin/business/dashboard'
-                        : '/admin/experiences'
+                        : '/admin/dashboard'
                   }
                   replace
                 />
@@ -110,7 +111,7 @@ function AppContent({ currentUser, handleLoginSuccess, handleLogout }: AppConten
                       ? '/admin/dashboard'
                       : currentUser.businessProfile
                         ? '/admin/business/dashboard'
-                        : '/admin/experiences'
+                        : '/admin/dashboard'
                   }
                   replace
                 />
@@ -141,14 +142,23 @@ function AppContent({ currentUser, handleLoginSuccess, handleLogout }: AppConten
                         ? '/admin/dashboard'
                         : currentUser?.businessProfile
                           ? '/admin/business/dashboard'
-                          : '/admin/profile'
+                          : '/admin/dashboard'
                     }
                     replace
                   />
                 }
               />
 
-              <Route path="/admin/dashboard" element={<AdminDashboardOverview />} />
+              <Route
+                path="/admin/dashboard"
+                element={
+                  currentUser?.role === Role.ADMIN ? (
+                    <AdminDashboardOverview />
+                  ) : (
+                    <UserDashboard currentUser={currentUser!} />
+                  )
+                }
+              />
               <Route path="/admin/profile" element={<AdminProfile />} />
               <Route path="/admin/theme-studio" element={<UserThemeStudio currentUser={currentUser!} />} />
               <Route path="/admin/experiences" element={<AdminExperiences />} />
@@ -271,17 +281,33 @@ function AppContent({ currentUser, handleLoginSuccess, handleLogout }: AppConten
         </Routes>
       </main>
 
-      {/* Modern High Contrast Footer */}
+      {/* Brand High Polish Footer */}
       {!hideChrome && (
-        <footer className="border-t border-zinc-800/80 bg-[#0a0b0f] py-8 text-zinc-400">
-          <div className="mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8">
-            <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
-              <span className="font-sans text-xs text-zinc-500">
-                © {new Date().getFullYear()} Foliowalaweh Hub. Complete dual-engine portfolio & business platform.
+        <footer className="border-t border-[#EAE5DD] bg-white py-12 text-[#69718A]">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-6 pb-8 border-b border-[#F0EBE3]">
+              <div className="flex flex-col items-center md:items-start">
+                <BrandLogo size="md" showTagline={true} />
+                <p className="mt-2 text-xs text-[#69718A] max-w-sm text-center md:text-left">
+                  The home for professional identity, creative portfolios, and business showcases.
+                </p>
+              </div>
+              <div className="flex flex-wrap items-center justify-center gap-6 text-xs font-semibold text-[#69718A]">
+                <a href="#features" className="hover:text-[#202744] transition-colors">Features</a>
+                <a href="#audiences" className="hover:text-[#202744] transition-colors">Solutions</a>
+                <a href="#templates" className="hover:text-[#202744] transition-colors">Templates</a>
+                <a href="#developer-api" className="hover:text-[#202744] transition-colors">Developer API</a>
+                <Link to="/login" className="hover:text-[#8B6CF6] transition-colors">Sign In</Link>
+                <Link to="/register" className="text-[#8B6CF6] hover:text-[#7A56F4] font-bold transition-colors">Get Started</Link>
+              </div>
+            </div>
+            <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#69718A]">
+              <span>
+                © {new Date().getFullYear()} Foliowalaweh. All rights reserved.
               </span>
-              <div className="flex items-center space-x-1.5 font-mono text-[10px] text-zinc-500">
-                <Cpu className="h-3 w-3 text-indigo-400" />
-                <span>SYSTEM COMPILED WITH VITE & TAILWIND v4</span>
+              <div className="flex items-center space-x-2 text-[11px] font-medium">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                <span>Dual-engine platform: Personal Portfolios & Commercial Showcases</span>
               </div>
             </div>
           </div>

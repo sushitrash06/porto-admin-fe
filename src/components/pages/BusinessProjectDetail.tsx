@@ -237,7 +237,7 @@ export const BusinessProjectDetail: React.FC = () => {
       <div className="flex items-center justify-between">
         <button
           onClick={() => navigate('/admin/business/projects')}
-          className="flex items-center space-x-1.5 text-slate-500 hover:text-slate-900 transition font-sans text-xs font-semibold cursor-pointer"
+          className="inline-flex items-center space-x-2 text-[#69718A] hover:text-[#202744] transition font-sans text-xs font-semibold cursor-pointer"
         >
           <ArrowLeft className="h-4 w-4" />
           <span>Back to Projects</span>
@@ -247,7 +247,7 @@ export const BusinessProjectDetail: React.FC = () => {
           <div className="flex items-center space-x-2">
             <button
               onClick={handleStartEdit}
-              className="flex items-center space-x-1.5 rounded-md border border-slate-200 bg-white px-3 py-2 font-sans text-[10px] font-bold uppercase tracking-wider text-slate-655 hover:bg-slate-50 hover:border-slate-400 transition cursor-pointer"
+              className="inline-flex items-center space-x-1.5 rounded-xl border border-[#EAE5DD] bg-white px-3.5 py-2 font-sans text-xs font-semibold text-[#202744] hover:bg-[#FAF8F5] hover:border-[#8B6CF6] hover:text-[#8B6CF6] transition cursor-pointer shadow-xs"
             >
               <Edit className="h-3.5 w-3.5" />
               <span>Edit Details</span>
@@ -255,7 +255,7 @@ export const BusinessProjectDetail: React.FC = () => {
             <button
               onClick={handleDelete}
               disabled={deleteMutation.isPending}
-              className="flex items-center space-x-1.5 rounded-md border border-red-250 bg-white px-3 py-2 font-sans text-[10px] font-bold uppercase tracking-wider text-red-550 hover:bg-red-50 hover:border-red-300 transition cursor-pointer disabled:opacity-50"
+              className="inline-flex items-center space-x-1.5 rounded-xl border border-rose-200 bg-white px-3.5 py-2 font-sans text-xs font-semibold text-rose-600 hover:bg-rose-50 transition cursor-pointer disabled:opacity-50 shadow-xs"
             >
               <Trash2 className="h-3.5 w-3.5" />
               <span>Delete Project</span>
@@ -266,8 +266,8 @@ export const BusinessProjectDetail: React.FC = () => {
 
       {/* Error display */}
       {editError && (
-        <div className="flex items-start space-x-2 rounded-md border border-red-100 bg-red-50 p-3 text-xs text-red-655 font-sans font-medium">
-          <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0" />
+        <div className="flex items-start space-x-2.5 rounded-xl border border-rose-200 bg-rose-50/80 p-4 text-xs text-rose-800 font-sans font-semibold shadow-xs">
+          <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0 text-rose-600" />
           <span>{editError}</span>
         </div>
       )}
@@ -275,25 +275,25 @@ export const BusinessProjectDetail: React.FC = () => {
       {/* Main Details editing card */}
       {isEditing ? (
         /* EDIT MODE form details */
-        <div className="rounded-xl border border-slate-200 bg-white shadow-3xs">
-          <div className="border-b border-slate-100 px-6 py-4 flex items-center justify-between">
-            <h3 className="font-sans text-sm font-bold uppercase tracking-wider text-slate-800">
-              Modify Case Study details
+        <div className="rounded-2xl border border-[#EAE5DD] bg-white shadow-xs overflow-hidden">
+          <div className="border-b border-[#F0EBE1] bg-[#FAF8F5]/80 px-6 py-4 flex items-center justify-between">
+            <h3 className="font-sans text-sm font-bold text-[#202744]">
+              Modify Case Study Details
             </h3>
             <div className="flex items-center space-x-2">
               <button
                 onClick={handleCancelEdit}
-                className="flex items-center space-x-1 rounded-md border border-slate-200 bg-white px-3 py-1.5 font-sans text-[10px] font-bold uppercase tracking-wider text-slate-500 hover:bg-slate-50 cursor-pointer"
+                className="inline-flex items-center space-x-1.5 rounded-xl border border-[#EAE5DD] bg-white px-3.5 py-2 font-sans text-xs font-semibold text-[#69718A] hover:bg-[#FAF8F5] hover:text-[#202744] cursor-pointer shadow-xs transition"
               >
-                <X className="h-3 w-3" />
+                <X className="h-3.5 w-3.5" />
                 <span>Cancel</span>
               </button>
               <button
                 onClick={handleSaveEdit}
                 disabled={updateMutation.isPending}
-                className="flex items-center space-x-1 rounded-md bg-black px-3 py-1.5 font-sans text-[10px] font-bold uppercase tracking-wider text-white shadow-3xs hover:bg-slate-800 transition active:scale-95 cursor-pointer disabled:opacity-60"
+                className="inline-flex items-center space-x-1.5 rounded-xl bg-[#8B6CF6] px-4 py-2 font-sans text-xs font-bold text-white shadow-xs hover:bg-[#7A5CE0] transition active:scale-95 cursor-pointer disabled:opacity-60"
               >
-                {updateMutation.isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : <Save className="h-3 w-3" />}
+                {updateMutation.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
                 <span>Save Specs</span>
               </button>
             </div>
@@ -303,28 +303,28 @@ export const BusinessProjectDetail: React.FC = () => {
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               {/* Title */}
               <div>
-                <label className="block font-sans text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
-                  Project Title <span className="text-red-550">*</span>
+                <label className="block font-sans text-[10px] font-bold text-[#69718A] uppercase tracking-wider mb-1">
+                  Project Title <span className="text-rose-500">*</span>
                 </label>
                 <input
                   type="text"
                   required
                   value={editTitle}
                   onChange={(e) => setEditTitle(e.target.value)}
-                  className="w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 font-sans text-xs focus:border-slate-400 focus:bg-white focus:outline-hidden text-slate-900"
+                  className="w-full rounded-xl border border-[#EAE5DD] bg-[#FAF8F5] px-3.5 py-2.5 font-sans text-xs text-[#202744] focus:border-[#8B6CF6] focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-[#8B6CF6]/20"
                 />
               </div>
 
               {/* Client Name */}
               <div>
-                <label className="block font-sans text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                <label className="block font-sans text-[10px] font-bold text-[#69718A] uppercase tracking-wider mb-1">
                   Client Name
                 </label>
                 <input
                   type="text"
                   value={editClientName}
                   onChange={(e) => setEditClientName(e.target.value)}
-                  className="w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 font-sans text-xs focus:border-slate-400 focus:bg-white focus:outline-hidden text-slate-900"
+                  className="w-full rounded-xl border border-[#EAE5DD] bg-[#FAF8F5] px-3.5 py-2.5 font-sans text-xs text-[#202744] focus:border-[#8B6CF6] focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-[#8B6CF6]/20"
                 />
               </div>
             </div>
@@ -332,57 +332,57 @@ export const BusinessProjectDetail: React.FC = () => {
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               {/* Location */}
               <div>
-                <label className="block font-sans text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                <label className="block font-sans text-[10px] font-bold text-[#69718A] uppercase tracking-wider mb-1">
                   Location Station
                 </label>
                 <input
                   type="text"
                   value={editLocation}
                   onChange={(e) => setEditLocation(e.target.value)}
-                  className="w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 font-sans text-xs focus:border-slate-400 focus:bg-white focus:outline-hidden text-slate-900"
+                  className="w-full rounded-xl border border-[#EAE5DD] bg-[#FAF8F5] px-3.5 py-2.5 font-sans text-xs text-[#202744] focus:border-[#8B6CF6] focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-[#8B6CF6]/20"
                 />
               </div>
 
               {/* Year */}
               <div>
-                <label className="block font-sans text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                <label className="block font-sans text-[10px] font-bold text-[#69718A] uppercase tracking-wider mb-1">
                   Completion Year
                 </label>
                 <input
                   type="number"
                   value={editYear}
                   onChange={(e) => setEditYear(e.target.value)}
-                  className="w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 font-sans text-xs focus:border-slate-400 focus:bg-white focus:outline-hidden text-slate-900"
+                  className="w-full rounded-xl border border-[#EAE5DD] bg-[#FAF8F5] px-3.5 py-2.5 font-sans text-xs text-[#202744] focus:border-[#8B6CF6] focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-[#8B6CF6]/20"
                 />
               </div>
             </div>
 
             {/* Project type select */}
             <div>
-              <label className="block font-sans text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+              <label className="block font-sans text-[10px] font-bold text-[#69718A] uppercase tracking-wider mb-1">
                 Project Category
               </label>
               <Listbox value={editType} onChange={setEditType}>
                 <div className="relative">
-                  <ListboxButton className="relative w-full rounded-md border border-slate-200 bg-slate-50 py-2 pr-10 pl-3 text-left font-sans text-xs focus:border-slate-400 focus:bg-white focus:outline-hidden text-slate-900 cursor-pointer">
-                    <span className="block truncate text-left">{currentTypeLabel}</span>
+                  <ListboxButton className="relative w-full rounded-xl border border-[#EAE5DD] bg-[#FAF8F5] py-2.5 pr-10 pl-3.5 text-left font-sans text-xs focus:border-[#8B6CF6] focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-[#8B6CF6]/20 text-[#202744] cursor-pointer">
+                    <span className="block truncate text-left font-medium">{currentTypeLabel}</span>
                     <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-                      <ChevronDown className="h-4 w-4 text-slate-400" />
+                      <ChevronDown className="h-4 w-4 text-[#69718A]" />
                     </span>
                   </ListboxButton>
-                  <ListboxOptions className="absolute z-30 mt-1 max-h-48 w-full overflow-auto rounded-md bg-white py-1 text-xs shadow-lg ring-1 ring-black/5 focus:outline-hidden font-sans border border-slate-200">
+                  <ListboxOptions className="absolute z-30 mt-1 max-h-48 w-full overflow-auto rounded-xl bg-white py-1 text-xs shadow-lg ring-1 ring-black/5 focus:outline-hidden font-sans border border-[#EAE5DD]">
                     {projectTypesList.map(type => (
                       <ListboxOption
                         key={type.value}
                         value={type.value}
-                        className="relative cursor-pointer select-none py-2 pr-10 pl-3 text-slate-900 data-[focus]:bg-slate-50"
+                        className="relative cursor-pointer select-none py-2 pr-10 pl-3 text-[#202744] data-[focus]:bg-violet-50 data-[focus]:text-[#8B6CF6]"
                       >
                         {({ selected }) => (
                           <>
-                            <span className={`block truncate ${selected ? 'font-bold' : 'font-normal'}`}>{type.label}</span>
+                            <span className={`block truncate ${selected ? 'font-bold text-[#8B6CF6]' : 'font-normal'}`}>{type.label}</span>
                             {selected && (
-                              <span className="absolute inset-y-0 right-0 flex items-center pr-3 text-black">
-                                <Check className="h-3.5 w-3.5" />
+                              <span className="absolute inset-y-0 right-0 flex items-center pr-3 text-[#8B6CF6]">
+                                <Check className="h-4 w-4" />
                               </span>
                             )}
                           </>
@@ -395,11 +395,11 @@ export const BusinessProjectDetail: React.FC = () => {
             </div>
 
             {/* Visibility Toggle */}
-            <div className="rounded-md border border-slate-200 bg-slate-50 p-3.5">
+            <div className="rounded-xl border border-[#EAE5DD] bg-[#FAF8F5] p-3.5">
               <div className="flex items-center justify-between">
                 <div>
-                  <h4 className="font-sans text-xs font-bold text-slate-950">Visibility Visibility</h4>
-                  <p className="font-sans text-[11px] text-slate-400">Specify if this project case study is visible to clients.</p>
+                  <h4 className="font-sans text-xs font-bold text-[#202744]">Visibility Status</h4>
+                  <p className="font-sans text-[11px] text-[#69718A]">Specify if this project case study is visible to clients.</p>
                 </div>
                 <label className="relative inline-flex items-center cursor-pointer select-none">
                   <input
@@ -408,47 +408,47 @@ export const BusinessProjectDetail: React.FC = () => {
                     onChange={(e) => setEditIsPublic(e.target.checked)}
                     className="sr-only peer"
                   />
-                  <div className="w-11 h-6 bg-slate-200 peer-focus:outline-hidden rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-black"></div>
+                  <div className="w-11 h-6 bg-[#EAE5DD] peer-focus:outline-hidden rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#8B6CF6]"></div>
                 </label>
               </div>
             </div>
 
             {/* Description */}
             <div>
-              <label className="block font-sans text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+              <label className="block font-sans text-[10px] font-bold text-[#69718A] uppercase tracking-wider mb-1">
                 Description
               </label>
               <textarea
                 value={editDescription}
                 onChange={(e) => setEditDescription(e.target.value)}
-                className="w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 font-sans text-xs focus:border-slate-400 focus:bg-white focus:outline-hidden text-slate-900 min-h-[140px]"
+                className="w-full rounded-xl border border-[#EAE5DD] bg-[#FAF8F5] px-3.5 py-2.5 font-sans text-xs focus:border-[#8B6CF6] focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-[#8B6CF6]/20 text-[#202744] min-h-[140px]"
               />
             </div>
           </div>
         </div>
       ) : (
         /* READ ONLY VIEW MODE details */
-        <div className="rounded-xl border border-slate-200 bg-white shadow-3xs overflow-hidden">
+        <div className="rounded-2xl border border-[#EAE5DD] bg-white shadow-xs overflow-hidden">
           {/* Main Title Header */}
-          <div className="border-b border-slate-100 bg-slate-50/50 px-6 py-5">
-            <div className="flex items-start justify-between">
+          <div className="border-b border-[#F0EBE1] bg-[#FAF8F5]/80 px-6 py-5">
+            <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
               <div className="flex items-center space-x-4">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-slate-100 font-mono text-sm font-bold text-slate-500 border border-slate-200/50 shadow-3xs">
-                  <FolderGit2 className="h-6 w-6 text-slate-600" />
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-violet-50 text-[#8B6CF6] border border-violet-100 shadow-xs shrink-0">
+                  <FolderGit2 className="h-6 w-6" />
                 </div>
                 <div>
-                  <h2 className="font-sans text-lg font-extrabold text-slate-900 leading-tight tracking-tight">
+                  <h2 className="font-sans text-lg font-bold text-[#202744] leading-tight">
                     {project.title}
                   </h2>
-                  <div className="flex items-center space-x-2.5 mt-1.5">
-                    <span className="inline-block rounded px-1.5 py-0.5 font-mono text-[8px] font-bold bg-slate-100 border border-slate-200 text-slate-550 uppercase">
+                  <div className="flex items-center flex-wrap gap-2 mt-1.5">
+                    <span className="inline-block rounded-md px-2 py-0.5 font-mono text-[9px] font-bold bg-[#FAF8F5] border border-[#EAE5DD] text-[#8B6CF6] uppercase">
                       {currentTypeLabel}
                     </span>
                     {project.year && (
                       <>
-                        <span className="text-slate-300">·</span>
-                        <span className="font-sans text-xs font-semibold text-slate-500 flex items-center">
-                          <Calendar className="h-3.5 w-3.5 text-slate-400 mr-1" />
+                        <span className="text-[#EAE5DD]">·</span>
+                        <span className="font-sans text-xs font-semibold text-[#69718A] flex items-center">
+                          <Calendar className="h-3.5 w-3.5 text-[#8B6CF6] mr-1" />
                           <span>Year: {project.year}</span>
                         </span>
                       </>
@@ -457,11 +457,11 @@ export const BusinessProjectDetail: React.FC = () => {
                 </div>
               </div>
 
-              <span className={`inline-flex items-center space-x-1 rounded-md px-2 py-1 font-mono text-[9px] font-bold uppercase tracking-wider ${project.isPublic
-                ? 'bg-emerald-50 text-emerald-600 border border-emerald-200'
-                : 'bg-slate-100 text-slate-400 border border-slate-200'
+              <span className={`inline-flex items-center space-x-1.5 rounded-full px-3 py-1 font-sans text-xs font-semibold shrink-0 self-start ${project.isPublic
+                ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                : 'bg-[#FAF8F5] text-[#69718A] border border-[#EAE5DD]'
                 }`}>
-                {project.isPublic ? <Globe className="h-3 w-3" /> : <Lock className="h-3 w-3" />}
+                {project.isPublic ? <Globe className="h-3.5 w-3.5 text-emerald-600" /> : <Lock className="h-3.5 w-3.5 text-[#69718A]" />}
                 <span>{project.isPublic ? 'Public Showcase' : 'Hidden'}</span>
               </span>
             </div>
@@ -471,12 +471,12 @@ export const BusinessProjectDetail: React.FC = () => {
             {/* Spec: Client */}
             {project.clientName && (
               <div className="flex items-start space-x-3.5">
-                <div className="mt-0.5 flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100">
-                  <Building className="h-4 w-4 text-slate-500" />
+                <div className="mt-0.5 flex h-8 w-8 items-center justify-center rounded-lg bg-violet-50 text-[#8B6CF6] border border-violet-100 shrink-0">
+                  <Building className="h-4 w-4" />
                 </div>
                 <div>
-                  <p className="font-sans text-[10px] font-bold text-slate-400 uppercase tracking-wider">Business Client</p>
-                  <p className="font-sans text-sm font-semibold text-slate-800 mt-1">{project.clientName}</p>
+                  <p className="font-sans text-[10px] font-bold text-[#69718A] uppercase tracking-wider">Business Client</p>
+                  <p className="font-sans text-sm font-semibold text-[#202744] mt-0.5">{project.clientName}</p>
                 </div>
               </div>
             )}
@@ -484,12 +484,12 @@ export const BusinessProjectDetail: React.FC = () => {
             {/* Spec: Location */}
             {project.location && (
               <div className="flex items-start space-x-3.5">
-                <div className="mt-0.5 flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100">
-                  <MapPin className="h-4 w-4 text-slate-500" />
+                <div className="mt-0.5 flex h-8 w-8 items-center justify-center rounded-lg bg-violet-50 text-[#8B6CF6] border border-violet-100 shrink-0">
+                  <MapPin className="h-4 w-4" />
                 </div>
                 <div>
-                  <p className="font-sans text-[10px] font-bold text-slate-400 uppercase tracking-wider">Project Location</p>
-                  <p className="font-sans text-sm font-semibold text-slate-800 mt-1">{project.location}</p>
+                  <p className="font-sans text-[10px] font-bold text-[#69718A] uppercase tracking-wider">Project Location</p>
+                  <p className="font-sans text-sm font-semibold text-[#202744] mt-0.5">{project.location}</p>
                 </div>
               </div>
             )}
@@ -497,12 +497,12 @@ export const BusinessProjectDetail: React.FC = () => {
             {/* Spec: Description */}
             {project.description && (
               <div className="flex items-start space-x-3.5">
-                <div className="mt-0.5 flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100">
-                  <Info className="h-4 w-4 text-slate-500" />
+                <div className="mt-0.5 flex h-8 w-8 items-center justify-center rounded-lg bg-violet-50 text-[#8B6CF6] border border-violet-100 shrink-0">
+                  <Info className="h-4 w-4" />
                 </div>
                 <div className="flex-1">
-                  <p className="font-sans text-[10px] font-bold text-slate-400 uppercase tracking-wider">Description Overview</p>
-                  <p className="font-sans text-sm text-slate-600 leading-relaxed mt-1.5 whitespace-pre-wrap">
+                  <p className="font-sans text-[10px] font-bold text-[#69718A] uppercase tracking-wider">Description Overview</p>
+                  <p className="font-sans text-sm text-[#202744]/80 leading-relaxed mt-1 whitespace-pre-wrap">
                     {project.description}
                   </p>
                 </div>
@@ -510,14 +510,14 @@ export const BusinessProjectDetail: React.FC = () => {
             )}
 
             {/* Spec: Timestamps */}
-            <div className="border-t border-slate-100 pt-4 grid grid-cols-2 gap-4">
+            <div className="border-t border-[#F0EBE1] pt-4 grid grid-cols-2 gap-4">
               <div>
-                <p className="font-sans text-[10px] font-bold text-slate-400 uppercase tracking-wider">Created</p>
-                <p className="font-mono text-[11px] text-slate-600 mt-0.5">{formatDate(project.createdAt)}</p>
+                <p className="font-sans text-[10px] font-bold text-[#69718A] uppercase tracking-wider">Created</p>
+                <p className="font-sans text-xs text-[#202744] mt-0.5">{formatDate(project.createdAt)}</p>
               </div>
               <div>
-                <p className="font-sans text-[10px] font-bold text-slate-400 uppercase tracking-wider">Last Updated</p>
-                <p className="font-mono text-[11px] text-slate-600 mt-0.5">{formatDate(project.updatedAt)}</p>
+                <p className="font-sans text-[10px] font-bold text-[#69718A] uppercase tracking-wider">Last Updated</p>
+                <p className="font-sans text-xs text-[#202744] mt-0.5">{formatDate(project.updatedAt)}</p>
               </div>
             </div>
           </div>
@@ -528,14 +528,14 @@ export const BusinessProjectDetail: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         
         {/* Thumbnail Column */}
-        <div className="md:col-span-1 rounded-xl border border-slate-200 bg-white shadow-3xs overflow-hidden h-fit">
-          <div className="border-b border-slate-100 px-5 py-4">
-            <h3 className="font-sans text-xs font-bold uppercase tracking-wider text-slate-800">
+        <div className="md:col-span-1 rounded-2xl border border-[#EAE5DD] bg-white shadow-xs overflow-hidden h-fit">
+          <div className="border-b border-[#F0EBE1] px-5 py-4">
+            <h3 className="font-sans text-xs font-bold uppercase tracking-wider text-[#202744]">
               Project Thumbnail
             </h3>
           </div>
           <div className="p-5 space-y-4">
-            <div className="relative group aspect-video w-full rounded-lg bg-slate-55 border border-slate-200 overflow-hidden flex items-center justify-center">
+            <div className="relative group aspect-video w-full rounded-xl bg-[#FAF8F5] border border-[#EAE5DD] overflow-hidden flex items-center justify-center">
               {project.thumbnail ? (
                 <img 
                   src={project.thumbnail} 
@@ -543,17 +543,17 @@ export const BusinessProjectDetail: React.FC = () => {
                   className="h-full w-full object-cover"
                 />
               ) : (
-                <div className="text-center text-slate-350 p-4">
-                  <ImageIcon className="mx-auto h-8 w-8 mb-1.5 stroke-1" />
-                  <span className="font-sans text-[10px]">No thumbnail uploaded</span>
+                <div className="text-center text-[#69718A] p-4">
+                  <ImageIcon className="mx-auto h-8 w-8 mb-1.5 text-[#8B6CF6]/40 stroke-1" />
+                  <span className="font-sans text-xs">No thumbnail uploaded</span>
                 </div>
               )}
 
               {/* Upload overlay hover trigger */}
-              <label className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition flex items-center justify-center cursor-pointer">
+              <label className="absolute inset-0 bg-[#202744]/75 opacity-0 group-hover:opacity-100 transition flex items-center justify-center cursor-pointer">
                 <div className="text-center text-white p-2">
-                  <Camera className="mx-auto h-5 w-5 mb-1" />
-                  <span className="font-sans text-[9px] font-bold uppercase tracking-wider">Replace Thumbnail</span>
+                  <Camera className="mx-auto h-5 w-5 mb-1 text-white" />
+                  <span className="font-sans text-[10px] font-bold uppercase tracking-wider">Replace Thumbnail</span>
                 </div>
                 <input 
                   type="file"
@@ -566,8 +566,8 @@ export const BusinessProjectDetail: React.FC = () => {
             </div>
 
             {uploadThumbnailMutation.isPending && (
-              <div className="flex items-center justify-center space-x-1.5 font-sans text-[10px] text-slate-500">
-                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              <div className="flex items-center justify-center space-x-2 font-sans text-xs text-[#8B6CF6]">
+                <Loader2 className="h-4 w-4 animate-spin" />
                 <span>Uploading thumbnail...</span>
               </div>
             )}
@@ -575,21 +575,21 @@ export const BusinessProjectDetail: React.FC = () => {
         </div>
 
         {/* Gallery Screenshots Column */}
-        <div className="md:col-span-2 rounded-xl border border-slate-200 bg-white shadow-3xs overflow-hidden">
-          <div className="border-b border-slate-100 px-5 py-4 flex items-center justify-between">
+        <div className="md:col-span-2 rounded-2xl border border-[#EAE5DD] bg-white shadow-xs overflow-hidden">
+          <div className="border-b border-[#F0EBE1] px-5 py-4 flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              <ImageIcon className="h-4 w-4 text-slate-500" />
-              <h3 className="font-sans text-xs font-bold uppercase tracking-wider text-slate-800">
+              <ImageIcon className="h-4 w-4 text-[#8B6CF6]" />
+              <h3 className="font-sans text-xs font-bold uppercase tracking-wider text-[#202744]">
                 Screenshots Gallery
               </h3>
-              <span className="rounded-md bg-slate-100 px-1.5 py-0.5 font-mono text-[9px] font-bold text-slate-500">
+              <span className="rounded-full bg-violet-50 px-2 py-0.5 font-mono text-[10px] font-bold text-[#8B6CF6] border border-violet-100">
                 {project.images?.length || 0}
               </span>
             </div>
 
             {/* Add screenshot button trigger */}
-            <label className="inline-flex items-center space-x-1 rounded-md border border-slate-200 bg-white px-2.5 py-1 font-sans text-[9px] font-bold uppercase tracking-wider text-slate-655 hover:bg-slate-50 hover:border-slate-400 transition cursor-pointer select-none">
-              <Plus className="h-3 w-3" />
+            <label className="inline-flex items-center space-x-1.5 rounded-xl border border-[#EAE5DD] bg-white px-3 py-1.5 font-sans text-xs font-semibold text-[#202744] hover:bg-[#FAF8F5] hover:border-[#8B6CF6] hover:text-[#8B6CF6] transition cursor-pointer select-none shadow-xs">
+              <Plus className="h-3.5 w-3.5" />
               <span>Add Screenshot</span>
               <input 
                 type="file"
@@ -604,24 +604,24 @@ export const BusinessProjectDetail: React.FC = () => {
 
           <div className="p-5">
             {uploadImageMutation.isPending && (
-              <div className="flex items-center justify-center space-x-1.5 font-sans text-xs text-slate-500 mb-4 bg-slate-50 border border-dashed border-slate-250 py-3 rounded-lg">
-                <Loader2 className="h-4 w-4 animate-spin text-slate-650" />
+              <div className="flex items-center justify-center space-x-2 font-sans text-xs text-[#8B6CF6] mb-4 bg-violet-50/50 border border-dashed border-violet-200 py-3 rounded-xl">
+                <Loader2 className="h-4 w-4 animate-spin" />
                 <span>Uploading screenshot to gallery...</span>
               </div>
             )}
 
             {!project.images || project.images.length === 0 ? (
-              <div className="py-12 text-center border border-dashed border-slate-200 rounded-lg bg-slate-50/50">
-                <ImageIcon className="mx-auto h-7 w-7 text-slate-300 mb-2 stroke-1" />
-                <p className="font-sans text-xs text-slate-400 font-medium">No screenshots added to gallery.</p>
-                <p className="font-sans text-[10px] text-slate-350 mt-0.5">Upload design specs or interface images.</p>
+              <div className="py-12 text-center border border-dashed border-[#EAE5DD] rounded-xl bg-[#FAF8F5]/50">
+                <ImageIcon className="mx-auto h-8 w-8 text-[#8B6CF6]/40 mb-2 stroke-1" />
+                <p className="font-sans text-xs text-[#69718A] font-semibold">No screenshots added to gallery.</p>
+                <p className="font-sans text-[11px] text-[#69718A]/80 mt-0.5">Upload design specs or interface images.</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {project.images.map((imgUrl, idx) => (
                   <div 
                     key={idx}
-                    className="relative group aspect-video rounded-lg bg-slate-50 border border-slate-200/60 overflow-hidden shadow-3xs"
+                    className="relative group aspect-video rounded-xl bg-[#FAF8F5] border border-[#EAE5DD] overflow-hidden shadow-xs hover:border-[#8B6CF6]/40 transition"
                   >
                     <img 
                       src={imgUrl} 
@@ -632,10 +632,10 @@ export const BusinessProjectDetail: React.FC = () => {
                     {/* Screenshot deletion control overlay */}
                     <button
                       onClick={() => handleScreenshotDelete(imgUrl)}
-                      className="absolute top-2 right-2 h-7 w-7 bg-red-600 text-white rounded-md flex items-center justify-center opacity-0 group-hover:opacity-100 transition shadow-2xs hover:bg-red-700 cursor-pointer"
+                      className="absolute top-2 right-2 rounded-lg bg-[#202744]/80 hover:bg-rose-600 p-1.5 text-white opacity-0 group-hover:opacity-100 transition cursor-pointer shadow-xs"
                       title="Remove screenshot"
                     >
-                      <Trash2 className="h-4 w-4" />
+                      <Trash2 className="h-3.5 w-3.5" />
                     </button>
                   </div>
                 ))}

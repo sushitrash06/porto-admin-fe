@@ -9,7 +9,7 @@ import type { User, Profile, BusinessProfile } from '../../types';
 import { Role } from '../../types';
 import {
   Briefcase, FolderGit2, Shield, LayoutDashboard,
-  Palette, UserCheck, MessageSquare
+  Palette, UserCheck, MessageSquare, ChevronRight
 } from 'lucide-react';
 import { useMyExperiences } from '../../hooks/useExperiences';
 import { useMyProjects } from '../../hooks/useProjects';
@@ -22,7 +22,12 @@ interface SidebarProps {
   isProfileIncomplete?: boolean;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ currentUser, profile, businessProfile, isProfileIncomplete }) => {
+export const Sidebar: React.FC<SidebarProps> = ({
+  currentUser,
+  profile,
+  businessProfile,
+  isProfileIncomplete,
+}) => {
   const isSuper = currentUser.role === Role.ADMIN;
   const isBusiness = !!businessProfile;
 
@@ -31,60 +36,60 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentUser, profile, business
   const { data: services = [] } = useBusinessServices({ enabled: true });
 
   const linkStyle = ({ isActive }: { isActive: boolean }) =>
-    `group flex items-center justify-between rounded-xl px-3.5 py-2.5 font-sans text-xs font-medium transition-all ${isActive
-      ? 'bg-[#1c1f26] text-white font-semibold shadow-xs'
-      : 'text-zinc-400 hover:bg-zinc-900/80 hover:text-white'
+    `group flex items-center justify-between rounded-xl px-3.5 py-2.5 font-sans text-xs font-semibold transition-all ${
+      isActive
+        ? 'bg-[#E8E0FF] text-[#5533CC] font-bold shadow-3xs'
+        : 'text-[#69718A] hover:bg-white hover:text-[#202744] hover:shadow-3xs'
     }`;
-    
-  const disabledLinkStyle = "flex items-center justify-between rounded-xl px-3.5 py-2.5 font-sans text-xs font-medium transition-all opacity-40 pointer-events-none text-zinc-600";
+
+  const disabledLinkStyle =
+    'flex items-center justify-between rounded-xl px-3.5 py-2.5 font-sans text-xs font-medium transition-all opacity-40 pointer-events-none text-slate-300';
 
   // Resolve metadata for identity
   const displayName = isBusiness
-    ? (businessProfile?.businessName || profile?.fullName || 'Azkaxism')
-    : (profile?.fullName || 'Azkaxism');
+    ? businessProfile?.businessName || profile?.fullName || 'Creator Studio'
+    : profile?.fullName || 'Creator Profile';
 
   const headline = isBusiness
-    ? (businessProfile?.description?.slice(0, 36) || 'Agency & Digital Product Studio...')
-    : (profile?.bio?.slice(0, 36) || 'Senior Frontend Engineer & Design Arc...');
+    ? businessProfile?.description?.slice(0, 36) || 'Agency & Digital Product Studio...'
+    : profile?.bio?.slice(0, 36) || 'Portfolio creator & maker...';
 
   const initial = displayName.substring(0, 2).toUpperCase();
 
   return (
-    <div className="space-y-6 text-zinc-300 font-sans">
-      
-      {/* ─── Active Workspace Identity (Screenshot 5) ─── */}
-      <div className="rounded-2xl border border-zinc-800/80 bg-[#101218] p-4.5 space-y-3">
+    <div className="space-y-6 text-[#202744] font-sans">
+      {/* ─── Active Workspace Identity ─── */}
+      <div className="rounded-2xl border border-[#EAE5DD] bg-white p-4.5 space-y-3 shadow-3xs">
         <div className="flex items-center justify-between">
-          <span className="font-mono text-[9px] font-bold uppercase tracking-widest text-zinc-500">
+          <span className="font-mono text-[9px] font-bold uppercase tracking-wider text-[#69718A]">
             ACTIVE WORKSPACE
           </span>
-          <span className="flex items-center space-x-1.5 font-mono text-[9px] font-bold text-emerald-400">
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-            <span>Live</span>
+          <span className="flex items-center space-x-1.5 font-mono text-[9px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+            <span>Ready</span>
           </span>
         </div>
 
         <div className="flex items-center space-x-3 pt-1">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-zinc-800 border border-zinc-700/60 font-mono text-xs font-bold text-zinc-200">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#E8E0FF] border border-[#D5C6FF] font-sans text-xs font-bold text-[#8B6CF6] shadow-xs">
             {initial}
           </div>
           <div className="min-w-0">
-            <h4 className="font-bold text-xs text-white truncate">
+            <h4 className="font-bold text-xs text-[#202744] truncate">
               {displayName}
             </h4>
-            <p className="text-[10px] text-zinc-400 truncate">
+            <p className="text-[10px] text-[#69718A] truncate">
               {headline}
             </p>
           </div>
         </div>
       </div>
 
-      {/* ─── Navigation Groups (Screenshot 5) ─── */}
+      {/* ─── Navigation Groups ─── */}
       <nav className="space-y-5" aria-label="Sidebar Menu">
-        
         {/* OVERVIEW */}
         <div>
-          <span className="block px-3 font-mono text-[9px] font-bold uppercase tracking-widest text-zinc-500 mb-2">
+          <span className="block px-3 font-mono text-[9px] font-bold uppercase tracking-wider text-[#69718A] mb-2">
             OVERVIEW
           </span>
           <NavLink
@@ -101,7 +106,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentUser, profile, business
 
         {/* PORTFOLIO */}
         <div>
-          <span className="block px-3 font-mono text-[9px] font-bold uppercase tracking-widest text-zinc-500 mb-2">
+          <span className="block px-3 font-mono text-[9px] font-bold uppercase tracking-wider text-[#69718A] mb-2">
             PORTFOLIO
           </span>
           <div className="space-y-1">
@@ -114,8 +119,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentUser, profile, business
                 <Briefcase className="h-4 w-4" />
                 <span>Experiences & Milestones</span>
               </div>
-              <span className="rounded-full bg-zinc-800/80 px-2 py-0.5 font-mono text-[10px] text-zinc-400">
-                {experiences.length || 4}
+              <span className="rounded-full bg-slate-100 px-2 py-0.5 font-mono text-[10px] text-[#69718A]">
+                {experiences.length || 0}
               </span>
             </NavLink>
 
@@ -128,8 +133,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentUser, profile, business
                 <FolderGit2 className="h-4 w-4" />
                 <span>Projects & Case Studies</span>
               </div>
-              <span className="rounded-full bg-zinc-800/80 px-2 py-0.5 font-mono text-[10px] text-zinc-400">
-                {projects.length || 4}
+              <span className="rounded-full bg-slate-100 px-2 py-0.5 font-mono text-[10px] text-[#69718A]">
+                {projects.length || 0}
               </span>
             </NavLink>
           </div>
@@ -137,8 +142,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentUser, profile, business
 
         {/* BUSINESS HUB */}
         <div>
-          <span className="block px-3 font-mono text-[9px] font-bold uppercase tracking-widest text-zinc-500 mb-2">
-            BUSINESS HUB
+          <span className="block px-3 font-mono text-[9px] font-bold uppercase tracking-wider text-[#69718A] mb-2">
+            COMMERCIAL HUB
           </span>
           <div className="space-y-1">
             <NavLink
@@ -148,10 +153,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentUser, profile, business
             >
               <div className="flex items-center space-x-2.5">
                 <Briefcase className="h-4 w-4" />
-                <span>Business Catalog & Services</span>
+                <span>Services & Pricing</span>
               </div>
-              <span className="rounded-full bg-zinc-800/80 px-2 py-0.5 font-mono text-[10px] text-zinc-400">
-                {services.length || 4}
+              <span className="rounded-full bg-slate-100 px-2 py-0.5 font-mono text-[10px] text-[#69718A]">
+                {services.length || 0}
               </span>
             </NavLink>
 
@@ -164,8 +169,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentUser, profile, business
                 <MessageSquare className="h-4 w-4" />
                 <span>Client Inquiries</span>
               </div>
-              <span className="rounded-full bg-blue-950 border border-blue-700/50 px-2 py-0.5 font-mono text-[9px] font-bold text-blue-300">
-                1 new
+              <span className="rounded-full bg-[#E7F2FF] border border-[#BFDEFF] px-2 py-0.5 font-mono text-[9px] font-bold text-[#1E6FD6]">
+                WhatsApp
               </span>
             </NavLink>
           </div>
@@ -173,7 +178,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentUser, profile, business
 
         {/* CUSTOMIZATION */}
         <div>
-          <span className="block px-3 font-mono text-[9px] font-bold uppercase tracking-widest text-zinc-500 mb-2">
+          <span className="block px-3 font-mono text-[9px] font-bold uppercase tracking-wider text-[#69718A] mb-2">
             CUSTOMIZATION
           </span>
           <NavLink
@@ -182,15 +187,15 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentUser, profile, business
             className={isProfileIncomplete ? disabledLinkStyle : linkStyle}
           >
             <div className="flex items-center space-x-2.5">
-              <Palette className="h-4 w-4" />
-              <span>Theme Studio & Live Simulator</span>
+              <Palette className="h-4 w-4 text-[#8B6CF6]" />
+              <span>Theme Studio & Styles</span>
             </div>
           </NavLink>
         </div>
 
         {/* SETTINGS */}
         <div>
-          <span className="block px-3 font-mono text-[9px] font-bold uppercase tracking-widest text-zinc-500 mb-2">
+          <span className="block px-3 font-mono text-[9px] font-bold uppercase tracking-wider text-[#69718A] mb-2">
             SETTINGS
           </span>
           <NavLink
@@ -210,17 +215,16 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentUser, profile, business
           <div className="pt-2">
             <NavLink
               to="/admin/dashboard"
-              className="flex items-center justify-between rounded-xl border border-purple-800/40 bg-purple-950/20 px-3.5 py-2.5 text-xs font-semibold text-purple-300 hover:bg-purple-950/40 transition"
+              className="flex items-center justify-between rounded-xl border border-[#D5C6FF] bg-[#E8E0FF]/50 px-3.5 py-2.5 text-xs font-bold text-[#5533CC] hover:bg-[#E8E0FF] transition shadow-3xs"
             >
               <div className="flex items-center space-x-2">
-                <Shield className="h-4 w-4" />
+                <Shield className="h-4 w-4 text-[#8B6CF6]" />
                 <span>Superadmin Console</span>
               </div>
-              <span className="text-[10px] font-mono">→</span>
+              <ChevronRight className="h-3.5 w-3.5" />
             </NavLink>
           </div>
         )}
-
       </nav>
     </div>
   );

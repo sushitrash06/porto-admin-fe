@@ -39,22 +39,22 @@ interface UserThemeStudioProps {
 }
 
 const PERSONAL_ACCENT_PRESETS = [
-  { name: 'Indigo Aura', color: '#6366f1' },
+  { name: 'Brand Violet', color: '#8B6CF6' },
+  { name: 'Brand Blue', color: '#4697F5' },
+  { name: 'Warm Yellow', color: '#FFC45B' },
   { name: 'Emerald Spark', color: '#10b981' },
-  { name: 'Purple Bloom', color: '#8b5cf6' },
   { name: 'Rose Velvet', color: '#f43f5e' },
-  { name: 'Amber Sunset', color: '#f59e0b' },
-  { name: 'Ocean Cyan', color: '#06b6d4' },
-  { name: 'Monochrome Noir', color: '#09090b' },
+  { name: 'Deep Navy', color: '#202744' },
+  { name: 'Cyan Modern', color: '#06b6d4' },
 ];
 
 const BUSINESS_ACCENT_PRESETS = [
-  { name: 'Corporate Blue', color: '#2563eb' },
+  { name: 'Brand Violet', color: '#8B6CF6' },
+  { name: 'Corporate Blue', color: '#4697F5' },
+  { name: 'Amber Gold', color: '#FFC45B' },
+  { name: 'Deep Navy', color: '#202744' },
   { name: 'Emerald Trust', color: '#059669' },
-  { name: 'Indigo Modern', color: '#4f46e5' },
-  { name: 'Amber Gold', color: '#d97706' },
   { name: 'Rose Prestige', color: '#e11d48' },
-  { name: 'Slate Executive', color: '#0f172a' },
 ];
 
 export const UserThemeStudio: React.FC<UserThemeStudioProps> = ({
@@ -268,35 +268,35 @@ export const UserThemeStudio: React.FC<UserThemeStudioProps> = ({
       : 'w-full';
 
   return (
-    <div className="flex flex-col h-screen w-full bg-slate-950 text-slate-100 font-sans overflow-hidden select-none">
+    <div className="flex flex-col h-screen w-full bg-[#131728] text-slate-100 font-sans overflow-hidden select-none">
       {/* ─────────────────────────────────────────────────────────────────────────────
           1. TOP APP STUDIO HEADER
          ───────────────────────────────────────────────────────────────────────────── */}
-      <header className="h-14 px-4 sm:px-6 bg-slate-900 border-b border-slate-800 flex items-center justify-between shrink-0 z-30">
+      <header className="h-14 px-4 sm:px-6 bg-[#202744] border-b border-[#2A3454] flex items-center justify-between shrink-0 z-30">
         {/* Left: Back to Admin & Identity */}
         <div className="flex items-center gap-3">
           <button
             type="button"
             onClick={() => navigate(backUrl)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition text-xs font-semibold cursor-pointer border border-slate-700/60"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#2B3555] hover:bg-[#344066] text-white/90 hover:text-white transition text-xs font-semibold cursor-pointer border border-white/10 shadow-xs"
             title="Return to Dashboard"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">Back to Dashboard</span>
           </button>
 
-          <div className="h-4 w-px bg-slate-800 hidden sm:block" />
+          <div className="h-4 w-px bg-white/10 hidden sm:block" />
 
           <div className="flex items-center gap-2">
             <span className="flex h-2 w-2 relative">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
               <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
             </span>
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-2">
               <span className="font-bold text-xs sm:text-sm text-white tracking-wide">
                 {isBusiness ? 'Corporate Showcase Studio' : 'Portfolio Theme Studio'}
               </span>
-              <span className="px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 font-mono text-[9px] uppercase font-bold hidden md:inline">
+              <span className="px-2 py-0.5 rounded-md bg-[#8B6CF6]/20 text-violet-200 font-mono text-[9px] uppercase font-bold border border-[#8B6CF6]/30 hidden md:inline">
                 {activeTemplate?.name || 'Live Editor'}
               </span>
             </div>
@@ -304,14 +304,14 @@ export const UserThemeStudio: React.FC<UserThemeStudioProps> = ({
         </div>
 
         {/* Center: Device Switcher (Desktop | Tablet | Mobile) */}
-        <div className="flex items-center gap-1 bg-slate-800/90 p-1 rounded-xl border border-slate-700/80">
+        <div className="flex items-center gap-1 bg-[#191F33] p-1 rounded-xl border border-[#2B3555]">
           <button
             type="button"
             onClick={() => setPreviewDevice('desktop')}
-            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold transition cursor-pointer ${
+            className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold transition cursor-pointer ${
               previewDevice === 'desktop'
-                ? 'bg-slate-700 text-white shadow-xs'
-                : 'text-slate-400 hover:text-slate-200'
+                ? 'bg-[#8B6CF6] text-white shadow-xs'
+                : 'text-slate-400 hover:text-white'
             }`}
             title="Desktop Full-Width"
           >
@@ -321,10 +321,10 @@ export const UserThemeStudio: React.FC<UserThemeStudioProps> = ({
           <button
             type="button"
             onClick={() => setPreviewDevice('tablet')}
-            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold transition cursor-pointer ${
+            className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold transition cursor-pointer ${
               previewDevice === 'tablet'
-                ? 'bg-slate-700 text-white shadow-xs'
-                : 'text-slate-400 hover:text-slate-200'
+                ? 'bg-[#8B6CF6] text-white shadow-xs'
+                : 'text-slate-400 hover:text-white'
             }`}
             title="Tablet (768px)"
           >
@@ -334,10 +334,10 @@ export const UserThemeStudio: React.FC<UserThemeStudioProps> = ({
           <button
             type="button"
             onClick={() => setPreviewDevice('mobile')}
-            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold transition cursor-pointer ${
+            className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold transition cursor-pointer ${
               previewDevice === 'mobile'
-                ? 'bg-slate-700 text-white shadow-xs'
-                : 'text-slate-400 hover:text-slate-200'
+                ? 'bg-[#8B6CF6] text-white shadow-xs'
+                : 'text-slate-400 hover:text-white'
             }`}
             title="Mobile (375px)"
           >
@@ -353,7 +353,7 @@ export const UserThemeStudio: React.FC<UserThemeStudioProps> = ({
               type="button"
               onClick={handleSaveReorder}
               disabled={reorderSectionsMutation.isPending}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold uppercase tracking-wider transition active:scale-95 shadow-sm cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold uppercase tracking-wider transition active:scale-95 shadow-xs cursor-pointer"
             >
               {reorderSectionsMutation.isPending && (
                 <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -365,10 +365,10 @@ export const UserThemeStudio: React.FC<UserThemeStudioProps> = ({
           <button
             type="button"
             onClick={() => setShowResetConfirm(true)}
-            className="p-1.5 sm:px-2.5 sm:py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 text-xs font-semibold transition cursor-pointer"
+            className="p-1.5 sm:px-2.5 sm:py-1.5 rounded-xl bg-[#2B3555] hover:bg-[#344066] text-slate-300 hover:text-white border border-white/10 text-xs font-semibold transition cursor-pointer"
             title="Reset to Template Defaults"
           >
-            <RotateCcw className="w-3.5 h-3.5 text-amber-400" />
+            <RotateCcw className="w-3.5 h-3.5 text-[#FFC45B]" />
             <span className="hidden xl:inline ml-1.5">Reset</span>
           </button>
 
@@ -376,7 +376,7 @@ export const UserThemeStudio: React.FC<UserThemeStudioProps> = ({
             href={publicUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-white text-slate-950 text-xs font-bold uppercase tracking-wider hover:bg-slate-100 transition active:scale-95 shadow-xs"
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#8B6CF6] text-white text-xs font-bold uppercase tracking-wider hover:bg-[#7A5CE0] transition active:scale-95 shadow-xs"
             title="Open Live Website"
           >
             <ExternalLink className="w-3.5 h-3.5" />
@@ -394,7 +394,7 @@ export const UserThemeStudio: React.FC<UserThemeStudioProps> = ({
           <div
             className={`absolute top-4 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 shadow-2xl animate-in fade-in duration-200 ${
               statusMessage.type === 'success'
-                ? 'bg-slate-900 text-white border border-emerald-500/50'
+                ? 'bg-[#202744] text-white border border-[#8B6CF6]'
                 : 'bg-rose-900 text-white border border-rose-700'
             }`}
           >
@@ -408,16 +408,16 @@ export const UserThemeStudio: React.FC<UserThemeStudioProps> = ({
         )}
 
         {/* ─── LEFT PANEL: CONTROLS & PALETTE (440px) ─── */}
-        <aside className="w-full lg:w-[440px] xl:w-[480px] bg-slate-900 border-r border-slate-800 flex flex-col shrink-0 overflow-hidden">
+        <aside className="w-full lg:w-[440px] xl:w-[480px] bg-[#181E35] border-r border-[#2A3454] flex flex-col shrink-0 overflow-hidden">
           {/* Studio Navigation Tabs */}
-          <div className="px-4 py-2.5 bg-slate-900/90 border-b border-slate-800 flex items-center gap-1.5 shrink-0">
+          <div className="px-4 py-2.5 bg-[#1C233C] border-b border-[#2A3454] flex items-center gap-1.5 shrink-0">
             <button
               type="button"
               onClick={() => setActiveTab('layout')}
-              className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition cursor-pointer ${
+              className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition cursor-pointer ${
                 activeTab === 'layout'
-                  ? 'bg-indigo-600 text-white shadow-xs'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
+                  ? 'bg-[#8B6CF6] text-white shadow-xs'
+                  : 'text-slate-400 hover:text-white hover:bg-[#242C4C]'
               }`}
             >
               <ArrowUpDown className="w-3.5 h-3.5" />
@@ -426,10 +426,10 @@ export const UserThemeStudio: React.FC<UserThemeStudioProps> = ({
             <button
               type="button"
               onClick={() => setActiveTab('templates')}
-              className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition cursor-pointer ${
+              className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition cursor-pointer ${
                 activeTab === 'templates'
-                  ? 'bg-indigo-600 text-white shadow-xs'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
+                  ? 'bg-[#8B6CF6] text-white shadow-xs'
+                  : 'text-slate-400 hover:text-white hover:bg-[#242C4C]'
               }`}
             >
               <Layers className="w-3.5 h-3.5" />
@@ -438,10 +438,10 @@ export const UserThemeStudio: React.FC<UserThemeStudioProps> = ({
             <button
               type="button"
               onClick={() => setActiveTab('appearance')}
-              className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition cursor-pointer ${
+              className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition cursor-pointer ${
                 activeTab === 'appearance'
-                  ? 'bg-indigo-600 text-white shadow-xs'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
+                  ? 'bg-[#8B6CF6] text-white shadow-xs'
+                  : 'text-slate-400 hover:text-white hover:bg-[#242C4C]'
               }`}
             >
               <Sliders className="w-3.5 h-3.5" />
@@ -453,7 +453,7 @@ export const UserThemeStudio: React.FC<UserThemeStudioProps> = ({
           <div className="flex-1 overflow-y-auto p-5 space-y-6">
             {isLoadingTheme ? (
               <div className="py-20 flex flex-col items-center justify-center text-slate-400">
-                <Loader2 className="w-8 h-8 animate-spin text-indigo-500 mb-2" />
+                <Loader2 className="w-8 h-8 animate-spin text-[#8B6CF6] mb-2" />
                 <p className="text-xs font-semibold">Loading theme setup...</p>
               </div>
             ) : (
@@ -461,18 +461,18 @@ export const UserThemeStudio: React.FC<UserThemeStudioProps> = ({
                 {/* ════ TAB 1: SECTIONS LAYOUT (DRAG & DROP) ════ */}
                 {activeTab === 'layout' && (
                   <div className="space-y-4">
-                    <div className="flex items-center justify-between pb-2 border-b border-slate-800">
+                    <div className="flex items-center justify-between pb-2 border-b border-[#2A3454]">
                       <div>
                         <h4 className="text-xs font-bold uppercase tracking-wider text-white flex items-center gap-2">
-                          <GripVertical className="w-4 h-4 text-indigo-400" />
+                          <GripVertical className="w-4 h-4 text-[#8B6CF6]" />
                           <span>Drag & Drop Sections</span>
                         </h4>
-                        <p className="text-[11px] text-slate-400 mt-0.5">
+                        <p className="text-[11px] text-white/60 mt-0.5">
                           Hold ⠿ to rearrange order. Changes show on preview instantly!
                         </p>
                       </div>
 
-                      <span className="font-mono text-[10px] text-slate-400">
+                      <span className="font-mono text-[10px] text-white/60">
                         {sections.filter((s) => s.isVisible).length}/{sections.length} Visible
                       </span>
                     </div>
@@ -487,15 +487,15 @@ export const UserThemeStudio: React.FC<UserThemeStudioProps> = ({
                         <Reorder.Item
                           key={section.id}
                           value={section}
-                          className={`flex items-center justify-between p-3 rounded-xl border transition-all duration-200 select-none shadow-2xs cursor-grab active:cursor-grabbing ${
+                          className={`flex items-center justify-between p-3 rounded-xl border transition-all duration-200 select-none shadow-xs cursor-grab active:cursor-grabbing ${
                             section.isVisible
-                              ? 'bg-slate-800/80 border-slate-700/80 hover:border-indigo-500/80 hover:bg-slate-800'
-                              : 'bg-slate-800/30 border-slate-800/50 opacity-50'
+                              ? 'bg-[#212842] border-[#2C3656] hover:border-[#8B6CF6]/70 hover:bg-[#252E4C]'
+                              : 'bg-[#191F33]/60 border-[#222A44] opacity-50'
                           }`}
                         >
                           <div className="flex items-center gap-2.5 min-w-0">
                             <GripVertical className="w-4 h-4 text-slate-500 shrink-0" />
-                            <span className="w-5 h-5 rounded-full bg-slate-700 text-slate-300 text-[10px] font-mono font-bold flex items-center justify-center shrink-0">
+                            <span className="w-5 h-5 rounded-full bg-[#2B3555] text-white text-[10px] font-mono font-bold flex items-center justify-center shrink-0">
                               {index + 1}
                             </span>
                             <div className="min-w-0">
@@ -503,16 +503,16 @@ export const UserThemeStudio: React.FC<UserThemeStudioProps> = ({
                                 {section.title || section.type}
                               </p>
                               <div className="flex items-center gap-1.5 mt-0.5">
-                                <span className="font-mono text-[9px] font-bold text-indigo-400 uppercase bg-indigo-500/10 px-1.5 py-0.2 rounded">
+                                <span className="font-mono text-[9px] font-bold text-[#8B6CF6] uppercase bg-[#8B6CF6]/15 px-1.5 py-0.2 rounded border border-[#8B6CF6]/25">
                                   {section.type}
                                 </span>
                                 {section.variant && (
-                                  <span className="font-mono text-[9px] text-slate-500">
+                                  <span className="font-mono text-[9px] text-slate-400">
                                     {section.variant}
                                   </span>
                                 )}
                                 {RICH_BLOCK_TYPES.has(section.type) && (
-                                  <span className="font-mono text-[9px] text-blue-300 bg-blue-500/15 border border-blue-500/20 px-1.5 py-0.2 rounded font-semibold">
+                                  <span className="font-mono text-[9px] text-[#4697F5] bg-[#4697F5]/15 border border-[#4697F5]/25 px-1.5 py-0.2 rounded font-semibold">
                                     Rich Block
                                   </span>
                                 )}
@@ -531,8 +531,8 @@ export const UserThemeStudio: React.FC<UserThemeStudioProps> = ({
                               }}
                               className={`p-1.5 rounded-lg border transition cursor-pointer ${
                                 RICH_BLOCK_TYPES.has(section.type)
-                                  ? 'border-blue-500/40 bg-blue-500/15 text-blue-300 hover:bg-blue-500/25'
-                                  : 'border-blue-500/30 bg-blue-500/10 text-blue-400 hover:bg-blue-500/20'
+                                  ? 'border-[#4697F5]/40 bg-[#4697F5]/15 text-[#4697F5] hover:bg-[#4697F5]/25'
+                                  : 'border-[#8B6CF6]/40 bg-[#8B6CF6]/15 text-violet-200 hover:bg-[#8B6CF6]/25'
                               }`}
                               title={RICH_BLOCK_TYPES.has(section.type) ? "Edit Rich Business Content" : "Edit Section Content"}
                             >
@@ -545,7 +545,7 @@ export const UserThemeStudio: React.FC<UserThemeStudioProps> = ({
                               onClick={() => handleToggleVisibility(section.id)}
                               className={`p-1.5 rounded-lg border transition cursor-pointer ${
                                 section.isVisible
-                                  ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20'
+                                  ? 'border-emerald-500/40 bg-emerald-500/15 text-emerald-300 hover:bg-emerald-500/25'
                                   : 'border-slate-700 bg-slate-800 text-slate-500 hover:text-slate-300'
                               }`}
                               title={section.isVisible ? 'Hide Section' : 'Show Section'}
@@ -567,7 +567,7 @@ export const UserThemeStudio: React.FC<UserThemeStudioProps> = ({
                           type="button"
                           onClick={handleSaveReorder}
                           disabled={reorderSectionsMutation.isPending}
-                          className="w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold uppercase tracking-wider transition active:scale-95 shadow-md flex items-center justify-center gap-2 cursor-pointer"
+                          className="w-full py-2.5 rounded-xl bg-[#8B6CF6] hover:bg-[#7A5CE0] text-white text-xs font-bold uppercase tracking-wider transition active:scale-95 shadow-md flex items-center justify-center gap-2 cursor-pointer"
                         >
                           {reorderSectionsMutation.isPending && (
                             <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -582,29 +582,29 @@ export const UserThemeStudio: React.FC<UserThemeStudioProps> = ({
                 {/* ════ TAB 2: TEMPLATE SELECTOR ════ */}
                 {activeTab === 'templates' && (
                   <div className="space-y-4">
-                    <div className="flex items-center justify-between pb-2 border-b border-slate-800">
+                    <div className="flex items-center justify-between pb-2 border-b border-[#2A3454]">
                       <div>
                         <h4 className="text-xs font-bold uppercase tracking-wider text-white flex items-center gap-2">
-                          <Layers className="w-4 h-4 text-indigo-400" />
+                          <Layers className="w-4 h-4 text-[#8B6CF6]" />
                           <span>Catalog Blueprint Templates</span>
                         </h4>
-                        <p className="text-[11px] text-slate-400 mt-0.5">
+                        <p className="text-[11px] text-white/60 mt-0.5">
                           1-Click apply to swap layout structure and default styling.
                         </p>
                       </div>
                     </div>
 
                     {/* Category Filter Pills */}
-                    <div className="flex items-center gap-1 overflow-x-auto pb-1">
+                    <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
                       {(['ALL', 'DEVELOPER', 'DESIGNER', 'BUSINESS', 'MINIMAL'] as const).map((cat) => (
                         <button
                           key={cat}
                           type="button"
                           onClick={() => setSelectedCategory(cat as TemplateCategory | 'ALL')}
-                          className={`px-2.5 py-1 rounded-md text-[10px] font-semibold whitespace-nowrap transition cursor-pointer ${
+                          className={`px-3 py-1 rounded-lg text-[10px] font-semibold whitespace-nowrap transition cursor-pointer ${
                             selectedCategory === cat
-                              ? 'bg-indigo-600 text-white'
-                              : 'bg-slate-800 text-slate-400 hover:text-white'
+                              ? 'bg-[#8B6CF6] text-white shadow-xs'
+                              : 'bg-[#222944] text-slate-400 hover:text-white'
                           }`}
                         >
                           {cat}
@@ -614,7 +614,7 @@ export const UserThemeStudio: React.FC<UserThemeStudioProps> = ({
 
                     {isLoadingTemplates ? (
                       <div className="py-12 flex flex-col items-center justify-center text-slate-400">
-                        <Loader2 className="w-6 h-6 animate-spin text-indigo-400 mb-2" />
+                        <Loader2 className="w-6 h-6 animate-spin text-[#8B6CF6] mb-2" />
                       </div>
                     ) : (
                       <div className="space-y-3">
@@ -623,19 +623,19 @@ export const UserThemeStudio: React.FC<UserThemeStudioProps> = ({
                           return (
                             <div
                               key={tpl.id}
-                              className={`p-3.5 rounded-xl border transition-all duration-200 flex flex-col justify-between ${
+                              className={`p-4 rounded-xl border transition-all duration-200 flex flex-col justify-between ${
                                 isActive
-                                  ? 'bg-indigo-950/40 border-indigo-500 ring-1 ring-indigo-500/40 shadow-lg'
-                                  : 'bg-slate-800/60 border-slate-700/80 hover:border-slate-600'
+                                  ? 'bg-[#8B6CF6]/10 border-[#8B6CF6] ring-1 ring-[#8B6CF6]/40 shadow-md'
+                                  : 'bg-[#212842] border-[#2C3656] hover:border-[#8B6CF6]/50'
                               }`}
                             >
                               <div>
                                 <div className="flex items-center justify-between text-[10px] font-mono text-slate-400 mb-1">
-                                  <span className="text-indigo-400 font-bold uppercase">{tpl.category}</span>
+                                  <span className="text-[#8B6CF6] font-bold uppercase">{tpl.category}</span>
                                   <span>{tpl.layoutConfig?.sections?.length || 0} sections</span>
                                 </div>
                                 <h5 className="font-bold text-xs text-white leading-snug">{tpl.name}</h5>
-                                <p className="text-[11px] text-slate-400 mt-1 line-clamp-2 leading-relaxed">
+                                <p className="text-[11px] text-white/60 mt-1 line-clamp-2 leading-relaxed">
                                   {tpl.description || 'AST layout blueprint.'}
                                 </p>
                               </div>
@@ -644,10 +644,10 @@ export const UserThemeStudio: React.FC<UserThemeStudioProps> = ({
                                 type="button"
                                 onClick={() => handleApplyTemplate(tpl)}
                                 disabled={isActive || applyTemplateMutation.isPending}
-                                className={`mt-3 py-1.5 px-3 rounded-lg text-[11px] font-bold uppercase tracking-wider transition ${
+                                className={`mt-3 py-2 px-3 rounded-xl text-[11px] font-bold uppercase tracking-wider transition ${
                                   isActive
                                     ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 cursor-default'
-                                    : 'bg-slate-700 hover:bg-slate-600 text-white cursor-pointer'
+                                    : 'bg-[#8B6CF6] hover:bg-[#7A5CE0] text-white cursor-pointer shadow-xs'
                                 }`}
                               >
                                 {isActive ? '✓ Active Template' : 'Use This Template'}
@@ -663,12 +663,12 @@ export const UserThemeStudio: React.FC<UserThemeStudioProps> = ({
                 {/* ════ TAB 3: COLORS & APPEARANCE ════ */}
                 {activeTab === 'appearance' && (
                   <div className="space-y-5">
-                    <div className="pb-2 border-b border-slate-800">
+                    <div className="pb-2 border-b border-[#2A3454]">
                       <h4 className="text-xs font-bold uppercase tracking-wider text-white flex items-center gap-2">
-                        <Palette className="w-4 h-4 text-indigo-400" />
+                        <Palette className="w-4 h-4 text-[#8B6CF6]" />
                         <span>Brand Accent & Dark Mode</span>
                       </h4>
-                      <p className="text-[11px] text-slate-400 mt-0.5">
+                      <p className="text-[11px] text-white/60 mt-0.5">
                         Customize accent color and theme surface in real time.
                       </p>
                     </div>
@@ -690,7 +690,7 @@ export const UserThemeStudio: React.FC<UserThemeStudioProps> = ({
                               }}
                               className={`h-9 w-full rounded-xl flex items-center justify-center transition shadow-2xs cursor-pointer ${
                                 isSelected
-                                  ? 'ring-2 ring-white ring-offset-2 ring-offset-slate-900 scale-105'
+                                  ? 'ring-2 ring-white ring-offset-2 ring-offset-[#181E35] scale-105'
                                   : 'hover:scale-105'
                               }`}
                               style={{ backgroundColor: preset.color }}
@@ -713,24 +713,24 @@ export const UserThemeStudio: React.FC<UserThemeStudioProps> = ({
                           type="color"
                           value={accentColor}
                           onChange={(e) => setAccentColor(e.target.value)}
-                          className="w-10 h-10 rounded-xl bg-transparent border border-slate-700 cursor-pointer"
+                          className="w-10 h-10 rounded-xl bg-transparent border border-[#2C3656] cursor-pointer"
                         />
                         <input
                           type="text"
                           value={accentColor}
                           onChange={(e) => setAccentColor(e.target.value)}
-                          className="flex-1 px-3 py-2 rounded-xl border border-slate-700 bg-slate-800 font-mono text-xs text-white font-bold"
+                          className="flex-1 px-3.5 py-2.5 rounded-xl border border-[#2C3656] bg-[#212842] font-mono text-xs text-white font-bold"
                         />
                       </div>
                     </div>
 
                     {/* Dark Mode Switch */}
-                    <div className="p-3.5 rounded-xl border border-slate-800 bg-slate-800/60 flex items-center justify-between">
+                    <div className="p-3.5 rounded-xl border border-[#2A3454] bg-[#212842] flex items-center justify-between">
                       <div className="flex items-center gap-2.5">
                         {darkMode ? (
-                          <Moon className="w-4 h-4 text-indigo-400" />
+                          <Moon className="w-4 h-4 text-[#8B6CF6]" />
                         ) : (
-                          <Sun className="w-4 h-4 text-amber-400" />
+                          <Sun className="w-4 h-4 text-[#FFC45B]" />
                         )}
                         <div>
                           <span className="text-xs font-bold text-white block">
@@ -748,7 +748,7 @@ export const UserThemeStudio: React.FC<UserThemeStudioProps> = ({
                           onChange={(e) => setDarkMode(e.target.checked)}
                           className="sr-only peer"
                         />
-                        <div className="w-11 h-6 bg-slate-700 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600" />
+                        <div className="w-11 h-6 bg-[#2B3555] rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#8B6CF6]" />
                       </label>
                     </div>
 
@@ -758,7 +758,7 @@ export const UserThemeStudio: React.FC<UserThemeStudioProps> = ({
                         type="button"
                         onClick={() => handleSaveAppearance()}
                         disabled={updateConfigMutation.isPending}
-                        className="w-full py-2.5 rounded-xl bg-white text-slate-950 text-xs font-bold uppercase tracking-wider hover:bg-slate-200 transition active:scale-95 disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2 shadow-md"
+                        className="w-full py-2.5 rounded-xl bg-[#8B6CF6] text-white text-xs font-bold uppercase tracking-wider hover:bg-[#7A5CE0] transition active:scale-95 disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2 shadow-md"
                       >
                         {updateConfigMutation.isPending && (
                           <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -774,8 +774,8 @@ export const UserThemeStudio: React.FC<UserThemeStudioProps> = ({
         </aside>
 
         {/* ─── RIGHT PANEL: LIVE DEVICE SIMULATOR PLAYGROUND ─── */}
-        <main className="flex-1 bg-slate-950 flex flex-col items-center justify-start overflow-hidden relative p-3 sm:p-6">
-          <div className="w-full flex items-center justify-between pb-2 text-[11px] text-slate-400 font-mono border-b border-slate-900 mb-3">
+        <main className="flex-1 bg-[#121625] flex flex-col items-center justify-start overflow-hidden relative p-3 sm:p-6">
+          <div className="w-full flex items-center justify-between pb-2 text-[11px] text-white/50 font-mono border-b border-[#202744] mb-3">
             <span className="flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
               <span>Realtime Live Preview</span>
@@ -785,7 +785,7 @@ export const UserThemeStudio: React.FC<UserThemeStudioProps> = ({
 
           {/* Interactive Screen Frame with Live Dynamic AST Renderer */}
           <div
-            className={`flex-1 overflow-y-auto rounded-2xl shadow-2xl border border-slate-800 bg-white transition-all duration-300 ${previewFrameWidth} max-h-full`}
+            className={`flex-1 overflow-y-auto rounded-2xl shadow-2xl border border-[#2A3454] bg-white transition-all duration-300 ${previewFrameWidth} max-h-full`}
           >
             <DynamicPortfolioRenderer data={livePreviewData} isInteractivePreview />
           </div>

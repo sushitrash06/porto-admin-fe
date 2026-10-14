@@ -103,6 +103,7 @@ const AVAILABLE_FONTS = [
 ];
 
 const PRESET_PALETTES = [
+  { name: 'Foliowalaweh Official', primary: '#8B6CF6', secondary: '#4697F5', bg: '#FAF8F5', surface: '#FFFFFF', text: '#202744', dark: false },
   { name: 'Midnight Violet', primary: '#8b5cf6', secondary: '#ec4899', bg: '#0f172a', surface: '#1e293b', text: '#f8fafc', dark: true },
   { name: 'Emerald Minimal', primary: '#10b981', secondary: '#06b6d4', bg: '#ffffff', surface: '#f8fafc', text: '#0f172a', dark: false },
   { name: 'Monochrome Noir', primary: '#000000', secondary: '#64748b', bg: '#ffffff', surface: '#ffffff', text: '#09090b', dark: false },
@@ -111,13 +112,13 @@ const PRESET_PALETTES = [
 ];
 
 const DEFAULT_THEME: ThemeTokens = {
-  fontFamily: 'Inter, sans-serif',
-  primaryColor: '#000000',
-  secondaryColor: '#6366f1',
-  backgroundColor: '#ffffff',
-  surfaceColor: '#ffffff',
-  textColor: '#0f172a',
-  borderRadius: '12px',
+  fontFamily: '"Plus Jakarta Sans", sans-serif',
+  primaryColor: '#8B6CF6',
+  secondaryColor: '#4697F5',
+  backgroundColor: '#FAF8F5',
+  surfaceColor: '#FFFFFF',
+  textColor: '#202744',
+  borderRadius: '16px',
   darkMode: false,
 };
 
@@ -332,21 +333,21 @@ const TemplateStudioEditor: React.FC<TemplateStudioEditorProps> = ({
       : 'w-full';
 
   return (
-    <div className="flex flex-col h-screen w-full bg-slate-950 text-slate-100 overflow-hidden font-sans">
+    <div className="flex flex-col h-screen w-full bg-[#181E35] text-[#FAF8F5] overflow-hidden font-sans">
       {/* ─────────────────────────────────────────────────────────────────────────────
           1. TOP APP BAR
          ───────────────────────────────────────────────────────────────────────────── */}
-      <header className="h-16 shrink-0 border-b border-slate-800 bg-slate-900/90 backdrop-blur-md px-4 sm:px-6 flex items-center justify-between z-30">
+      <header className="h-16 shrink-0 border-b border-[#2A3454] bg-[#202744] px-4 sm:px-6 flex items-center justify-between z-30 shadow-xs">
         <div className="flex items-center space-x-4">
           <Link
             to="/admin/templates"
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition text-xs font-semibold"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[#FAF8F5]/70 hover:text-white hover:bg-[#2A3454] transition text-xs font-semibold"
           >
             <ArrowLeft className="w-4 h-4" />
             <span className="hidden sm:inline">Back to Templates</span>
           </Link>
 
-          <div className="h-4 w-px bg-slate-700 hidden sm:block" />
+          <div className="h-4 w-px bg-[#2A3454] hidden sm:block" />
 
           {/* Template Name & Category */}
           <div className="flex items-center gap-3">
@@ -355,13 +356,13 @@ const TemplateStudioEditor: React.FC<TemplateStudioEditorProps> = ({
               value={name}
               onChange={(e) => handleNameChange(e.target.value)}
               placeholder="Template Name..."
-              className="bg-transparent text-white font-bold text-sm sm:text-base border-b border-transparent hover:border-slate-700 focus:border-indigo-500 focus:outline-hidden px-1 py-0.5 max-w-[200px] sm:max-w-[280px]"
+              className="bg-transparent text-white font-bold text-sm sm:text-base border-b border-transparent hover:border-[#2A3454] focus:border-[#8B6CF6] focus:outline-hidden px-1 py-0.5 max-w-[200px] sm:max-w-[280px]"
             />
             <span
               className={`px-2 py-0.5 rounded-md text-[10px] font-mono font-bold uppercase tracking-wider ${
                 isPublished
-                  ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
-                  : 'bg-amber-500/15 text-amber-400 border border-amber-500/30'
+                  ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
+                  : 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
               }`}
             >
               {isPublished ? 'Published' : 'Draft'}
@@ -370,14 +371,14 @@ const TemplateStudioEditor: React.FC<TemplateStudioEditorProps> = ({
         </div>
 
         {/* Center: Device Preview Switcher */}
-        <div className="hidden lg:flex items-center gap-1 bg-slate-800/80 p-1 rounded-lg border border-slate-700/60">
+        <div className="hidden lg:flex items-center gap-1 bg-[#181E35] p-1 rounded-xl border border-[#2A3454]">
           <button
             type="button"
             onClick={() => setPreviewDevice('desktop')}
-            className={`p-1.5 rounded-md transition ${
+            className={`p-1.5 rounded-lg transition ${
               previewDevice === 'desktop'
-                ? 'bg-slate-700 text-white shadow-xs'
-                : 'text-slate-400 hover:text-slate-200'
+                ? 'bg-[#8B6CF6] text-white shadow-xs'
+                : 'text-[#FAF8F5]/60 hover:text-white'
             }`}
             title="Desktop View (100%)"
           >
@@ -386,10 +387,10 @@ const TemplateStudioEditor: React.FC<TemplateStudioEditorProps> = ({
           <button
             type="button"
             onClick={() => setPreviewDevice('tablet')}
-            className={`p-1.5 rounded-md transition ${
+            className={`p-1.5 rounded-lg transition ${
               previewDevice === 'tablet'
-                ? 'bg-slate-700 text-white shadow-xs'
-                : 'text-slate-400 hover:text-slate-200'
+                ? 'bg-[#8B6CF6] text-white shadow-xs'
+                : 'text-[#FAF8F5]/60 hover:text-white'
             }`}
             title="Tablet View (768px)"
           >
@@ -398,10 +399,10 @@ const TemplateStudioEditor: React.FC<TemplateStudioEditorProps> = ({
           <button
             type="button"
             onClick={() => setPreviewDevice('mobile')}
-            className={`p-1.5 rounded-md transition ${
+            className={`p-1.5 rounded-lg transition ${
               previewDevice === 'mobile'
-                ? 'bg-slate-700 text-white shadow-xs'
-                : 'text-slate-400 hover:text-slate-200'
+                ? 'bg-[#8B6CF6] text-white shadow-xs'
+                : 'text-[#FAF8F5]/60 hover:text-white'
             }`}
             title="Mobile View (375px)"
           >
@@ -412,8 +413,8 @@ const TemplateStudioEditor: React.FC<TemplateStudioEditorProps> = ({
         {/* Right Action Buttons */}
         <div className="flex items-center space-x-2">
           {isEditing && (
-            <label className="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold cursor-pointer border border-slate-700 transition">
-              <Upload className="w-3.5 h-3.5" />
+            <label className="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[#2A3454] hover:bg-[#344066] text-[#FAF8F5] text-xs font-semibold cursor-pointer border border-[#344066] transition">
+              <Upload className="w-3.5 h-3.5 text-[#8B6CF6]" />
               <span>Thumbnail</span>
               <input
                 type="file"
@@ -429,7 +430,7 @@ const TemplateStudioEditor: React.FC<TemplateStudioEditorProps> = ({
             type="button"
             onClick={() => handleSave(false)}
             disabled={isSaving}
-            className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold border border-slate-700 transition active:scale-95 disabled:opacity-50"
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#2A3454] hover:bg-[#344066] text-white text-xs font-bold border border-[#344066] transition active:scale-95 disabled:opacity-50 cursor-pointer"
           >
             {isSaving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
             <span>Save Draft</span>
@@ -439,10 +440,10 @@ const TemplateStudioEditor: React.FC<TemplateStudioEditorProps> = ({
             type="button"
             onClick={() => handleSave(!isPublished)}
             disabled={isSaving}
-            className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-bold transition active:scale-95 shadow-md ${
+            className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition active:scale-95 shadow-md cursor-pointer ${
               isPublished
                 ? 'bg-amber-600 hover:bg-amber-500 text-white'
-                : 'bg-emerald-600 hover:bg-emerald-500 text-white'
+                : 'bg-[#8B6CF6] hover:bg-[#7A5CE6] text-white'
             }`}
           >
             <Globe className="w-3.5 h-3.5" />
@@ -453,8 +454,8 @@ const TemplateStudioEditor: React.FC<TemplateStudioEditorProps> = ({
 
       {/* Toast Notification */}
       {toastMessage && (
-        <div className="absolute top-20 right-6 z-50 bg-indigo-600 text-white px-4 py-2.5 rounded-xl shadow-2xl text-xs font-semibold flex items-center gap-2 animate-in fade-in slide-in-from-top-4 duration-200">
-          <Sparkles className="w-4 h-4" />
+        <div className="absolute top-20 right-6 z-50 bg-[#8B6CF6] text-white px-4 py-2.5 rounded-xl shadow-2xl text-xs font-semibold flex items-center gap-2 animate-in fade-in slide-in-from-top-4 duration-200">
+          <Sparkles className="w-4 h-4 text-[#FFC45B]" />
           <span>{toastMessage}</span>
         </div>
       )}
@@ -464,16 +465,16 @@ const TemplateStudioEditor: React.FC<TemplateStudioEditorProps> = ({
          ───────────────────────────────────────────────────────────────────────────── */}
       <div className="flex-1 flex overflow-hidden">
         {/* ─── LEFT PANEL: Palette & Theme Styling (320px) ─── */}
-        <aside className="w-80 shrink-0 border-r border-slate-800 bg-slate-900/60 flex flex-col overflow-hidden">
+        <aside className="w-80 shrink-0 border-r border-[#2A3454] bg-[#202744]/90 flex flex-col overflow-hidden">
           {/* Palette Tabs */}
-          <div className="p-3 border-b border-slate-800 flex gap-1">
+          <div className="p-3 border-b border-[#2A3454] flex gap-1">
             <button
               type="button"
               onClick={() => setActiveTab('blocks')}
-              className={`flex-1 py-2 px-3 rounded-lg text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 transition ${
+              className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 transition cursor-pointer ${
                 activeTab === 'blocks'
-                  ? 'bg-indigo-600 text-white shadow-xs'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
+                  ? 'bg-[#8B6CF6] text-white shadow-xs'
+                  : 'text-[#FAF8F5]/60 hover:text-white hover:bg-[#2A3454]'
               }`}
             >
               <Layers className="w-3.5 h-3.5" />
@@ -482,10 +483,10 @@ const TemplateStudioEditor: React.FC<TemplateStudioEditorProps> = ({
             <button
               type="button"
               onClick={() => setActiveTab('theme')}
-              className={`flex-1 py-2 px-3 rounded-lg text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 transition ${
+              className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 transition cursor-pointer ${
                 activeTab === 'theme'
-                  ? 'bg-indigo-600 text-white shadow-xs'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
+                  ? 'bg-[#8B6CF6] text-white shadow-xs'
+                  : 'text-[#FAF8F5]/60 hover:text-white hover:bg-[#2A3454]'
               }`}
             >
               <Palette className="w-3.5 h-3.5" />
@@ -768,23 +769,23 @@ const TemplateStudioEditor: React.FC<TemplateStudioEditorProps> = ({
         </aside>
 
         {/* ─── CENTER PANEL: Drag-and-Drop Interactive Canvas (380px) ─── */}
-        <section className="w-96 shrink-0 border-r border-slate-800 bg-slate-900/40 flex flex-col overflow-hidden">
-          <div className="p-4 border-b border-slate-800 flex items-center justify-between">
+        <section className="w-96 shrink-0 border-r border-[#2A3454] bg-[#202744]/70 flex flex-col overflow-hidden">
+          <div className="p-4 border-b border-[#2A3454] flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Layout className="w-4 h-4 text-indigo-400" />
+              <Layout className="w-4 h-4 text-[#8B6CF6]" />
               <h3 className="font-bold text-xs uppercase tracking-wider text-white">
                 Layout Sections ({sections.length})
               </h3>
             </div>
-            <span className="text-[10px] font-mono text-slate-400">Drag ⠿ to Reorder</span>
+            <span className="text-[10px] font-mono text-[#FAF8F5]/60">Drag ⠿ to Reorder</span>
           </div>
 
           <div className="flex-1 overflow-y-auto p-4">
             {sections.length === 0 ? (
-              <div className="h-64 border-2 border-dashed border-slate-800 rounded-2xl flex flex-col items-center justify-center p-6 text-center text-slate-500">
-                <Layers className="w-8 h-8 mb-2 stroke-1" />
-                <p className="text-xs font-semibold">Canvas is empty</p>
-                <p className="text-[11px] text-slate-400 mt-1">
+              <div className="h-64 border-2 border-dashed border-[#2A3454] rounded-2xl flex flex-col items-center justify-center p-6 text-center text-[#FAF8F5]/50">
+                <Layers className="w-8 h-8 mb-2 stroke-1 text-[#8B6CF6]" />
+                <p className="text-xs font-semibold text-white">Canvas is empty</p>
+                <p className="text-[11px] text-[#FAF8F5]/60 mt-1">
                   Choose blocks from the left panel to begin crafting your layout.
                 </p>
               </div>
@@ -805,22 +806,22 @@ const TemplateStudioEditor: React.FC<TemplateStudioEditorProps> = ({
                       value={section}
                       className={`p-3.5 rounded-xl border transition-all shadow-md cursor-grab active:cursor-grabbing select-none ${
                         section.isVisible
-                          ? 'bg-slate-800/90 border-slate-700/80 hover:border-indigo-500/60'
-                          : 'bg-slate-900/60 border-slate-800/80 opacity-60'
+                          ? 'bg-[#181E35] border-[#2A3454] hover:border-[#8B6CF6]/70'
+                          : 'bg-[#181E35]/40 border-[#2A3454]/60 opacity-60'
                       }`}
                     >
                       <div className="flex items-center justify-between gap-2">
                         {/* Drag Handle & Info */}
                         <div className="flex items-center gap-2.5 min-w-0">
-                          <GripVertical className="w-4 h-4 text-slate-400 shrink-0" />
+                          <GripVertical className="w-4 h-4 text-[#FAF8F5]/40 shrink-0" />
                           <div className="min-w-0">
                             <input
                               type="text"
                               value={section.title || section.type}
                               onChange={(e) => handleTitleChange(section.id, e.target.value)}
-                              className="font-bold text-xs text-white bg-transparent border-b border-transparent hover:border-slate-600 focus:border-indigo-400 focus:outline-hidden w-full truncate"
+                              className="font-bold text-xs text-white bg-transparent border-b border-transparent hover:border-[#2A3454] focus:border-[#8B6CF6] focus:outline-hidden w-full truncate"
                             />
-                            <span className="text-[10px] font-mono text-indigo-400 block mt-0.5">
+                            <span className="text-[10px] font-mono text-[#8B6CF6] block mt-0.5">
                               {section.type}
                             </span>
                           </div>
@@ -831,10 +832,10 @@ const TemplateStudioEditor: React.FC<TemplateStudioEditorProps> = ({
                           <button
                             type="button"
                             onClick={() => handleToggleVisible(section.id)}
-                            className={`p-1.5 rounded-lg transition ${
+                            className={`p-1.5 rounded-lg transition cursor-pointer ${
                               section.isVisible
-                                ? 'text-emerald-400 hover:bg-slate-700/60'
-                                : 'text-slate-500 hover:bg-slate-700/60'
+                                ? 'text-emerald-400 hover:bg-[#202744]'
+                                : 'text-[#FAF8F5]/40 hover:bg-[#202744]'
                             }`}
                             title={section.isVisible ? 'Hide block' : 'Show block'}
                           >
@@ -844,7 +845,7 @@ const TemplateStudioEditor: React.FC<TemplateStudioEditorProps> = ({
                           <button
                             type="button"
                             onClick={() => handleDuplicateBlock(section)}
-                            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-700/60 transition"
+                            className="p-1.5 rounded-lg text-[#FAF8F5]/60 hover:text-white hover:bg-[#202744] transition cursor-pointer"
                             title="Duplicate block"
                           >
                             <Copy className="w-3.5 h-3.5" />
@@ -853,7 +854,7 @@ const TemplateStudioEditor: React.FC<TemplateStudioEditorProps> = ({
                           <button
                             type="button"
                             onClick={() => handleRemoveBlock(section.id)}
-                            className="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-slate-700/60 transition"
+                            className="p-1.5 rounded-lg text-[#FAF8F5]/60 hover:text-rose-400 hover:bg-[#202744] transition cursor-pointer"
                             title="Delete block"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
@@ -862,12 +863,12 @@ const TemplateStudioEditor: React.FC<TemplateStudioEditorProps> = ({
                       </div>
 
                       {/* Variant Selector Dropdown */}
-                      <div className="mt-3 pt-2.5 border-t border-slate-700/40 flex items-center justify-between text-[11px]">
-                        <span className="text-slate-400 font-mono text-[10px]">Variant:</span>
+                      <div className="mt-3 pt-2.5 border-t border-[#2A3454] flex items-center justify-between text-[11px]">
+                        <span className="text-[#FAF8F5]/60 font-mono text-[10px]">Variant:</span>
                         <select
                           value={section.variant || variants[0]}
                           onChange={(e) => handleVariantChange(section.id, e.target.value)}
-                          className="px-2 py-1 rounded bg-slate-900 border border-slate-700 text-slate-200 text-[11px] focus:outline-hidden focus:border-indigo-400 font-mono"
+                          className="px-2 py-1 rounded bg-[#202744] border border-[#2A3454] text-white text-[11px] focus:outline-hidden focus:border-[#8B6CF6] font-mono"
                         >
                           {variants.map((v) => (
                             <option key={v} value={v}>
@@ -885,8 +886,8 @@ const TemplateStudioEditor: React.FC<TemplateStudioEditorProps> = ({
         </section>
 
         {/* ─── RIGHT PANEL: Live Device Simulator ─── */}
-        <main className="flex-1 bg-slate-950 flex flex-col items-center justify-start overflow-hidden relative p-4 sm:p-6">
-          <div className="w-full flex items-center justify-between pb-3 text-xs text-slate-400 font-mono border-b border-slate-900 mb-4">
+        <main className="flex-1 bg-[#131726] flex flex-col items-center justify-start overflow-hidden relative p-4 sm:p-6">
+          <div className="w-full flex items-center justify-between pb-3 text-xs text-[#FAF8F5]/60 font-mono border-b border-[#2A3454] mb-4">
             <span className="flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
               <span>Live Simulator Preview</span>
@@ -896,7 +897,7 @@ const TemplateStudioEditor: React.FC<TemplateStudioEditorProps> = ({
 
           {/* Interactive Screen Frame */}
           <div
-            className={`flex-1 overflow-y-auto rounded-2xl shadow-2xl border border-slate-800 bg-white transition-all duration-300 ${previewFrameWidth} max-h-full`}
+            className={`flex-1 overflow-y-auto rounded-2xl shadow-2xl border border-[#2A3454] bg-white transition-all duration-300 ${previewFrameWidth} max-h-full`}
           >
             <DynamicPortfolioRenderer
               data={{

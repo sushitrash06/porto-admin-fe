@@ -54,7 +54,8 @@ export const WorkspaceSwitcher: React.FC<WorkspaceSwitcherProps> = ({
     }
   };
 
-  const hasBusinessProfile = !!currentUser.hasBusinessProfile || localStorage.getItem('has_business_profile') === 'true';
+  const hasBusinessProfile =
+    !!currentUser.hasBusinessProfile || localStorage.getItem('has_business_profile') === 'true';
 
   return (
     <>
@@ -62,71 +63,79 @@ export const WorkspaceSwitcher: React.FC<WorkspaceSwitcherProps> = ({
         <button
           type="button"
           onClick={() => setIsOpen(!isOpen)}
-          className="flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700/60 text-slate-200 transition-all text-sm font-medium shadow-sm cursor-pointer"
+          className="flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-white hover:bg-[#FAF8F5] border border-[#E5E1DA] text-[#202744] transition-all text-sm font-semibold shadow-3xs cursor-pointer"
         >
           {currentWorkspace === 'BUSINESS' ? (
-            <div className="w-6 h-6 rounded-lg bg-blue-600/20 text-blue-400 flex items-center justify-center border border-blue-500/30 shrink-0">
+            <div className="w-6 h-6 rounded-lg bg-[#E7F2FF] text-[#4697F5] flex items-center justify-center border border-[#BFDEFF] shrink-0">
               <Briefcase className="w-3.5 h-3.5" />
             </div>
           ) : (
-            <div className="w-6 h-6 rounded-lg bg-indigo-600/20 text-indigo-400 flex items-center justify-center border border-indigo-500/30 shrink-0">
+            <div className="w-6 h-6 rounded-lg bg-[#E8E0FF] text-[#8B6CF6] flex items-center justify-center border border-[#D5C6FF] shrink-0">
               <User className="w-3.5 h-3.5" />
             </div>
           )}
 
           <div className="text-left">
-            <p className="text-xs font-semibold leading-tight text-white whitespace-nowrap">
+            <p className="text-xs font-bold leading-tight text-[#202744] whitespace-nowrap">
               {currentWorkspace === 'BUSINESS' ? 'Business Studio' : 'Personal Portfolio'}
             </p>
           </div>
-          <ChevronDown className={`w-3.5 h-3.5 text-slate-400 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+          <ChevronDown
+            className={`w-3.5 h-3.5 text-[#69718A] transition-transform ${
+              isOpen ? 'rotate-180' : ''
+            }`}
+          />
         </button>
 
         {isOpen && (
-          <div className="absolute left-0 mt-2 w-64 rounded-2xl bg-slate-900 border border-slate-700/80 shadow-2xl p-2 z-50 animate-in fade-in zoom-in-95">
-            <div className="px-3 py-2 text-[11px] font-semibold tracking-wider text-slate-400 uppercase">
-              Pilih Ruang Kerja (Workspace)
+          <div className="absolute left-0 mt-2 w-64 rounded-2xl bg-white border border-[#EAE5DD] shadow-xl p-2 z-50 animate-in fade-in zoom-in-95">
+            <div className="px-3 py-1.5 text-[10px] font-bold tracking-wider text-[#69718A] uppercase font-mono">
+              Switch Workspace
             </div>
 
-            {/* Opsi Personal */}
+            {/* Personal Option */}
             <button
               type="button"
               onClick={() => handleSelectWorkspace('PERSONAL')}
-              className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-left text-sm transition-colors cursor-pointer ${
+              className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-left text-xs transition-colors cursor-pointer ${
                 currentWorkspace === 'PERSONAL'
-                  ? 'bg-indigo-600/15 text-indigo-300 font-semibold border border-indigo-500/20'
-                  : 'hover:bg-slate-800/70 text-slate-300'
+                  ? 'bg-[#E8E0FF]/60 text-[#5533CC] font-bold border border-[#D5C6FF]'
+                  : 'hover:bg-[#FAF8F5] text-[#202744]'
               }`}
             >
               <div className="flex items-center gap-2.5">
-                <User className="w-4 h-4 text-indigo-400 shrink-0" />
+                <div className="w-7 h-7 rounded-lg bg-[#E8E0FF] text-[#8B6CF6] flex items-center justify-center shrink-0">
+                  <User className="w-4 h-4" />
+                </div>
                 <div>
-                  <p className="text-xs font-medium">Personal Developer</p>
-                  <p className="text-[10px] text-slate-400">CV, Resume & Proyek Pribadi</p>
+                  <p className="font-bold">Personal Portfolio</p>
+                  <p className="text-[10px] text-[#69718A]">Career, skills & personal projects</p>
                 </div>
               </div>
-              {currentWorkspace === 'PERSONAL' && <Check className="w-4 h-4 text-indigo-400 shrink-0" />}
+              {currentWorkspace === 'PERSONAL' && <Check className="w-4 h-4 text-[#8B6CF6] shrink-0" />}
             </button>
 
-            {/* Opsi Bisnis */}
+            {/* Business Option */}
             {hasBusinessProfile ? (
               <button
                 type="button"
                 onClick={() => handleSelectWorkspace('BUSINESS')}
-                className={`w-full flex items-center justify-between px-3 py-2.5 mt-1 rounded-xl text-left text-sm transition-colors cursor-pointer ${
+                className={`w-full flex items-center justify-between px-3 py-2.5 mt-1 rounded-xl text-left text-xs transition-colors cursor-pointer ${
                   currentWorkspace === 'BUSINESS'
-                    ? 'bg-blue-600/15 text-blue-300 font-semibold border border-blue-500/20'
-                    : 'hover:bg-slate-800/70 text-slate-300'
+                    ? 'bg-[#E7F2FF]/60 text-[#1E6FD6] font-bold border border-[#BFDEFF]'
+                    : 'hover:bg-[#FAF8F5] text-[#202744]'
                 }`}
               >
                 <div className="flex items-center gap-2.5">
-                  <Briefcase className="w-4 h-4 text-blue-400 shrink-0" />
+                  <div className="w-7 h-7 rounded-lg bg-[#E7F2FF] text-[#4697F5] flex items-center justify-center shrink-0">
+                    <Briefcase className="w-4 h-4" />
+                  </div>
                   <div>
-                    <p className="text-xs font-medium">Business / Agency</p>
-                    <p className="text-[10px] text-slate-400">Layanan, Portofolio & Klien</p>
+                    <p className="font-bold">Commercial Business</p>
+                    <p className="text-[10px] text-[#69718A]">Services, clients & WhatsApp inquiries</p>
                   </div>
                 </div>
-                {currentWorkspace === 'BUSINESS' && <Check className="w-4 h-4 text-blue-400 shrink-0" />}
+                {currentWorkspace === 'BUSINESS' && <Check className="w-4 h-4 text-[#4697F5] shrink-0" />}
               </button>
             ) : (
               <button
@@ -135,14 +144,14 @@ export const WorkspaceSwitcher: React.FC<WorkspaceSwitcherProps> = ({
                   setIsOpen(false);
                   setShowActivateModal(true);
                 }}
-                className="w-full flex items-center gap-2.5 px-3 py-2.5 mt-1 rounded-xl text-left text-sm bg-gradient-to-r from-blue-600/20 to-cyan-600/20 hover:from-blue-600/30 hover:to-cyan-600/30 text-blue-300 border border-blue-500/30 transition-all group cursor-pointer"
+                className="w-full flex items-center gap-2.5 px-3 py-2.5 mt-1 rounded-xl text-left text-xs bg-gradient-to-r from-[#E7F2FF] to-[#E8E0FF] hover:opacity-95 text-[#202744] border border-[#BFDEFF] transition-all group cursor-pointer"
               >
-                <div className="w-5 h-5 rounded-full bg-blue-500 text-slate-950 flex items-center justify-center font-bold shrink-0">
-                  <Plus className="w-3 h-3" />
+                <div className="w-6 h-6 rounded-full bg-[#4697F5] text-white flex items-center justify-center font-bold shrink-0">
+                  <Plus className="w-3.5 h-3.5" />
                 </div>
                 <div>
-                  <p className="text-xs font-bold text-white group-hover:text-blue-200">Aktifkan Profil Bisnis</p>
-                  <p className="text-[10px] text-blue-300/80">Buat profil software house / agency</p>
+                  <p className="font-bold text-[#202744]">Activate Business Profile</p>
+                  <p className="text-[10px] text-[#69718A]">Unlock commercial catalog & services</p>
                 </div>
               </button>
             )}

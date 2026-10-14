@@ -7,19 +7,12 @@ import React, { useState, useMemo } from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { useResetPassword } from '../../hooks/useLogin';
 import {
-  ShieldAlert,
-  ShieldCheck,
-  Sparkles,
-  Lock,
-  Eye,
-  EyeOff,
-  Compass,
-  Loader2,
-  ArrowLeft,
-  CheckCircle2,
-  KeyRound,
-  AlertTriangle,
+  ShieldAlert, ShieldCheck, Lock, Eye, EyeOff, ArrowLeft,
+  CheckCircle2, KeyRound, AlertTriangle
 } from 'lucide-react';
+import { BrandLogo } from '../atoms/BrandLogo';
+import { DotGridPattern, FlowRibbonPattern } from '../atoms/BrandPatterns';
+import { Button } from '../atoms/Button';
 
 export const ResetPasswordPage: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -46,10 +39,10 @@ export const ResetPasswordPage: React.FC = () => {
     if (/[^A-Za-z0-9]/.test(newPassword)) score++;
 
     if (score <= 1) return { label: 'Weak', color: 'bg-red-500', width: '20%' };
-    if (score <= 2) return { label: 'Fair', color: 'bg-orange-400', width: '40%' };
-    if (score <= 3) return { label: 'Good', color: 'bg-yellow-400', width: '60%' };
-    if (score <= 4) return { label: 'Strong', color: 'bg-emerald-400', width: '80%' };
-    return { label: 'Excellent', color: 'bg-emerald-500', width: '100%' };
+    if (score <= 2) return { label: 'Fair', color: 'bg-amber-500', width: '40%' };
+    if (score <= 3) return { label: 'Good', color: 'bg-[#4697F5]', width: '60%' };
+    if (score <= 4) return { label: 'Strong', color: 'bg-emerald-500', width: '80%' };
+    return { label: 'Excellent', color: 'bg-emerald-600', width: '100%' };
   }, [newPassword]);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -57,17 +50,17 @@ export const ResetPasswordPage: React.FC = () => {
     setError('');
 
     if (!newPassword) {
-      setError('Password baru wajib diisi.');
+      setError('New password is required.');
       return;
     }
 
     if (newPassword.length < 6) {
-      setError('Password minimal 6 karakter.');
+      setError('Password must be at least 6 characters.');
       return;
     }
 
     if (newPassword !== confirmPassword) {
-      setError('Konfirmasi password tidak cocok.');
+      setError('Passwords do not match.');
       return;
     }
 
@@ -91,231 +84,175 @@ export const ResetPasswordPage: React.FC = () => {
   // ── No token in URL → invalid link ──
   if (!token) {
     return (
-      <div className="min-h-screen w-full flex items-center justify-center bg-linear-to-b from-neutral-50 to-neutral-100/50 p-4 relative overflow-hidden">
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] opacity-40 pointer-events-none"></div>
-
-        <div className="w-full max-w-md overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg animate-in fade-in-50 zoom-in-95 duration-200 z-10">
-          <div className="h-1 bg-red-500"></div>
-          <div className="px-6 py-8">
-            <div className="flex flex-col items-center text-center space-y-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-red-50 ring-1 ring-red-200">
-                <AlertTriangle className="h-6 w-6 text-red-500" />
-              </div>
-              <h2 className="font-sans text-xl font-bold tracking-tight text-slate-900">
-                Invalid Reset Link
-              </h2>
-              <p className="font-sans text-xs text-slate-500 leading-relaxed max-w-xs">
-                Link reset password tidak valid atau sudah kedaluwarsa. Silakan request ulang dari halaman Forgot Password.
-              </p>
-            </div>
-
-            <div className="mt-6 space-y-3">
-              <Link
-                id="reset-pw-forgot-link"
-                to="/forgot-password"
-                className="flex w-full cursor-pointer items-center justify-center space-x-2 rounded-md bg-black py-2.5 font-sans text-xs font-bold uppercase tracking-wider text-white shadow-xs hover:bg-slate-800 transition active:scale-[0.98]"
-              >
-                <KeyRound className="h-4 w-4" />
-                <span>Request New Link</span>
-              </Link>
-              <Link
-                id="reset-pw-login-link-invalid"
-                to="/login"
-                className="flex w-full cursor-pointer items-center justify-center space-x-2 rounded-md border border-slate-200 bg-white py-2.5 font-sans text-xs font-bold uppercase tracking-wider text-slate-600 shadow-xs hover:bg-slate-50 transition active:scale-[0.98]"
-              >
-                <ArrowLeft className="h-4 w-4" />
-                <span>Back to Login</span>
-              </Link>
-            </div>
+      <div className="min-h-screen w-full flex items-center justify-center bg-[#FAF8F5] text-[#202744] p-4 relative overflow-hidden font-sans">
+        <DotGridPattern dotColor="#8B6CF6" spacing={24} />
+        <div className="w-full max-w-md overflow-hidden rounded-3xl border border-[#EAE5DD] bg-white shadow-xl p-8 text-center z-10">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-red-50 border border-red-200 text-red-600 mb-4">
+            <AlertTriangle className="h-7 w-7" />
           </div>
+          <h2 className="font-sans text-xl font-bold text-[#202744] mb-2">Invalid Reset Link</h2>
+          <p className="font-sans text-xs text-[#69718A] mb-6 leading-relaxed">
+            This password recovery link is missing its security token or has expired. Please request a new one.
+          </p>
+          <Button
+            variant="primary"
+            fullWidth
+            onClick={() => navigate('/forgot-password')}
+          >
+            Request New Link
+          </Button>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-linear-to-b from-neutral-50 to-neutral-100/50 p-4 relative overflow-hidden">
-      {/* Subtle light background mesh grid for premium aesthetic */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] opacity-40 pointer-events-none"></div>
+    <div className="min-h-screen w-full flex items-center justify-center bg-[#FAF8F5] text-[#202744] p-4 relative overflow-hidden font-sans">
+      <DotGridPattern dotColor="#8B6CF6" spacing={24} />
+      <FlowRibbonPattern position="top-right" intensity="subtle" />
 
-      <div className="w-full max-w-md overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg animate-in fade-in-50 zoom-in-95 duration-200 z-10">
-        {/* Brand Line */}
-        <div className={`h-1 ${success ? 'bg-emerald-500' : 'bg-black'}`}></div>
+      <div className="w-full max-w-md overflow-hidden rounded-3xl border border-[#EAE5DD] bg-white shadow-xl animate-in fade-in-50 zoom-in-95 duration-200 z-10">
+        <div className="h-1.5 bg-gradient-to-r from-[#8B6CF6] via-[#4697F5] to-[#FFC45B]" />
 
-        {/* Form Container */}
-        <div className="px-6 py-6.5">
-
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-1.5 text-slate-800">
-              <Sparkles className="h-4 w-4 text-black" />
-              <span className="font-mono text-[9px] font-bold uppercase tracking-wider text-slate-400">Password Reset</span>
-            </div>
-
+        <div className="p-7 sm:p-9">
+          <div className="flex items-center justify-between mb-6">
+            <BrandLogo size="md" to="/" showTagline={false} />
             <Link
-              id="reset-pw-showcase-btn"
-              to="/"
-              className="flex items-center space-x-1 rounded-md px-2.5 py-1 font-sans text-[10px] font-bold uppercase tracking-wider text-slate-400 hover:bg-slate-50 hover:text-slate-900 transition-all cursor-pointer border border-transparent hover:border-slate-200"
+              to="/login"
+              className="flex items-center space-x-1 rounded-full px-3 py-1 font-sans text-xs font-semibold text-[#69718A] hover:text-[#202744] bg-[#FAF8F5] hover:bg-[#F3EFEA] border border-[#E5E1DA] transition-all cursor-pointer"
             >
-              <Compass className="h-3 w-3" />
-              <span>Showcase</span>
+              <ArrowLeft className="h-3 w-3" />
+              <span>Sign In</span>
             </Link>
           </div>
 
-          {/* ── Success State ── */}
           {success ? (
-            <div className="mt-6">
-              <div className="flex flex-col items-center text-center space-y-3">
-                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-50 ring-1 ring-emerald-200">
-                  <CheckCircle2 className="h-6 w-6 text-emerald-600" />
-                </div>
-                <h2 className="font-sans text-xl font-bold tracking-tight text-slate-900">
-                  Password Berhasil Direset!
+            <div className="mt-4 flex flex-col items-center text-center space-y-4">
+              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-50 border border-emerald-200">
+                <CheckCircle2 className="h-7 w-7 text-emerald-600" />
+              </div>
+              <div>
+                <h2 className="font-sans text-xl font-bold tracking-tight text-[#202744]">
+                  Password Successfully Reset
                 </h2>
-                <p className="font-sans text-xs text-slate-500 leading-relaxed max-w-xs">
-                  Password kamu telah berhasil diperbarui. Silakan login dengan password baru kamu.
+                <p className="font-sans text-xs text-[#69718A] leading-relaxed max-w-xs mt-1.5">
+                  Your credentials have been securely updated. You can now log into your account.
                 </p>
               </div>
 
-              <div className="mt-6 pt-4 border-t border-slate-100">
-                <button
-                  id="reset-pw-go-login-btn"
-                  type="button"
+              <div className="pt-4 w-full">
+                <Button
+                  variant="primary"
+                  fullWidth
                   onClick={() => navigate('/login')}
-                  className="flex w-full cursor-pointer items-center justify-center space-x-2 rounded-md bg-black py-2.5 font-sans text-xs font-bold uppercase tracking-wider text-white shadow-xs hover:bg-slate-800 transition active:scale-[0.98]"
                 >
-                  <ShieldCheck className="h-4 w-4" />
-                  <span>Go to Login</span>
-                </button>
+                  Proceed to Sign In
+                </Button>
               </div>
             </div>
           ) : (
             <>
-              {/* ── Form State ── */}
-              <div className="mt-4 flex items-center space-x-2">
-                <KeyRound className="h-5 w-5 text-slate-400" />
-                <h2 className="font-sans text-xl font-bold tracking-tight text-slate-900">
+              <div className="flex items-center gap-2 mb-1">
+                <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#E8E0FF] text-[#8B6CF6]">
+                  <KeyRound className="h-4 w-4" />
+                </div>
+                <h2 className="font-sans text-xl font-extrabold tracking-tight text-[#202744]">
                   Set New Password
                 </h2>
               </div>
-              <p className="mt-1 font-sans text-xs text-slate-400">
-                Masukkan password baru untuk akun kamu. Pastikan password cukup kuat.
+              <p className="mt-1 font-sans text-xs text-[#69718A]">
+                Create a strong password to secure your portfolio and services.
               </p>
 
-              {/* Errors */}
               {error && (
-                <div className="mt-4 flex items-start space-x-2 rounded-md border border-red-100 bg-red-50 p-3 text-xs text-red-600">
-                  <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0 text-red-600" />
+                <div className="mt-4 flex items-start space-x-2.5 rounded-2xl border border-red-200 bg-red-50 p-3 text-xs text-red-700">
+                  <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0 text-red-500" />
                   <p className="font-sans font-medium">{error}</p>
                 </div>
               )}
 
-              {/* Form */}
-              <form onSubmit={handleSubmit} className="mt-5 space-y-4">
-                {/* New Password */}
+              <form onSubmit={handleSubmit} className="mt-6 space-y-4">
                 <div>
-                  <label className="block font-sans text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                  <label className="block font-sans text-xs font-bold text-[#202744] mb-1.5">
                     New Password <span className="text-red-500">*</span>
                   </label>
                   <div className="relative">
-                    <Lock className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                    <Lock className="absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-[#69718A]" />
                     <input
-                      id="reset-pw-new-password"
+                      id="reset-new-password"
                       type={showPassword ? 'text' : 'password'}
                       required
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
-                      placeholder="••••••••"
-                      className="w-full rounded-md border border-slate-200 bg-slate-50 py-2 pr-10 pl-9.5 font-sans text-xs focus:border-slate-400 focus:bg-white focus:outline-hidden text-slate-900"
+                      placeholder="At least 6 characters"
+                      className="w-full rounded-xl border border-[#E5E1DA] bg-white py-2.5 pr-10 pl-10 font-sans text-xs text-[#202744] placeholder-[#69718A] focus:border-[#8B6CF6] focus:outline-hidden focus:ring-2 focus:ring-[#8B6CF6]/20 transition-all"
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute top-1/2 right-3 -translate-y-1/2 text-slate-400 hover:text-slate-700 cursor-pointer"
+                      className="absolute top-1/2 right-3 -translate-y-1/2 text-[#69718A] hover:text-[#202744] cursor-pointer"
                     >
                       {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </button>
                   </div>
-                  {/* Password Strength Bar */}
-                  {newPassword && (
-                    <div className="mt-2 space-y-1">
-                      <div className="h-1 w-full rounded-full bg-slate-100 overflow-hidden">
+                  {newPassword.length > 0 && (
+                    <div className="mt-1.5">
+                      <div className="h-1.5 w-full rounded-full bg-slate-100 overflow-hidden">
                         <div
                           className={`h-full rounded-full transition-all duration-300 ${passwordStrength.color}`}
                           style={{ width: passwordStrength.width }}
                         />
                       </div>
-                      <p className="font-sans text-[10px] text-slate-400">
-                        Strength: <span className="font-semibold">{passwordStrength.label}</span>
+                      <p className="mt-1 font-sans text-[10px] text-[#69718A]">
+                        Password strength:{' '}
+                        <span className="font-bold text-[#202744]">{passwordStrength.label}</span>
                       </p>
                     </div>
                   )}
                 </div>
 
-                {/* Confirm Password */}
                 <div>
-                  <label className="block font-sans text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
-                    Confirm Password <span className="text-red-500">*</span>
+                  <label className="block font-sans text-xs font-bold text-[#202744] mb-1.5">
+                    Confirm New Password <span className="text-red-500">*</span>
                   </label>
                   <div className="relative">
-                    <Lock className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                    <Lock className="absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-[#69718A]" />
                     <input
-                      id="reset-pw-confirm-password"
+                      id="reset-confirm-password"
                       type={showConfirm ? 'text' : 'password'}
                       required
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
-                      placeholder="••••••••"
-                      className="w-full rounded-md border border-slate-200 bg-slate-50 py-2 pr-10 pl-9.5 font-sans text-xs focus:border-slate-400 focus:bg-white focus:outline-hidden text-slate-900"
+                      placeholder="Re-enter password"
+                      className={`w-full rounded-xl border bg-white py-2.5 pr-10 pl-10 font-sans text-xs text-[#202744] placeholder-[#69718A] focus:outline-hidden transition-all ${
+                        confirmPassword.length > 0 && confirmPassword === newPassword
+                          ? 'border-emerald-500 focus:ring-2 focus:ring-emerald-500/20'
+                          : confirmPassword.length > 0 && confirmPassword !== newPassword
+                          ? 'border-red-500 focus:ring-2 focus:ring-red-500/20'
+                          : 'border-[#E5E1DA] focus:border-[#8B6CF6] focus:ring-2 focus:ring-[#8B6CF6]/20'
+                      }`}
                     />
                     <button
                       type="button"
                       onClick={() => setShowConfirm(!showConfirm)}
-                      className="absolute top-1/2 right-3 -translate-y-1/2 text-slate-400 hover:text-slate-700 cursor-pointer"
+                      className="absolute top-1/2 right-3 -translate-y-1/2 text-[#69718A] hover:text-[#202744] cursor-pointer"
                     >
                       {showConfirm ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </button>
                   </div>
-                  {/* Match indicator */}
-                  {confirmPassword && (
-                    <p className={`mt-1 font-sans text-[10px] ${newPassword === confirmPassword ? 'text-emerald-500' : 'text-red-400'}`}>
-                      {newPassword === confirmPassword ? '✓ Password match' : '✗ Password tidak cocok'}
-                    </p>
-                  )}
                 </div>
 
                 <div className="pt-2">
-                  <button
-                    id="reset-pw-submit-btn"
+                  <Button
+                    id="reset-submit-btn"
                     type="submit"
-                    disabled={resetMutation.isPending}
-                    className="flex w-full cursor-pointer items-center justify-center space-x-2 rounded-md bg-black py-2.5 font-sans text-xs font-bold uppercase tracking-wider text-white shadow-xs hover:bg-slate-800 transition active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed"
+                    variant="primary"
+                    fullWidth
+                    isLoading={resetMutation.isPending}
+                    leftIcon={<ShieldCheck className="h-4 w-4" />}
                   >
-                    {resetMutation.isPending ? (
-                      <>
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                        <span>Resetting...</span>
-                      </>
-                    ) : (
-                      <>
-                        <ShieldCheck className="h-4 w-4" />
-                        <span>Reset Password</span>
-                      </>
-                    )}
-                  </button>
-                </div>
-
-                {/* Back to login link */}
-                <div className="text-center pt-1">
-                  <p className="font-sans text-xs text-slate-400">
-                    Ingat password kamu?{' '}
-                    <Link
-                      id="reset-pw-login-link"
-                      to="/login"
-                      className="font-bold text-slate-700 hover:text-black transition-colors underline underline-offset-2"
-                    >
-                      Kembali ke Login
-                    </Link>
-                  </p>
+                    Update Password
+                  </Button>
                 </div>
               </form>
             </>

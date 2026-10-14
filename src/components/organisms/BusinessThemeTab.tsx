@@ -184,17 +184,21 @@ export const BusinessThemeTab: React.FC<BusinessThemeTabProps> = ({ businessProf
   return (
     <div className="space-y-8 font-sans">
       {/* ─── Hero Header ─── */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-950 via-slate-900 to-blue-950 p-6 text-white shadow-xl border border-slate-800">
+      <div className="relative overflow-hidden rounded-2xl bg-[#202744] p-6 text-white shadow-md border border-[#202744]">
+        {/* Subtle decorative circles */}
+        <div className="absolute top-0 right-0 -mr-16 -mt-16 w-56 h-56 rounded-full bg-[#8B6CF6]/15 blur-2xl pointer-events-none" />
+        <div className="absolute bottom-0 right-32 -mb-16 w-48 h-48 rounded-full bg-[#4697F5]/15 blur-2xl pointer-events-none" />
+
         <div className="relative z-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-5">
           <div className="space-y-1.5">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-blue-300 font-mono text-[10px] font-bold uppercase tracking-wider backdrop-blur-xs border border-white/10">
-              <Building2 className="w-3.5 h-3.5 text-blue-400" />
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-violet-200 font-mono text-[10px] font-bold uppercase tracking-wider backdrop-blur-xs border border-white/10">
+              <Building2 className="w-3.5 h-3.5 text-[#FFC45B]" />
               <span>Corporate Brand Showcase & Themes</span>
             </div>
-            <h3 className="text-xl sm:text-2xl font-black tracking-tight text-white">
+            <h3 className="text-xl sm:text-2xl font-bold tracking-tight text-white">
               Business Profile Customizer
             </h3>
-            <p className="text-xs text-slate-300 max-w-xl leading-relaxed">
+            <p className="text-xs text-white/70 max-w-xl leading-relaxed">
               Customize your business portfolio presentation: reorder showcase sections, toggle catalog visibility, and align with your brand guidelines.
             </p>
           </div>
@@ -202,20 +206,20 @@ export const BusinessThemeTab: React.FC<BusinessThemeTabProps> = ({ businessProf
           <div className="flex flex-wrap items-center gap-2.5 shrink-0">
             <Link
               to="/admin/business/theme-studio"
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-xs font-bold uppercase tracking-wider transition active:scale-95 shadow-lg cursor-pointer"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#8B6CF6] hover:bg-[#7A5CE0] text-white text-xs font-bold uppercase tracking-wider transition active:scale-95 shadow-xs cursor-pointer"
               title="Open full-screen side-by-side studio playground"
             >
-              <Building2 className="w-4 h-4 text-blue-200" />
+              <Building2 className="w-4 h-4 text-white" />
               <span>Open Theme Studio</span>
             </Link>
 
             <button
               type="button"
               onClick={() => setShowSimulator(true)}
-              className="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-slate-800/90 hover:bg-slate-800 text-slate-200 text-xs font-bold uppercase tracking-wider transition active:scale-95 border border-slate-700 cursor-pointer"
+              className="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-white text-xs font-bold uppercase tracking-wider transition active:scale-95 border border-white/15 cursor-pointer backdrop-blur-xs"
               title="Open quick simulator modal"
             >
-              <Monitor className="w-4 h-4 text-blue-300" />
+              <Monitor className="w-4 h-4 text-[#4697F5]" />
               <span>Simulator</span>
             </button>
 
@@ -223,9 +227,9 @@ export const BusinessThemeTab: React.FC<BusinessThemeTabProps> = ({ businessProf
               type="button"
               onClick={() => setShowResetConfirm(true)}
               disabled={resetThemeMutation.isPending}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-700/80 text-xs font-semibold transition active:scale-95 cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-white/80 hover:text-white border border-white/10 text-xs font-semibold transition active:scale-95 cursor-pointer"
             >
-              <RotateCcw className="w-3.5 h-3.5 text-amber-400" />
+              <RotateCcw className="w-3.5 h-3.5 text-[#FFC45B]" />
               <span>Reset Defaults</span>
             </button>
           </div>
@@ -233,16 +237,16 @@ export const BusinessThemeTab: React.FC<BusinessThemeTabProps> = ({ businessProf
 
         {/* Active Template Bar */}
         {activeTemplate && (
-          <div className="mt-5 pt-4 border-t border-slate-800/80 flex flex-wrap items-center justify-between gap-3 text-xs">
+          <div className="mt-5 pt-4 border-t border-white/10 flex flex-wrap items-center justify-between gap-3 text-xs">
             <div className="flex items-center gap-2">
               <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="text-slate-400">Active Business Template:</span>
+              <span className="text-white/70">Active Business Template:</span>
               <strong className="text-white font-bold">{activeTemplate.name}</strong>
-              <span className="px-2 py-0.5 rounded bg-blue-500/20 text-blue-300 font-mono text-[10px] uppercase">
+              <span className="px-2 py-0.5 rounded-md bg-[#8B6CF6]/30 text-violet-200 font-mono text-[10px] uppercase border border-violet-400/30">
                 {activeTemplate.category}
               </span>
             </div>
-            <div className="flex items-center gap-4 text-[11px] font-mono text-slate-400">
+            <div className="flex items-center gap-4 text-[11px] font-mono text-white/60">
               <span>{sections.length} Sections Active</span>
               <span>{sections.filter((s) => s.isVisible).length} Visible</span>
             </div>

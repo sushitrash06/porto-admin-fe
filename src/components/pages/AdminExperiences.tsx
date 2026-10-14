@@ -274,39 +274,58 @@ export const AdminExperiences: React.FC = () => {
     return (
         <div className="space-y-6 admin-page-enter">
             {/* Self-contained header display */}
-            <div className="mb-6">
-                <h2 className="font-sans text-2xl font-extrabold tracking-tight text-neutral-900">
-                    {isSuper ? 'Experience Audit' : 'My Career Milestones'}
-                </h2>
-                <p className="font-sans text-sm text-neutral-500 mt-1">
-                    {isSuper ? 'Review and filter all user career histories across the platform.' : 'Maintain your full-cycle career history, company logs, and visibility status.'}
-                </p>
+            <div className="border-b border-[#EAE5DD] pb-5">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <div>
+                        <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#E8E0FF] text-[#8B6CF6] font-mono text-[10px] font-bold uppercase tracking-wider mb-2">
+                            <Briefcase className="w-3 h-3" />
+                            <span>{isSuper ? 'Superadmin Audit' : 'Career Timeline'}</span>
+                        </div>
+                        <h2 className="font-sans text-xl sm:text-2xl font-black tracking-tight text-[#202744]">
+                            {isSuper ? 'Experience Audit' : 'My Career Milestones'}
+                        </h2>
+                        <p className="font-sans text-xs text-[#69718A] mt-1">
+                            {isSuper ? 'Review and filter all user career histories across the platform.' : 'Maintain your full-cycle career history, company logs, and visibility status.'}
+                        </p>
+                    </div>
+
+                    {!isSuper && (
+                        <button
+                            id="create-new-exp-btn"
+                            onClick={handleOpenCreate}
+                            className="flex cursor-pointer items-center justify-center space-x-2 rounded-xl bg-[#8B6CF6] px-5 py-2.5 font-sans text-xs font-bold uppercase tracking-wider text-white shadow-xs transition hover:bg-[#7857ED] active:scale-95 self-start sm:self-auto"
+                        >
+                            <Plus className="h-4 w-4" />
+                            <span>Add Experience</span>
+                        </button>
+                    )}
+                </div>
             </div>
 
             {/* View Information banner for Superadmins */}
             {isSuper && (
-                <div className="flex items-center space-x-2 rounded-md border border-slate-200 bg-slate-50 px-4 py-3 text-xs text-slate-500">
-                    <Info className="h-4 w-4 shrink-0 text-slate-400" />
+                <div className="flex items-center space-x-2 rounded-xl border border-[#EAE5DD] bg-[#FAF8F5] px-4 py-3 text-xs text-[#69718A]">
+                    <Info className="h-4 w-4 shrink-0 text-[#8B6CF6]" />
                     <p className="font-sans font-medium leading-relaxed">
-                        <strong>System Privilege: Read Only Sandbox</strong>. You are logged as a <strong>Super Administrator</strong>. Experience entries can only be edited by their respective developer accounts.
+                        <strong className="text-[#202744]">System Privilege: Read Only Sandbox</strong>. You are logged as a <strong>Super Administrator</strong>. Experience entries can only be edited by their respective developer accounts.
                     </p>
                 </div>
             )}
 
             {/* Control panel containing filters */}
-            <div className="flex flex-col gap-4 border-b border-slate-200 pb-5">
+            <div className="flex flex-col gap-4 border-b border-[#EAE5DD] pb-5">
                 <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
 
                     {/* Query search */}
                     <div className="relative flex-1 max-w-md">
-                        <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                        <Search className="absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-[#69718A]" />
                         <input
                             id="experience-search"
                             type="text"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             placeholder="Filter list by company or role keyword..."
-                            className="w-full rounded-md border border-slate-200 bg-slate-50 py-2 pr-4 pl-9.5 font-sans text-xs focus:border-slate-400 focus:bg-white focus:outline-hidden text-slate-900"
+                            className="w-full rounded-xl border border-[#EAE5DD] bg-[#FAF8F5] py-2.5 pr-4 pl-10 font-sans text-xs focus:border-[#8B6CF6] focus:bg-white focus:ring-2 focus:ring-[#8B6CF6]/15 focus:outline-hidden text-[#202744] transition-all"
                         />
                     </div>
 
@@ -318,26 +337,26 @@ export const AdminExperiences: React.FC = () => {
                                 <div className="relative">
                                     <ListboxButton
                                         id="developer-select-filter"
-                                        className="relative rounded-md border border-slate-200 bg-slate-50 py-2 pr-8 pl-3 text-left font-sans text-xs focus:border-slate-400 focus:bg-white focus:outline-hidden text-slate-700 cursor-pointer min-w-[160px]"
+                                        className="relative rounded-xl border border-[#EAE5DD] bg-[#FAF8F5] py-2.5 pr-8 pl-3.5 text-left font-sans text-xs focus:border-[#8B6CF6] focus:bg-white focus:outline-hidden text-[#202744] cursor-pointer min-w-[160px]"
                                     >
                                         <span className="block truncate">{developerFilterLabel}</span>
                                         <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-                                            <ChevronDown className="h-3.5 w-3.5 text-slate-400" />
+                                            <ChevronDown className="h-3.5 w-3.5 text-[#69718A]" />
                                         </span>
                                     </ListboxButton>
-                                    <ListboxOptions className="absolute z-30 mt-1 max-h-60 w-56 overflow-auto rounded-md bg-white py-1 text-xs shadow-lg ring-1 ring-black/5 focus:outline-hidden font-sans border border-slate-200">
+                                    <ListboxOptions className="absolute z-30 mt-1 max-h-60 w-56 overflow-auto rounded-xl bg-white py-1 text-xs shadow-lg ring-1 ring-black/5 focus:outline-hidden font-sans border border-[#EAE5DD]">
                                         <ListboxOption
                                             value="all"
-                                            className="relative cursor-pointer select-none py-1.5 pr-8 pl-3 text-slate-900 data-[focus]:bg-slate-50"
+                                            className="relative cursor-pointer select-none py-2 pr-8 pl-3.5 text-[#202744] data-[focus]:bg-[#FAF8F5]"
                                         >
                                             {({ selected }) => (
                                                 <>
-                                                    <span className={`block truncate ${selected ? 'font-bold' : 'font-normal'}`}>
+                                                    <span className={`block truncate ${selected ? 'font-bold text-[#8B6CF6]' : 'font-normal'}`}>
                                                         Creators: All Users
                                                     </span>
                                                     {selected && (
-                                                        <span className="absolute inset-y-0 right-0 flex items-center pr-2 text-black">
-                                                            <Check className="h-3 w-3" />
+                                                        <span className="absolute inset-y-0 right-0 flex items-center pr-2 text-[#8B6CF6]">
+                                                            <Check className="h-3.5 w-3.5" />
                                                         </span>
                                                     )}
                                                 </>
@@ -347,16 +366,16 @@ export const AdminExperiences: React.FC = () => {
                                             <ListboxOption
                                                 key={u.id}
                                                 value={u.id}
-                                                className="relative cursor-pointer select-none py-1.5 pr-8 pl-3 text-slate-900 data-[focus]:bg-slate-50"
+                                                className="relative cursor-pointer select-none py-2 pr-8 pl-3.5 text-[#202744] data-[focus]:bg-[#FAF8F5]"
                                             >
                                                 {({ selected }) => (
                                                     <>
-                                                        <span className={`block truncate ${selected ? 'font-bold' : 'font-normal'}`}>
+                                                        <span className={`block truncate ${selected ? 'font-bold text-[#8B6CF6]' : 'font-normal'}`}>
                                                             {u.profile?.fullName || u.email}
                                                         </span>
                                                         {selected && (
-                                                            <span className="absolute inset-y-0 right-0 flex items-center pr-2 text-black">
-                                                                <Check className="h-3 w-3" />
+                                                            <span className="absolute inset-y-0 right-0 flex items-center pr-2 text-[#8B6CF6]">
+                                                                <Check className="h-3.5 w-3.5" />
                                                             </span>
                                                         )}
                                                     </>
@@ -373,26 +392,26 @@ export const AdminExperiences: React.FC = () => {
                             <div className="relative">
                                 <ListboxButton
                                     id="ispublic-select-filter"
-                                    className="relative rounded-md border border-slate-200 bg-slate-50 py-2 pr-8 pl-3 text-left font-sans text-xs focus:border-slate-400 focus:bg-white focus:outline-hidden text-slate-700 cursor-pointer min-w-[140px]"
+                                    className="relative rounded-xl border border-[#EAE5DD] bg-[#FAF8F5] py-2.5 pr-8 pl-3.5 text-left font-sans text-xs focus:border-[#8B6CF6] focus:bg-white focus:outline-hidden text-[#202744] cursor-pointer min-w-[140px]"
                                 >
                                     <span className="block truncate">{publicFilterLabel}</span>
                                     <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-                                        <ChevronDown className="h-3.5 w-3.5 text-slate-400" />
+                                        <ChevronDown className="h-3.5 w-3.5 text-[#69718A]" />
                                     </span>
                                 </ListboxButton>
-                                <ListboxOptions className="absolute z-30 mt-1 max-h-60 w-40 overflow-auto rounded-md bg-white py-1 text-xs shadow-lg ring-1 ring-black/5 focus:outline-hidden font-sans border border-slate-200">
+                                <ListboxOptions className="absolute z-30 mt-1 max-h-60 w-44 overflow-auto rounded-xl bg-white py-1 text-xs shadow-lg ring-1 ring-black/5 focus:outline-hidden font-sans border border-[#EAE5DD]">
                                     <ListboxOption
                                         value="all"
-                                        className="relative cursor-pointer select-none py-1.5 pr-8 pl-3 text-slate-900 data-[focus]:bg-slate-50"
+                                        className="relative cursor-pointer select-none py-2 pr-8 pl-3.5 text-[#202744] data-[focus]:bg-[#FAF8F5]"
                                     >
                                         {({ selected }) => (
                                             <>
-                                                <span className={`block truncate ${selected ? 'font-bold' : 'font-normal'}`}>
+                                                <span className={`block truncate ${selected ? 'font-bold text-[#8B6CF6]' : 'font-normal'}`}>
                                                     Status: All Records
                                                 </span>
                                                 {selected && (
-                                                    <span className="absolute inset-y-0 right-0 flex items-center pr-2 text-black">
-                                                        <Check className="h-3 w-3" />
+                                                    <span className="absolute inset-y-0 right-0 flex items-center pr-2 text-[#8B6CF6]">
+                                                        <Check className="h-3.5 w-3.5" />
                                                     </span>
                                                 )}
                                             </>
@@ -400,16 +419,16 @@ export const AdminExperiences: React.FC = () => {
                                     </ListboxOption>
                                     <ListboxOption
                                         value="public"
-                                        className="relative cursor-pointer select-none py-1.5 pr-8 pl-3 text-slate-900 data-[focus]:bg-slate-50"
+                                        className="relative cursor-pointer select-none py-2 pr-8 pl-3.5 text-[#202744] data-[focus]:bg-[#FAF8F5]"
                                     >
                                         {({ selected }) => (
                                             <>
-                                                <span className={`block truncate ${selected ? 'font-bold' : 'font-normal'}`}>
+                                                <span className={`block truncate ${selected ? 'font-bold text-[#8B6CF6]' : 'font-normal'}`}>
                                                     🌐 Published
                                                 </span>
                                                 {selected && (
-                                                    <span className="absolute inset-y-0 right-0 flex items-center pr-2 text-black">
-                                                        <Check className="h-3 w-3" />
+                                                    <span className="absolute inset-y-0 right-0 flex items-center pr-2 text-[#8B6CF6]">
+                                                        <Check className="h-3.5 w-3.5" />
                                                     </span>
                                                 )}
                                             </>
@@ -417,16 +436,16 @@ export const AdminExperiences: React.FC = () => {
                                     </ListboxOption>
                                     <ListboxOption
                                         value="private"
-                                        className="relative cursor-pointer select-none py-1.5 pr-8 pl-3 text-slate-900 data-[focus]:bg-slate-50"
+                                        className="relative cursor-pointer select-none py-2 pr-8 pl-3.5 text-[#202744] data-[focus]:bg-[#FAF8F5]"
                                     >
                                         {({ selected }) => (
                                             <>
-                                                <span className={`block truncate ${selected ? 'font-bold' : 'font-normal'}`}>
+                                                <span className={`block truncate ${selected ? 'font-bold text-[#8B6CF6]' : 'font-normal'}`}>
                                                     🔒 Hidden
                                                 </span>
                                                 {selected && (
-                                                    <span className="absolute inset-y-0 right-0 flex items-center pr-2 text-black">
-                                                        <Check className="h-3 w-3" />
+                                                    <span className="absolute inset-y-0 right-0 flex items-center pr-2 text-[#8B6CF6]">
+                                                        <Check className="h-3.5 w-3.5" />
                                                     </span>
                                                 )}
                                             </>
@@ -437,42 +456,30 @@ export const AdminExperiences: React.FC = () => {
                         </Listbox>
 
                         {/* View Mode Switcher */}
-                        <div className="flex rounded-md border border-slate-200 bg-slate-105 p-0.5">
+                        <div className="flex rounded-xl border border-[#EAE5DD] bg-[#FAF8F5] p-1">
                             <button
                                 type="button"
                                 onClick={() => setViewMode('grid')}
-                                className={`rounded-md p-1.5 transition-all text-xs cursor-pointer flex items-center ${viewMode === 'grid'
-                                    ? 'bg-white text-slate-950 shadow-3xs'
-                                    : 'text-slate-400 hover:text-slate-700'
+                                className={`rounded-lg p-1.5 transition-all text-xs cursor-pointer flex items-center ${viewMode === 'grid'
+                                    ? 'bg-white text-[#202744] shadow-xs'
+                                    : 'text-[#69718A] hover:text-[#202744]'
                                     }`}
                                 title="Grid representation"
                             >
-                                <Grid className="h-3.5 w-3.5" />
+                                <Grid className="h-4 w-4" />
                             </button>
                             <button
                                 type="button"
                                 onClick={() => setViewMode('table')}
-                                className={`rounded-md p-1.5 transition-all text-xs cursor-pointer flex items-center ${viewMode === 'table'
-                                    ? 'bg-white text-slate-950 shadow-3xs'
-                                    : 'text-slate-400 hover:text-slate-700'
+                                className={`rounded-lg p-1.5 transition-all text-xs cursor-pointer flex items-center ${viewMode === 'table'
+                                    ? 'bg-white text-[#202744] shadow-xs'
+                                    : 'text-[#69718A] hover:text-[#202744]'
                                     }`}
                                 title="Table representation"
                             >
-                                <List className="h-3.5 w-3.5" />
+                                <List className="h-4 w-4" />
                             </button>
                         </div>
-
-                        {/* Regular User Addition Button */}
-                        {!isSuper && (
-                            <button
-                                id="create-new-exp-btn"
-                                onClick={handleOpenCreate}
-                                className="flex cursor-pointer items-center justify-center space-x-1.5 rounded-md bg-black px-4 py-2 font-sans text-xs font-bold uppercase tracking-wider text-white shadow-3xs transition hover:bg-slate-800 active:scale-95"
-                            >
-                                <Plus className="h-4 w-4" />
-                                <span>Add Experience</span>
-                            </button>
-                        )}
 
                     </div>
                 </div>
@@ -491,15 +498,24 @@ export const AdminExperiences: React.FC = () => {
 
             {/* Render View Mode content */}
             {isLoading ? (
-                <div className="rounded-xl border border-slate-200 bg-white p-12 text-center text-slate-450">
-                    <Loader2 className="mx-auto h-8 w-8 animate-spin text-slate-400 mb-2" />
+                <div className="rounded-2xl border border-[#EAE5DD] bg-white p-12 text-center text-[#69718A]">
+                    <Loader2 className="mx-auto h-8 w-8 animate-spin text-[#8B6CF6] mb-2" />
                     <p className="font-sans text-xs">Querying database registers...</p>
                 </div>
             ) : filteredExperiences.length === 0 ? (
-                <div className="rounded-xl border border-dashed border-slate-200 bg-white p-12 text-center text-slate-450 font-sans">
-                    <Briefcase className="mx-auto h-8 w-8 text-slate-350 mb-2 stroke-1" />
-                    <h3 className="text-xs font-bold text-slate-700">No Career Histories Discovered</h3>
-                    <p className="text-[11px] text-slate-400 mt-1">Try resetting search variables or filters.</p>
+                <div className="rounded-2xl border border-dashed border-[#EAE5DD] bg-white p-12 text-center text-[#69718A] font-sans">
+                    <Briefcase className="mx-auto h-10 w-10 text-[#8B6CF6]/40 mb-3 stroke-1" />
+                    <h3 className="text-sm font-bold text-[#202744]">No Career Histories Discovered</h3>
+                    <p className="text-xs text-[#69718A] mt-1">Try resetting search variables or add your first work milestone.</p>
+                    {!isSuper && (
+                        <button
+                            onClick={handleOpenCreate}
+                            className="mt-4 inline-flex items-center space-x-1.5 rounded-xl bg-[#8B6CF6] px-4 py-2 text-xs font-bold text-white hover:bg-[#7857ED] transition shadow-xs cursor-pointer"
+                        >
+                            <Plus className="h-4 w-4" />
+                            <span>Add First Experience</span>
+                        </button>
+                    )}
                 </div>
             ) : (
                 <>
@@ -512,10 +528,9 @@ export const AdminExperiences: React.FC = () => {
                                 return (
                                     <div
                                         key={exp.id}
-                                        className="group relative flex flex-col justify-between rounded-xl border border-slate-200 bg-white p-5 shadow-3xs transition hover:border-slate-400"
+                                        className="group relative flex flex-col justify-between rounded-2xl border border-[#EAE5DD] bg-white p-5 shadow-xs transition hover:border-[#8B6CF6]/40 hover:shadow-md"
                                     >
                                         <div>
-
                                             {/* Headline Info */}
                                             <div className="flex items-start justify-between">
                                                 <div className="flex items-center space-x-3">
@@ -524,32 +539,32 @@ export const AdminExperiences: React.FC = () => {
                                                             src={exp.companyLogo}
                                                             alt={exp.company}
                                                             referrerPolicy="no-referrer"
-                                                            className="h-10 w-10 rounded-md object-cover bg-slate-50 border border-slate-200/60"
+                                                            className="h-10 w-10 rounded-xl object-cover bg-[#FAF8F5] border border-[#EAE5DD]"
                                                         />
                                                     ) : (
-                                                        <div className="flex h-10 w-10 items-center justify-center rounded-md bg-slate-100 font-mono text-[10px] font-bold text-slate-400 uppercase border border-slate-200/50">
+                                                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#E8E0FF]/60 font-mono text-[11px] font-bold text-[#8B6CF6] uppercase border border-[#8B6CF6]/20">
                                                             {exp.company.substring(0, 2).toUpperCase()}
                                                         </div>
                                                     )}
                                                     <div>
-                                                        <h4 className="font-sans text-sm font-bold text-slate-900 leading-tight">
+                                                        <h4 className="font-sans text-sm font-bold text-[#202744] leading-tight">
                                                             {exp.position}
                                                         </h4>
-                                                        <p className="font-sans text-xs text-slate-500 font-medium">{exp.company}</p>
+                                                        <p className="font-sans text-xs text-[#69718A] font-medium">{exp.company}</p>
                                                     </div>
                                                 </div>
 
-                                                <span className={`inline-flex items-center rounded-md px-1.5 py-0.5 font-mono text-[8px] font-bold uppercase tracking-wider ${exp.isPublic
-                                                    ? 'bg-slate-50 text-slate-500 border border-slate-200'
-                                                    : 'bg-slate-100 text-slate-400 border border-slate-200'
+                                                <span className={`inline-flex items-center rounded-lg px-2 py-0.5 font-mono text-[9px] font-bold uppercase tracking-wider ${exp.isPublic
+                                                    ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                                                    : 'bg-[#FAF8F5] text-[#69718A] border border-[#EAE5DD]'
                                                 }`}>
                                                     {exp.isPublic ? '🌐 Public' : '🔒 Hidden'}
                                                 </span>
                                             </div>
 
                                             {/* Timeline Dates */}
-                                            <div className="mt-4 flex items-center space-x-1.5 font-mono text-[10px] text-slate-400 font-bold uppercase">
-                                                <Calendar className="h-3.5 w-3.5 text-slate-400" />
+                                            <div className="mt-4 flex items-center space-x-1.5 font-mono text-[10px] text-[#69718A] font-bold uppercase">
+                                                <Calendar className="h-3.5 w-3.5 text-[#8B6CF6]" />
                                                 <span>{formatDate(exp.startDate)}</span>
                                                 <span>—</span>
                                                 <span className={!exp.endDate ? 'text-emerald-600 font-semibold' : ''}>
@@ -559,22 +574,21 @@ export const AdminExperiences: React.FC = () => {
 
                                             {/* Description Paragraph */}
                                             {exp.description && (
-                                                <p className="mt-3 font-sans text-xs text-slate-500 leading-relaxed whitespace-pre-wrap">
+                                                <p className="mt-3 font-sans text-xs text-[#69718A] leading-relaxed whitespace-pre-wrap line-clamp-3">
                                                     {exp.description}
                                                 </p>
                                             )}
-
                                         </div>
 
                                         {/* Grid card actions footer */}
-                                        <div className="mt-5 flex items-center justify-between border-t border-slate-100 pt-3">
+                                        <div className="mt-5 flex items-center justify-between border-t border-[#EAE5DD] pt-3">
                                             {isSuper ? (
-                                                <span className="font-mono text-[9px] text-slate-400 font-bold uppercase tracking-wider">
+                                                <span className="font-mono text-[9px] text-[#69718A] font-bold uppercase tracking-wider">
                                                     Owner: {expOwner?.profile?.fullName || expOwner?.email || 'System Account'}
                                                 </span>
                                             ) : (
-                                                <span className="font-sans text-[10px] text-slate-455 font-bold uppercase tracking-wider">
-                                                    Self Resource
+                                                <span className="font-sans text-[10px] text-[#69718A] font-bold uppercase tracking-wider">
+                                                    Self Milestone
                                                 </span>
                                             )}
 
@@ -582,95 +596,94 @@ export const AdminExperiences: React.FC = () => {
                                                 <button
                                                     id={`view-exp-${exp.id}-btn`}
                                                     onClick={() => navigate(`/admin/experiences/${exp.id}`)}
-                                                    className="rounded-md border border-slate-200 bg-white p-1.5 text-slate-500 hover:border-slate-400 hover:text-black transition cursor-pointer"
+                                                    className="rounded-xl border border-[#EAE5DD] bg-white p-2 text-[#69718A] hover:border-[#8B6CF6]/40 hover:text-[#8B6CF6] hover:bg-[#FAF8F5] transition cursor-pointer shadow-xs"
                                                     title="View detail"
                                                 >
-                                                    <Eye className="h-3 w-3" />
+                                                    <Eye className="h-3.5 w-3.5" />
                                                 </button>
                                                 {!isSuper && (
                                                     <>
                                                         <button
                                                             id={`edit-exp-${exp.id}-btn`}
                                                             onClick={() => handleOpenEdit(exp)}
-                                                            className="rounded-md border border-slate-200 bg-white p-1.5 text-slate-500 hover:border-slate-400 hover:text-black transition cursor-pointer"
+                                                            className="rounded-xl border border-[#EAE5DD] bg-white p-2 text-[#69718A] hover:border-[#8B6CF6]/40 hover:text-[#8B6CF6] hover:bg-[#FAF8F5] transition cursor-pointer shadow-xs"
                                                             title="Modify parameters"
                                                         >
-                                                            <Edit className="h-3 w-3" />
+                                                            <Edit className="h-3.5 w-3.5" />
                                                         </button>
                                                         <button
                                                             id={`delete-exp-${exp.id}-btn`}
                                                             onClick={() => handleDelete(exp.id)}
                                                             disabled={deleteMutation.isPending}
-                                                            className="rounded-md border border-slate-200 bg-white p-1.5 text-slate-500 hover:border-red-200 hover:text-red-600 hover:bg-red-50 transition cursor-pointer disabled:opacity-50"
+                                                            className="rounded-xl border border-[#EAE5DD] bg-white p-2 text-[#69718A] hover:border-red-200 hover:text-red-600 hover:bg-red-50 transition cursor-pointer disabled:opacity-50 shadow-xs"
                                                             title="Delete entry"
                                                         >
-                                                            <Trash2 className="h-3 w-3" />
+                                                            <Trash2 className="h-3.5 w-3.5" />
                                                         </button>
                                                     </>
                                                 )}
                                             </div>
                                         </div>
-
                                     </div>
                                 );
                             })}
                         </div>
                     ) : (
-                        <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-3xs">
+                        <div className="overflow-x-auto rounded-2xl border border-[#EAE5DD] bg-white shadow-xs">
                             <table className="w-full min-w-[700px] border-collapse text-left text-xs font-sans">
-                                <thead className="bg-slate-50 border-b border-slate-200/60 font-mono text-[9px] font-bold uppercase tracking-wider text-slate-400">
+                                <thead className="bg-[#FAF8F5] border-b border-[#EAE5DD] font-sans text-[10px] font-bold uppercase tracking-wider text-[#69718A]">
                                     <tr>
                                         {isSuper && <th className="px-6 py-4">Developer</th>}
                                         <th className="px-6 py-4">Company Details</th>
                                         <th className="px-6 py-4">Position Title</th>
-                                        <th className="px-6 py-4">Timeline Calendar</th>
+                                        <th className="px-6 py-4">Timeline</th>
                                         <th className="px-6 py-4 text-center">Status</th>
                                         <th className="px-6 py-4 text-right">Actions</th>
                                     </tr>
                                 </thead>
-                                <tbody className="divide-y divide-slate-100 text-slate-600">
+                                <tbody className="divide-y divide-[#F0EBE1] text-[#69718A]">
                                     {filteredExperiences.slice((activePage - 1) * ITEMS_PER_PAGE, activePage * ITEMS_PER_PAGE).map(exp => {
                                         const expOwner = usersList.find(u => u.id === exp.userId);
 
                                         return (
-                                            <tr key={exp.id} className="hover:bg-slate-50/50 transition">
+                                            <tr key={exp.id} className="hover:bg-[#FAF8F5]/60 transition">
                                                 {isSuper && (
                                                     <td className="px-6 py-4">
-                                                        <div className="font-bold text-slate-900 leading-snug">
+                                                        <div className="font-bold text-[#202744] leading-snug">
                                                             {expOwner?.profile?.fullName || 'Sandbox Member'}
                                                         </div>
-                                                        <div className="font-mono text-[9px] text-slate-400">
+                                                        <div className="font-mono text-[10px] text-[#69718A]">
                                                             {expOwner?.email || 'N/A'}
                                                         </div>
                                                     </td>
                                                 )}
-                                                <td className="px-6 py-4 font-bold text-slate-900">
+                                                <td className="px-6 py-4 font-bold text-[#202744]">
                                                     <div className="flex items-center space-x-2.5">
                                                         {exp.companyLogo ? (
                                                             <img
                                                                 src={exp.companyLogo}
                                                                 alt={exp.company}
                                                                 referrerPolicy="no-referrer"
-                                                                className="h-7 w-7 rounded-md object-cover bg-slate-50 border border-slate-200/50"
+                                                                className="h-8 w-8 rounded-lg object-cover bg-white border border-[#EAE5DD] shadow-xs"
                                                             />
                                                         ) : (
-                                                            <div className="flex h-7 w-7 items-center justify-center rounded-md bg-slate-100 font-mono text-[9px] font-bold text-slate-400 uppercase">
+                                                            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#E8E0FF] font-sans text-[10px] font-bold text-[#8B6CF6] uppercase">
                                                                 {exp.company.substring(0, 2).toUpperCase()}
                                                             </div>
                                                         )}
                                                         <span>{exp.company}</span>
                                                     </div>
                                                 </td>
-                                                <td className="px-6 py-4 font-semibold text-slate-700">
+                                                <td className="px-6 py-4 font-semibold text-[#202744]">
                                                     {exp.position}
                                                 </td>
-                                                <td className="px-6 py-4 font-mono text-[10px] text-slate-500">
+                                                <td className="px-6 py-4 text-[11px] text-[#69718A]">
                                                     {formatDate(exp.startDate)} — {exp.endDate ? formatDate(exp.endDate) : <span className="text-emerald-600 font-bold">Active Now</span>}
                                                 </td>
                                                 <td className="px-6 py-4 text-center">
-                                                    <span className={`inline-flex items-center rounded-md px-1.5 py-0.5 font-mono text-[8px] font-bold uppercase tracking-wider ${exp.isPublic
-                                                        ? 'bg-slate-50 text-slate-500 border border-slate-200'
-                                                        : 'bg-slate-100 text-slate-400 border border-slate-200'
+                                                    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-bold ${exp.isPublic
+                                                        ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                                                        : 'bg-[#FAF8F5] text-[#69718A] border border-[#EAE5DD]'
                                                     }`}>
                                                         {exp.isPublic ? 'Public' : 'Hidden'}
                                                     </span>
@@ -680,26 +693,29 @@ export const AdminExperiences: React.FC = () => {
                                                         <button
                                                             id={`view-exp-tbl-${exp.id}-btn`}
                                                             onClick={() => navigate(`/admin/experiences/${exp.id}`)}
-                                                            className="rounded-md border border-slate-200 bg-white p-1.5 text-slate-500 hover:border-slate-400 hover:text-black transition cursor-pointer"
+                                                            className="rounded-lg border border-[#EAE5DD] bg-white p-2 text-[#69718A] hover:border-[#8B6CF6]/40 hover:text-[#8B6CF6] hover:bg-[#8B6CF6]/5 transition cursor-pointer"
+                                                            title="View detail"
                                                         >
-                                                            <Eye className="h-3 w-3" />
+                                                            <Eye className="h-3.5 w-3.5" />
                                                         </button>
                                                         {!isSuper && (
                                                             <>
                                                                 <button
                                                                     id={`edit-exp-tbl-${exp.id}-btn`}
                                                                     onClick={() => handleOpenEdit(exp)}
-                                                                    className="rounded-md border border-slate-200 bg-white p-1.5 text-slate-500 hover:border-slate-400 hover:text-black transition cursor-pointer"
+                                                                    className="rounded-lg border border-[#EAE5DD] bg-white p-2 text-[#69718A] hover:border-[#8B6CF6]/40 hover:text-[#8B6CF6] hover:bg-[#8B6CF6]/5 transition cursor-pointer"
+                                                                    title="Edit"
                                                                 >
-                                                                    <Edit className="h-3 w-3" />
+                                                                    <Edit className="h-3.5 w-3.5" />
                                                                 </button>
                                                                 <button
                                                                     id={`delete-exp-tbl-${exp.id}-btn`}
                                                                     onClick={() => handleDelete(exp.id)}
                                                                     disabled={deleteMutation.isPending}
-                                                                    className="rounded-md border border-slate-200 bg-white p-1.5 text-slate-500 hover:border-red-200 hover:text-red-600 hover:bg-red-50 transition cursor-pointer disabled:opacity-50"
+                                                                    className="rounded-lg border border-[#EAE5DD] bg-white p-2 text-[#69718A] hover:border-red-200 hover:text-red-600 hover:bg-red-50 transition cursor-pointer disabled:opacity-50"
+                                                                    title="Delete"
                                                                 >
-                                                                    <Trash2 className="h-3 w-3" />
+                                                                    <Trash2 className="h-3.5 w-3.5" />
                                                                 </button>
                                                             </>
                                                         )}
@@ -715,23 +731,23 @@ export const AdminExperiences: React.FC = () => {
 
                     {/* Pagination Controls */}
                     {totalPages > 1 && (
-                        <div className="flex items-center justify-between border-t border-slate-200 bg-slate-50 px-6 py-3 font-sans text-xs">
-                            <div className="text-slate-450">
-                                Showing page <span className="font-semibold text-slate-700">{activePage}</span> of{' '}
-                                <span className="font-semibold text-slate-700">{totalPages}</span> ({filteredExperiences.length} elements)
+                        <div className="flex items-center justify-between border-t border-[#EAE5DD] bg-[#FAF8F5]/80 px-6 py-3.5 rounded-b-2xl font-sans text-xs">
+                            <div className="text-[#69718A]">
+                                Showing page <span className="font-semibold text-[#202744]">{activePage}</span> of{' '}
+                                <span className="font-semibold text-[#202744]">{totalPages}</span> ({filteredExperiences.length} elements)
                             </div>
                             <div className="flex items-center space-x-2">
                                 <button
                                     onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                                     disabled={activePage <= 1}
-                                    className="rounded-md border border-slate-200 bg-white px-2.5 py-1 text-slate-650 transition hover:bg-slate-50 disabled:opacity-50 cursor-pointer"
+                                    className="rounded-lg border border-[#EAE5DD] bg-white px-3 py-1.5 text-xs font-semibold text-[#202744] transition hover:bg-[#FAF8F5] disabled:opacity-50 cursor-pointer shadow-xs"
                                 >
-                                    Prev
+                                    Previous
                                 </button>
                                 <button
                                     onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                                     disabled={activePage >= totalPages}
-                                    className="rounded-md border border-slate-200 bg-white px-2.5 py-1 text-slate-650 transition hover:bg-slate-50 disabled:opacity-50 cursor-pointer"
+                                    className="rounded-lg border border-[#EAE5DD] bg-white px-3 py-1.5 text-xs font-semibold text-[#202744] transition hover:bg-[#FAF8F5] disabled:opacity-50 cursor-pointer shadow-xs"
                                 >
                                     Next
                                 </button>
@@ -740,22 +756,23 @@ export const AdminExperiences: React.FC = () => {
                     )}
                 </>
             )}
-                          {/* Integration modal sheet */}
+            {/* Integration modal sheet */}
             <Dialog open={isModalOpen} onClose={() => setIsModalOpen(false)} className="relative z-50">
-                <DialogBackdrop className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs transition-opacity" />
+                <DialogBackdrop className="fixed inset-0 bg-[#202744]/40 backdrop-blur-xs transition-opacity" />
 
                 <div className="fixed inset-0 flex w-screen items-center justify-center p-4">
-                    <DialogPanel className="w-full max-w-lg overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg animate-in fade-in-50 zoom-in-95 duration-200">
+                    <DialogPanel className="w-full max-w-lg overflow-hidden rounded-2xl border border-[#EAE5DD] bg-white shadow-xl animate-in fade-in-50 zoom-in-95 duration-200">
+                        <div className="h-1.5 w-full bg-linear-to-r from-[#8B6CF6] via-[#4697F5] to-[#FFC45B]" />
 
-                        <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
-                            <DialogTitle className="font-sans text-sm font-bold uppercase tracking-wider text-slate-800">
-                                {editingExp ? 'Modify Experience Variables' : 'Introduce Career Experience'}
+                        <div className="px-6 py-4 border-b border-[#EAE5DD] flex items-center justify-between">
+                            <DialogTitle className="font-sans text-sm font-bold text-[#202744]">
+                                {editingExp ? 'Edit Experience' : 'Add Experience'}
                             </DialogTitle>
                             <button
                                 type="button"
                                 id="close-exp-modal-top-btn"
                                 onClick={() => setIsModalOpen(false)}
-                                className="h-8 w-8 text-slate-400 hover:text-slate-700 flex items-center justify-center rounded-md hover:bg-slate-50 font-sans text-lg cursor-pointer"
+                                className="h-8 w-8 text-[#69718A] hover:text-[#202744] flex items-center justify-center rounded-lg hover:bg-[#FAF8F5] font-sans text-lg cursor-pointer"
                             >
                                 ×
                             </button>
@@ -765,8 +782,8 @@ export const AdminExperiences: React.FC = () => {
                             <div className="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
 
                                 {error && (
-                                    <div className="flex items-start space-x-2 rounded-md border border-red-100 bg-red-50 p-3 text-xs text-red-655 font-sans font-medium">
-                                        <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0 text-red-650" />
+                                    <div className="flex items-start space-x-2 rounded-xl border border-red-200 bg-red-50 p-3 text-xs text-red-700 font-sans font-medium">
+                                        <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0 text-red-500" />
                                         <span>{error}</span>
                                     </div>
                                 )}
@@ -774,8 +791,8 @@ export const AdminExperiences: React.FC = () => {
                                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                     {/* Job Position */}
                                     <div>
-                                        <label className="block font-sans text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
-                                            Position Title <span className="text-red-550">*</span>
+                                        <label className="block font-sans text-xs font-bold text-[#202744] mb-1.5">
+                                            Position Title <span className="text-[#8B6CF6]">*</span>
                                         </label>
                                         <input
                                             id="modal-exp-position"
@@ -784,14 +801,14 @@ export const AdminExperiences: React.FC = () => {
                                             value={position}
                                             onChange={(e) => setPosition(e.target.value)}
                                             placeholder="e.g. Senior Frontend Engineer"
-                                            className="w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 font-sans text-xs focus:border-slate-400 focus:bg-white focus:outline-hidden text-slate-900"
+                                            className="w-full rounded-xl border border-[#EAE5DD] bg-[#FAF8F5] px-3.5 py-2.5 font-sans text-xs text-[#202744] focus:border-[#8B6CF6] focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-[#8B6CF6]/20"
                                         />
                                     </div>
 
                                     {/* Company Name */}
                                     <div>
-                                        <label className="block font-sans text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
-                                            Company / Organization <span className="text-red-550">*</span>
+                                        <label className="block font-sans text-xs font-bold text-[#202744] mb-1.5">
+                                            Company / Organization <span className="text-[#8B6CF6]">*</span>
                                         </label>
                                         <input
                                             id="modal-exp-company"
@@ -799,8 +816,8 @@ export const AdminExperiences: React.FC = () => {
                                             required
                                             value={company}
                                             onChange={(e) => setCompany(e.target.value)}
-                                            placeholder="e.g. GoTo Group"
-                                            className="w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 font-sans text-xs focus:border-slate-400 focus:bg-white focus:outline-hidden text-slate-900"
+                                            placeholder="e.g. Acme Studio"
+                                            className="w-full rounded-xl border border-[#EAE5DD] bg-[#FAF8F5] px-3.5 py-2.5 font-sans text-xs text-[#202744] focus:border-[#8B6CF6] focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-[#8B6CF6]/20"
                                         />
                                     </div>
                                 </div>
@@ -808,8 +825,8 @@ export const AdminExperiences: React.FC = () => {
                                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                     {/* Start Date */}
                                     <div>
-                                        <label className="block font-sans text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
-                                            Start Date <span className="text-red-555">*</span>
+                                        <label className="block font-sans text-xs font-bold text-[#202744] mb-1.5">
+                                            Start Date <span className="text-[#8B6CF6]">*</span>
                                         </label>
                                         <DatePicker
                                             id="modal-exp-startdate"
@@ -820,8 +837,8 @@ export const AdminExperiences: React.FC = () => {
 
                                     {/* End Date details */}
                                     <div>
-                                        <div className="flex items-center justify-between mb-1">
-                                            <label className="font-sans text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                                        <div className="flex items-center justify-between mb-1.5">
+                                            <label className="font-sans text-xs font-bold text-[#202744]">
                                                 End Date
                                             </label>
                                             <label className="inline-flex items-center space-x-1.5 cursor-pointer select-none">
@@ -830,9 +847,9 @@ export const AdminExperiences: React.FC = () => {
                                                     type="checkbox"
                                                     checked={isPresent}
                                                     onChange={(e) => setIsPresent(e.target.checked)}
-                                                    className="rounded border-slate-300 text-slate-900 focus:ring-slate-900 h-3.5 w-3.5"
+                                                    className="rounded border-[#EAE5DD] text-[#8B6CF6] focus:ring-[#8B6CF6] h-3.5 w-3.5"
                                                 />
-                                                <span className="font-sans text-[10px] font-bold text-slate-500">Present</span>
+                                                <span className="font-sans text-xs font-medium text-[#69718A]">Present</span>
                                             </label>
                                         </div>
 
@@ -847,25 +864,25 @@ export const AdminExperiences: React.FC = () => {
 
                                 {/* Company Logo Image URL */}
                                 <div>
-                                    <label className="block font-sans text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
-                                        Company Logo Photo URL
+                                    <label className="block font-sans text-xs font-bold text-[#202744] mb-1.5">
+                                        Company Logo URL
                                     </label>
                                     <input
                                         id="modal-exp-logo"
                                         type="url"
                                         value={companyLogo}
                                         onChange={(e) => setCompanyLogo(e.target.value)}
-                                        placeholder="https://images.unsplash.com/photo-..."
-                                        className="w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 font-sans text-xs focus:border-slate-400 focus:bg-white focus:outline-hidden text-slate-900"
+                                        placeholder="https://..."
+                                        className="w-full rounded-xl border border-[#EAE5DD] bg-[#FAF8F5] px-3.5 py-2.5 font-sans text-xs text-[#202744] focus:border-[#8B6CF6] focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-[#8B6CF6]/20"
                                     />
                                 </div>
 
                                 {/* Visibility logic */}
-                                <div className="rounded-md border border-slate-200 bg-slate-50 p-3.5">
+                                <div className="rounded-xl border border-[#EAE5DD] bg-[#FAF8F5] p-4">
                                     <div className="flex items-center justify-between">
                                         <div>
-                                            <h4 className="font-sans text-xs font-bold text-slate-955">Published Visibility Status</h4>
-                                            <p className="font-sans text-[11px] text-slate-400">Controls if this record is discoverable on the main public landing showcase page.</p>
+                                            <h4 className="font-sans text-xs font-bold text-[#202744]">Public Visibility</h4>
+                                            <p className="font-sans text-[11px] text-[#69718A]">Display this experience on your published public portfolio.</p>
                                         </div>
                                         <label className="relative inline-flex items-center cursor-pointer">
                                             <input
@@ -875,35 +892,35 @@ export const AdminExperiences: React.FC = () => {
                                                 onChange={(e) => setIsPublic(e.target.checked)}
                                                 className="sr-only peer"
                                             />
-                                            <div className="w-11 h-6 bg-slate-200 peer-focus:outline-hidden rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-black"></div>
-                                            <span className="ml-2 font-sans text-xs font-bold text-slate-700">{isPublic ? 'Public' : 'Hidden'}</span>
+                                            <div className="w-11 h-6 bg-slate-200 peer-focus:outline-hidden rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#8B6CF6]"></div>
+                                            <span className="ml-2 font-sans text-xs font-bold text-[#202744]">{isPublic ? 'Public' : 'Hidden'}</span>
                                         </label>
                                     </div>
                                 </div>
 
                                 {/* Description input */}
                                 <div>
-                                    <label className="block font-sans text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
-                                        Operational role achievements & description
+                                    <label className="block font-sans text-xs font-bold text-[#202744] mb-1.5">
+                                        Description & Key Achievements
                                     </label>
                                     <textarea
                                         id="modal-exp-desc"
                                         value={description}
                                         onChange={(e) => setDescription(e.target.value)}
-                                        placeholder="Detail your operational roles, client impact, or specific tools utilized daily..."
-                                        className="w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 font-sans text-xs focus:border-slate-400 focus:bg-white focus:outline-hidden text-slate-900 min-h-[90px]"
+                                        placeholder="Detail your roles, client impact, or specific tools utilized daily..."
+                                        className="w-full rounded-xl border border-[#EAE5DD] bg-[#FAF8F5] px-3.5 py-2.5 font-sans text-xs text-[#202744] focus:border-[#8B6CF6] focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-[#8B6CF6]/20 min-h-[90px]"
                                     />
                                 </div>
 
                             </div>
 
                             {/* Action buttons */}
-                            <div className="bg-slate-50 border-t border-slate-100 px-6 py-4 flex items-center justify-end space-x-2">
+                            <div className="bg-[#FAF8F5] border-t border-[#EAE5DD] px-6 py-4 flex items-center justify-end space-x-2">
                                 <button
                                     id="cancel-save-exp-btn"
                                     type="button"
                                     onClick={() => setIsModalOpen(false)}
-                                    className="rounded-md border border-slate-200 bg-white px-4 py-2 font-sans text-[10px] font-bold uppercase tracking-wider text-slate-500 hover:bg-slate-50 cursor-pointer"
+                                    className="rounded-xl border border-[#EAE5DD] bg-white px-4 py-2 font-sans text-xs font-bold text-[#69718A] hover:bg-slate-50 cursor-pointer shadow-xs"
                                 >
                                     Cancel
                                 </button>
@@ -911,10 +928,10 @@ export const AdminExperiences: React.FC = () => {
                                     id="submit-save-exp-btn"
                                     type="submit"
                                     disabled={createMutation.isPending || updateMutation.isPending}
-                                    className="flex items-center space-x-1.5 rounded-md bg-black px-4 py-2 font-sans text-[10px] font-bold uppercase tracking-wider text-white shadow-3xs hover:bg-slate-800 transition active:scale-95 cursor-pointer disabled:opacity-60"
+                                    className="flex items-center space-x-1.5 rounded-xl bg-[#8B6CF6] px-5 py-2 font-sans text-xs font-bold text-white shadow-xs hover:bg-[#7A5CE5] transition active:scale-95 cursor-pointer disabled:opacity-60"
                                 >
                                     {(createMutation.isPending || updateMutation.isPending) && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-                                    <span>{editingExp ? 'Apply Changes' : 'Create Entry'}</span>
+                                    <span>{editingExp ? 'Save Changes' : 'Add Experience'}</span>
                                 </button>
                             </div>
 

@@ -1,21 +1,25 @@
 /**
  * @license
- * SPDX-License-Identifier: Apache-2.5
+ * SPDX-License-Identifier: Apache-2.0
  */
 
 import React, { useState, useMemo } from 'react';
-import { 
-  useBusinessServices, 
-  useCreateBusinessService, 
-  useUpdateBusinessService, 
-  useDeleteBusinessService 
+import {
+  useBusinessServices,
+  useCreateBusinessService,
+  useUpdateBusinessService,
+  useDeleteBusinessService,
 } from '../../hooks/useBusinessServices';
 import type { BusinessService } from '../../types';
 import { Dialog, DialogPanel, DialogTitle, DialogBackdrop } from '@headlessui/react';
-import { 
-  Briefcase, Plus, Edit, Trash2, ShieldAlert, Loader2, Globe, EyeOff, X
+import {
+  Briefcase, Plus, Edit, Trash2, ShieldAlert, Loader2, X,
+  Search
 } from 'lucide-react';
 import { ConfirmDialog } from '../molecules/ConfirmDialog';
+import { EmptyState } from '../molecules/EmptyState';
+import { Badge } from '../atoms/Badge';
+import { Button } from '../atoms/Button';
 
 export const BusinessServices: React.FC = () => {
   // Queries
@@ -92,21 +96,24 @@ export const BusinessServices: React.FC = () => {
       name: name.trim(),
       description: description.trim() || undefined,
       priceStartFrom: price,
-      isPublic
+      isPublic,
     };
 
     if (editingService) {
-      updateMutation.mutate({
-        id: editingService.id,
-        ...payload
-      }, {
-        onSuccess: () => {
-          setIsModalOpen(false);
+      updateMutation.mutate(
+        {
+          id: editingService.id,
+          ...payload,
         },
-        onError: (err) => {
-          setError(err.response?.data?.message || err.message || 'Failed to update service.');
+        {
+          onSuccess: () => {
+            setIsModalOpen(false);
+          },
+          onError: (err) => {
+            setError(err.response?.data?.message || err.message || 'Failed to update service.');
+          },
         }
-      });
+      );
     } else {
       createMutation.mutate(payload, {
         onSuccess: () => {
@@ -114,213 +121,219 @@ export const BusinessServices: React.FC = () => {
         },
         onError: (err) => {
           setError(err.response?.data?.message || err.message || 'Failed to create service.');
-        }
+        },
       });
     }
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = (svc: BusinessService) => {
     setConfirmState({
       isOpen: true,
       title: 'Delete Service Offering',
-      message: 'Are you sure you want to delete this service offering from your catalog? This will permanently remove the option.',
+      message: `Are you sure you want to delete "${svc.name}"? This will remove it from your live business catalog.`,
       onConfirm: () => {
-        deleteMutation.mutate(id, {
-          onError: (err) => {
-            alert(err.response?.data?.message || err.message || 'Failed to delete service.');
-          }
-        });
-      }
+        deleteMutation.mutate(svc.id);
+        setConfirmState((prev) => ({ ...prev, isOpen: false }));
+      },
     });
   };
 
+  // Filtered services
   const filteredServices = useMemo(() => {
     if (!services) return [];
-    return services.filter(svc => 
-      svc.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (svc.description && svc.description.toLowerCase().includes(searchQuery.toLowerCase()))
+    if (!searchQuery.trim()) return services;
+    const q = searchQuery.toLowerCase();
+    return services.filter(
+      (s) =>
+        s.name.toLowerCase().includes(q) ||
+        (s.description && s.description.toLowerCase().includes(q))
     );
   }, [services, searchQuery]);
 
-  const formatPrice = (price?: number) => {
-    if (price === undefined || price === null) return 'Custom Price';
+  // Formatter for Indonesian Rupiah
+  const formatRupiah = (price?: number) => {
+    if (price === undefined || price === null) return null;
     return new Intl.NumberFormat('id-ID', {
       style: 'currency',
       currency: 'IDR',
-      minimumFractionDigits: 0
+      minimumFractionDigits: 0,
     }).format(price);
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header layout */}
-      <div className="mb-6 border-b border-slate-100 pb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div className="space-y-6 font-sans text-[#202744]">
+      {/* Header */}
+      <div className="mb-6 border-b border-[#F0EBE3] pb-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h2 className="font-sans text-lg font-extrabold tracking-tight text-neutral-900 uppercase">
-            Services Catalog
-          </h2>
-          <p className="font-sans text-xs text-neutral-450 mt-1">
-            Build and organize commercial service offerings for potential business clients.
+          <div className="flex items-center gap-2 mb-1">
+            <h2 className="font-sans text-xl sm:text-2xl font-extrabold tracking-tight text-[#202744]">
+              Services Catalog
+            </h2>
+            <Badge variant="blue">Commercial Packages</Badge>
+          </div>
+          <p className="font-sans text-xs sm:text-sm text-[#69718A]">
+            Build and organize commercial service offerings for potential clients and prospective leads.
           </p>
         </div>
 
-        <button
+        <Button
           id="create-new-service-btn"
+          variant="primary"
+          size="sm"
           onClick={handleOpenCreate}
-          className="flex cursor-pointer items-center justify-center space-x-1.5 rounded-md bg-black px-4 py-2 font-sans text-xs font-bold uppercase tracking-wider text-white shadow-3xs transition hover:bg-slate-800 active:scale-95 self-start sm:self-auto"
+          leftIcon={<Plus className="h-4 w-4" />}
         >
-          <Plus className="h-4 w-4" />
-          <span>Add Service</span>
-        </button>
+          Add Service
+        </Button>
       </div>
 
       {/* Search Filter input */}
       {services && services.length > 0 && (
         <div className="relative max-w-md">
+          <Search className="absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-[#69718A]" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search catalog by service name or keyword..."
-            className="w-full rounded-md border border-slate-200 bg-slate-55 px-3 py-2 font-sans text-xs focus:border-slate-400 focus:bg-white focus:outline-hidden text-slate-900"
+            className="w-full rounded-xl border border-[#E5E1DA] bg-[#FAF8F5] py-2 pr-4 pl-10 font-sans text-xs focus:border-[#8B6CF6] focus:bg-white focus:outline-hidden text-[#202744] placeholder-[#69718A] transition-all"
           />
         </div>
       )}
 
       {/* Error block */}
       {isError && (
-        <div className="flex items-start space-x-2 rounded-md border border-red-100 bg-red-50 p-4 text-xs text-red-655 font-sans">
-          <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0" />
+        <div className="flex items-start space-x-2.5 rounded-2xl border border-red-200 bg-red-50 p-4 text-xs text-red-700">
+          <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0 text-red-500" />
           <div>
             <p className="font-bold">Error loading services catalog</p>
-            <p className="mt-1">{fetchError?.response?.data?.message || fetchError?.message || 'Check connection to backend server.'}</p>
+            <p className="mt-1">{fetchError?.response?.data?.message || fetchError?.message || 'Check connection to server.'}</p>
           </div>
         </div>
       )}
 
       {/* Content representation */}
       {isLoading ? (
-        <div className="rounded-xl border border-slate-200 bg-white p-12 text-center text-slate-450">
-          <Loader2 className="mx-auto h-8 w-8 animate-spin text-slate-400 mb-2" />
-          <p className="font-sans text-xs">Querying services catalog...</p>
+        <div className="rounded-3xl border border-[#EAE5DD] bg-white p-12 text-center text-[#69718A]">
+          <Loader2 className="mx-auto h-8 w-8 animate-spin text-[#8B6CF6] mb-2" />
+          <p className="font-sans text-xs font-semibold">Querying services catalog...</p>
         </div>
       ) : !services || services.length === 0 ? (
-        /* Empty State with CTA */
-        <div className="rounded-xl border border-dashed border-slate-200 bg-white p-12 text-center text-slate-450 font-sans">
-          <Briefcase className="mx-auto h-10 w-10 text-slate-300 mb-3 stroke-1" />
-          <h3 className="text-sm font-bold text-slate-700">Your Services Catalog is Empty</h3>
-          <p className="text-xs text-slate-400 mt-1.5 max-w-sm mx-auto leading-relaxed">
-            Create structured commercial listings specifying the description and entry pricing to promote your services.
-          </p>
-          <button
-            onClick={handleOpenCreate}
-            className="mt-5 inline-flex items-center space-x-1.5 rounded-md bg-black px-4 py-2 font-sans text-xs font-bold uppercase tracking-wider text-white shadow-3xs hover:bg-slate-800 transition active:scale-95 cursor-pointer"
-          >
-            <Plus className="h-3.5 w-3.5" />
-            <span>Create Your First Service</span>
-          </button>
-        </div>
+        <EmptyState
+          icon={<Briefcase className="h-6 w-6 text-[#8B6CF6]" />}
+          title="Your Services Catalog is Empty"
+          description="Create structured commercial listings specifying the package description and entry pricing to promote your services to prospective clients."
+          actionText="Create Your First Service"
+          actionIcon={<Plus className="h-4 w-4" />}
+          onAction={handleOpenCreate}
+        />
       ) : filteredServices.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-slate-200 bg-white p-10 text-center text-slate-450 font-sans">
-          <p className="text-xs">No services matched your query.</p>
+        <div className="rounded-2xl border border-dashed border-[#E5E1DA] bg-white p-10 text-center text-[#69718A]">
+          <p className="text-xs">No services match your search query.</p>
         </div>
       ) : (
         /* Services grid */
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {filteredServices.map(svc => (
-            <div 
+          {filteredServices.map((svc) => (
+            <div
               key={svc.id}
-              className="flex flex-col justify-between rounded-xl border border-slate-200 bg-white p-5 shadow-3xs hover:border-slate-400 transition"
+              className="flex flex-col justify-between rounded-3xl border border-[#EAE5DD] bg-white p-5 shadow-3xs hover:border-[#8B6CF6]/40 hover:shadow-md transition-all duration-200"
             >
               <div>
-                <div className="flex items-start justify-between">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-50 border border-slate-200/50">
-                    <Briefcase className="h-4.5 w-4.5 text-slate-600" />
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#E8E0FF] text-[#8B6CF6] border border-[#D5C6FF]">
+                    <Briefcase className="h-5 w-5" />
                   </div>
-                  <span className={`inline-flex items-center space-x-0.5 rounded-md px-1.5 py-0.5 font-mono text-[8px] font-bold uppercase tracking-wider border ${svc.isPublic 
-                    ? 'bg-slate-50 text-slate-500 border-slate-200' 
-                    : 'bg-slate-100 text-slate-400 border-slate-200'
-                  }`}>
-                    {svc.isPublic ? (
-                      <>
-                        <Globe className="h-2.5 w-2.5" />
-                        <span>Public</span>
-                      </>
-                    ) : (
-                      <>
-                        <EyeOff className="h-2.5 w-2.5" />
-                        <span>Private</span>
-                      </>
-                    )}
-                  </span>
+                  <Badge variant={svc.isPublic ? 'success' : 'secondary'} size="xs">
+                    {svc.isPublic ? 'Published' : 'Hidden'}
+                  </Badge>
                 </div>
 
-                <h4 className="mt-4 font-sans text-sm font-bold text-slate-900 leading-snug">
+                <h3 className="font-sans text-sm font-bold text-[#202744] mb-1.5 leading-snug">
                   {svc.name}
-                </h4>
-                <span className="inline-block mt-2 font-mono text-xs font-extrabold text-slate-950">
-                  {formatPrice(svc.priceStartFrom)}
-                </span>
-                
-                {svc.description && (
-                  <p className="mt-3 font-sans text-xs text-slate-500 leading-relaxed line-clamp-3">
+                </h3>
+
+                {svc.description ? (
+                  <p className="font-sans text-xs text-[#69718A] line-clamp-3 mb-4 leading-relaxed">
                     {svc.description}
+                  </p>
+                ) : (
+                  <p className="font-sans text-xs text-slate-400 italic mb-4">
+                    No description provided.
                   </p>
                 )}
               </div>
 
-              <div className="mt-5 flex items-center justify-end space-x-1.5 border-t border-slate-100 pt-3">
-                <button
-                  onClick={() => handleOpenEdit(svc)}
-                  className="rounded-md border border-slate-200 bg-white p-1.5 text-slate-500 hover:border-slate-400 hover:text-black transition cursor-pointer"
-                  title="Modify parameters"
-                >
-                  <Edit className="h-3.5 w-3.5" />
-                </button>
-                <button
-                  onClick={() => handleDelete(svc.id)}
-                  disabled={deleteMutation.isPending}
-                  className="rounded-md border border-slate-200 bg-white p-1.5 text-slate-500 hover:border-red-200 hover:text-red-650 hover:bg-red-50 transition cursor-pointer"
-                  title="Delete entry"
-                >
-                  <Trash2 className="h-3.5 w-3.5" />
-                </button>
+              <div className="border-t border-[#F0EBE3] pt-3 flex items-center justify-between">
+                <div>
+                  <span className="block text-[10px] uppercase font-bold text-[#69718A]">
+                    Starting From
+                  </span>
+                  <span className="font-mono text-xs font-bold text-[#4697F5]">
+                    {formatRupiah(svc.priceStartFrom) || 'Negotiable'}
+                  </span>
+                </div>
+
+                <div className="flex items-center space-x-1">
+                  <button
+                    onClick={() => handleOpenEdit(svc)}
+                    className="p-1.5 text-[#69718A] hover:text-[#8B6CF6] hover:bg-[#FAF8F5] rounded-lg transition cursor-pointer"
+                    title="Edit Service"
+                  >
+                    <Edit className="h-4 w-4" />
+                  </button>
+                  <button
+                    onClick={() => handleDelete(svc)}
+                    className="p-1.5 text-[#69718A] hover:text-red-600 hover:bg-red-50 rounded-lg transition cursor-pointer"
+                    title="Delete Service"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </div>
               </div>
             </div>
           ))}
         </div>
       )}
 
-      {/* Create / Edit Dialog Modal */}
-      <Dialog open={isModalOpen} onClose={() => setIsModalOpen(false)} className="relative z-50">
-        <DialogBackdrop className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs transition-opacity" />
+      {/* Add / Edit Dialog */}
+      <Dialog
+        open={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        className="relative z-50 font-sans"
+      >
+        <DialogBackdrop className="fixed inset-0 bg-black/40 backdrop-blur-xs transition-opacity" />
 
-        <div className="fixed inset-0 flex w-screen items-center justify-center p-4">
-          <DialogPanel className="w-full max-w-md overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg animate-in fade-in-50 zoom-in-95 duration-200">
-            
-            <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
-              <DialogTitle className="font-sans text-sm font-bold uppercase tracking-wider text-slate-800">
-                {editingService ? 'Edit Catalog Service' : 'Add Catalog Service'}
-              </DialogTitle>
-              <button 
+        <div className="fixed inset-0 flex items-center justify-center p-4">
+          <DialogPanel className="w-full max-w-lg rounded-3xl border border-[#EAE5DD] bg-white p-7 text-[#202744] shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between border-b border-[#F0EBE3] pb-4 mb-5">
+              <div className="flex items-center space-x-2.5">
+                <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#E8E0FF] text-[#8B6CF6]">
+                  <Briefcase className="h-4 w-4" />
+                </div>
+                <DialogTitle className="font-sans text-base font-bold text-[#202744]">
+                  {editingService ? 'Edit Service Offering' : 'Create New Service Offering'}
+                </DialogTitle>
+              </div>
+              <button
+                type="button"
                 onClick={() => setIsModalOpen(false)}
-                className="text-slate-400 hover:text-slate-700 cursor-pointer"
+                className="text-[#69718A] hover:text-[#202744] cursor-pointer"
               >
-                <X className="h-4.5 w-4.5" />
+                <X className="h-5 w-5" />
               </button>
             </div>
 
-            <form onSubmit={handleSave} className="p-6 space-y-4">
-              {error && (
-                <div className="flex items-start space-x-2 rounded-md border border-red-100 bg-red-50 p-3 text-xs text-red-650 font-sans font-semibold">
-                  <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0" />
-                  <span>{error}</span>
-                </div>
-              )}
+            {error && (
+              <div className="mb-4 flex items-start space-x-2 rounded-2xl border border-red-200 bg-red-50 p-3 text-xs text-red-700">
+                <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0 text-red-500" />
+                <p className="font-sans font-medium">{error}</p>
+              </div>
+            )}
 
-              {/* Service Name */}
+            <form onSubmit={handleSave} className="space-y-4">
               <div>
-                <label className="block font-sans text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                <label className="block font-sans text-xs font-bold text-[#202744] mb-1.5">
                   Service Name <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -328,92 +341,95 @@ export const BusinessServices: React.FC = () => {
                   required
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="e.g. Dedicated Development Team"
-                  className="w-full rounded-md border border-slate-200 bg-slate-55 px-3 py-2 font-sans text-xs focus:border-slate-400 focus:bg-white focus:outline-hidden text-slate-900"
+                  placeholder="e.g. Full-Stack Web Development, UI/UX Audit"
+                  className="w-full rounded-xl border border-[#E5E1DA] bg-white px-3.5 py-2.5 font-sans text-xs text-[#202744] placeholder-[#69718A] focus:border-[#8B6CF6] focus:outline-hidden focus:ring-2 focus:ring-[#8B6CF6]/20 transition-all"
                 />
               </div>
 
-              {/* Price start from */}
               <div>
-                <label className="block font-sans text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
-                  Starting Price (IDR)
-                </label>
-                <input
-                  type="number"
-                  value={priceStartFrom}
-                  onChange={(e) => setPriceStartFrom(e.target.value)}
-                  placeholder="e.g. 15000000 (leave blank for custom quote)"
-                  className="w-full rounded-md border border-slate-200 bg-slate-55 px-3 py-2 font-sans text-xs focus:border-slate-400 focus:bg-white focus:outline-hidden text-slate-900 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                />
-              </div>
-
-              {/* Description */}
-              <div>
-                <label className="block font-sans text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
-                  Description
+                <label className="block font-sans text-xs font-bold text-[#202744] mb-1.5">
+                  Service Description
                 </label>
                 <textarea
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Provide scope of services, tech stacks, or engagement rules..."
-                  className="w-full rounded-md border border-slate-200 bg-slate-55 px-3 py-2 font-sans text-xs focus:border-slate-400 focus:bg-white focus:outline-hidden text-slate-900 min-h-[90px]"
+                  placeholder="Describe the deliverables, timeline, or scope of work included in this package..."
+                  rows={4}
+                  className="w-full rounded-xl border border-[#E5E1DA] bg-white px-3.5 py-2.5 font-sans text-xs text-[#202744] placeholder-[#69718A] focus:border-[#8B6CF6] focus:outline-hidden focus:ring-2 focus:ring-[#8B6CF6]/20 transition-all"
                 />
               </div>
 
-              {/* Public visibility */}
-              <div className="rounded-md border border-slate-200 bg-slate-50 p-3">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h5 className="font-sans text-xs font-bold text-slate-900">Showcase Visibility</h5>
-                    <p className="font-sans text-[10px] text-slate-400">Specify if this service is listed publicly.</p>
-                  </div>
-                  <label className="relative inline-flex items-center cursor-pointer select-none">
-                    <input
-                      type="checkbox"
-                      checked={isPublic}
-                      onChange={(e) => setIsPublic(e.target.checked)}
-                      className="sr-only peer"
-                    />
-                    <div className="w-11 h-6 bg-slate-200 peer-focus:outline-hidden rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-black"></div>
-                  </label>
-                </div>
+              <div>
+                <label className="block font-sans text-xs font-bold text-[#202744] mb-1.5">
+                  Starting Price (IDR)
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  step="1000"
+                  value={priceStartFrom}
+                  onChange={(e) => setPriceStartFrom(e.target.value)}
+                  placeholder="e.g. 5000000"
+                  className="w-full rounded-xl border border-[#E5E1DA] bg-white px-3.5 py-2.5 font-sans text-xs text-[#202744] placeholder-[#69718A] focus:border-[#8B6CF6] focus:outline-hidden focus:ring-2 focus:ring-[#8B6CF6]/20 transition-all"
+                />
+                <p className="mt-1 font-sans text-[11px] text-[#69718A]">
+                  Leave empty if pricing is based on custom consultation.
+                </p>
               </div>
 
-              {/* Actions footer */}
-              <div className="flex items-center justify-end space-x-2 border-t border-slate-100 pt-4 mt-2">
+              {/* Visibility Switch */}
+              <div className="rounded-2xl border border-[#EAE5DD] bg-[#FAF8F5] p-3.5 flex items-center justify-between">
+                <div>
+                  <h4 className="font-sans text-xs font-bold text-[#202744]">
+                    Public Visibility
+                  </h4>
+                  <p className="font-sans text-[11px] text-[#69718A]">
+                    Display this service publicly on your commercial catalog.
+                  </p>
+                </div>
+                <label className="relative inline-flex items-center cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={isPublic}
+                    onChange={(e) => setIsPublic(e.target.checked)}
+                    className="sr-only peer"
+                  />
+                  <div className="w-11 h-6 bg-slate-200 peer-focus:outline-hidden rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#8B6CF6]"></div>
+                  <span className="ml-2.5 font-sans text-xs font-bold text-[#202744]">
+                    {isPublic ? 'Public' : 'Hidden'}
+                  </span>
+                </label>
+              </div>
+
+              <div className="pt-3 border-t border-[#F0EBE3] flex items-center justify-end space-x-2.5">
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="rounded-md border border-slate-200 bg-white px-4 py-2 font-sans text-[10px] font-bold uppercase tracking-wider text-slate-500 hover:bg-slate-55 cursor-pointer"
+                  className="rounded-xl border border-[#E5E1DA] bg-white px-4 py-2 font-sans text-xs font-semibold text-[#69718A] hover:bg-[#FAF8F5] hover:text-[#202744] transition"
                 >
                   Cancel
                 </button>
-                <button
+                <Button
                   type="submit"
-                  disabled={createMutation.isPending || updateMutation.isPending}
-                  className="rounded-md bg-black px-4 py-2 font-sans text-[10px] font-bold uppercase tracking-wider text-white shadow-3xs hover:bg-slate-800 transition active:scale-95 cursor-pointer"
+                  variant="primary"
+                  size="sm"
+                  isLoading={createMutation.isPending || updateMutation.isPending}
                 >
-                  {(createMutation.isPending || updateMutation.isPending) && (
-                    <Loader2 className="h-3 w-3 animate-spin mr-1 inline" />
-                  )}
-                  <span>Save Service</span>
-                </button>
+                  {editingService ? 'Save Changes' : 'Publish Service'}
+                </Button>
               </div>
             </form>
           </DialogPanel>
         </div>
       </Dialog>
 
-      {/* Confirm Deletion */}
+      {/* Confirmation Dialog */}
       <ConfirmDialog
         isOpen={confirmState.isOpen}
-        onClose={() => setConfirmState(prev => ({ ...prev, isOpen: false }))}
-        onConfirm={confirmState.onConfirm}
         title={confirmState.title}
         message={confirmState.message}
-        confirmText="Delete Service"
-        cancelText="Keep Service"
-        variant="danger"
+        onConfirm={confirmState.onConfirm}
+        onClose={() => setConfirmState((prev) => ({ ...prev, isOpen: false }))}
       />
     </div>
   );

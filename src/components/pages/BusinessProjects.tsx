@@ -207,20 +207,25 @@ export const BusinessProjects: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Header layout */}
-      <div className="mb-6 border-b border-slate-100 pb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h2 className="font-sans text-lg font-extrabold tracking-tight text-neutral-900 uppercase">
-            Business Projects Case Studies
-          </h2>
-          <p className="font-sans text-xs text-neutral-450 mt-1">
-            Publish commercial case studies, project specs, and client deliverables.
-          </p>
+      <div className="mb-6 border-b border-[#F0EBE1] pb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex items-center space-x-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-50 text-[#8B6CF6] border border-violet-100 shadow-xs">
+            <FolderGit2 className="h-5 w-5" />
+          </div>
+          <div>
+            <h2 className="font-sans text-lg font-bold tracking-tight text-[#202744]">
+              Business Projects & Case Studies
+            </h2>
+            <p className="font-sans text-xs text-[#69718A] mt-0.5">
+              Publish commercial case studies, project specs, and client deliverables.
+            </p>
+          </div>
         </div>
 
         <button
           id="create-new-business-project-btn"
           onClick={handleOpenCreate}
-          className="flex cursor-pointer items-center justify-center space-x-1.5 rounded-md bg-black px-4 py-2 font-sans text-xs font-bold uppercase tracking-wider text-white shadow-3xs transition hover:bg-slate-800 active:scale-95 self-start sm:self-auto"
+          className="flex cursor-pointer items-center justify-center space-x-2 rounded-xl bg-[#8B6CF6] px-4 py-2.5 font-sans text-xs font-semibold text-white shadow-xs transition hover:bg-[#7A5CE0] active:scale-95 self-start sm:self-auto"
         >
           <Plus className="h-4 w-4" />
           <span>New Project</span>
@@ -238,15 +243,15 @@ export const BusinessProjects: React.FC = () => {
               setCurrentPage(1);
             }}
             placeholder="Search projects by title, client, or keyword..."
-            className="w-full rounded-md border border-slate-200 bg-slate-55 px-3 py-2 font-sans text-xs focus:border-slate-400 focus:bg-white focus:outline-hidden text-slate-900"
+            className="w-full rounded-xl border border-[#EAE5DD] bg-white px-4 py-2.5 font-sans text-xs text-[#202744] placeholder-[#69718A]/60 focus:border-[#8B6CF6] focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-[#8B6CF6]/20 shadow-xs"
           />
         </div>
       )}
 
       {/* Error block */}
       {isError && (
-        <div className="flex items-start space-x-2 rounded-md border border-red-100 bg-red-50 p-4 text-xs text-red-655 font-sans">
-          <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0" />
+        <div className="flex items-start space-x-3 rounded-2xl border border-rose-200 bg-rose-50/80 p-5 text-xs text-rose-800 font-sans shadow-xs">
+          <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0 text-rose-600" />
           <div>
             <p className="font-bold">Error loading business projects</p>
             <p className="mt-1">{fetchError?.response?.data?.message || fetchError?.message || 'Check connection to backend server.'}</p>
@@ -256,28 +261,33 @@ export const BusinessProjects: React.FC = () => {
 
       {/* Project content */}
       {isLoading ? (
-        <div className="rounded-xl border border-slate-200 bg-white p-12 text-center text-slate-450">
-          <Loader2 className="mx-auto h-8 w-8 animate-spin text-slate-400 mb-2" />
-          <p className="font-sans text-xs">Querying project databases...</p>
+        <div className="rounded-2xl border border-[#EAE5DD] bg-white p-14 text-center text-[#69718A] shadow-xs">
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-violet-50 text-[#8B6CF6] mx-auto mb-3 border border-violet-100">
+            <Loader2 className="h-6 w-6 animate-spin" />
+          </div>
+          <p className="font-sans text-xs font-semibold text-[#202744]">Loading case studies...</p>
+          <p className="font-sans text-[11px] text-[#69718A] mt-0.5">Fetching corporate portfolio projects</p>
         </div>
       ) : !projects || projects.length === 0 ? (
         /* Empty state with CTA */
-        <div className="rounded-xl border border-dashed border-slate-200 bg-white p-12 text-center text-slate-450 font-sans">
-          <FolderGit2 className="mx-auto h-10 w-10 text-slate-350 mb-3 stroke-1" />
-          <h3 className="text-sm font-bold text-slate-700">No Business Projects Published</h3>
-          <p className="text-xs text-slate-400 mt-1.5 max-w-sm mx-auto leading-relaxed">
+        <div className="rounded-2xl border border-dashed border-[#EAE5DD] bg-[#FAF8F5]/50 p-14 text-center text-[#69718A] font-sans">
+          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-violet-50 text-[#8B6CF6] mx-auto mb-3 border border-violet-100 shadow-xs">
+            <FolderGit2 className="h-7 w-7" />
+          </div>
+          <h3 className="text-base font-bold text-[#202744]">No Business Projects Published</h3>
+          <p className="text-xs text-[#69718A] mt-1.5 max-w-sm mx-auto leading-relaxed">
             Case studies outline specifications, client achievements, location milestones, and screen designs.
           </p>
           <button
             onClick={handleOpenCreate}
-            className="mt-5 inline-flex items-center space-x-1.5 rounded-md bg-black px-4 py-2 font-sans text-xs font-bold uppercase tracking-wider text-white shadow-3xs hover:bg-slate-800 transition active:scale-95 cursor-pointer"
+            className="mt-5 inline-flex items-center space-x-2 rounded-xl bg-[#8B6CF6] px-4 py-2 font-sans text-xs font-bold text-white shadow-xs hover:bg-[#7A5CE0] transition active:scale-95 cursor-pointer"
           >
-            <Plus className="h-3.5 w-3.5" />
+            <Plus className="h-4 w-4" />
             <span>Create Case Study</span>
           </button>
         </div>
       ) : filteredProjects.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-slate-200 bg-white p-10 text-center text-slate-450 font-sans">
+        <div className="rounded-2xl border border-dashed border-[#EAE5DD] bg-white p-10 text-center text-[#69718A] font-sans">
           <p className="text-xs">No case studies match your query.</p>
         </div>
       ) : (
@@ -288,10 +298,10 @@ export const BusinessProjects: React.FC = () => {
               <div
                 key={proj.id}
                 onClick={() => navigate(`/admin/business/projects/${proj.id}`)}
-                className="group cursor-pointer flex flex-col justify-between overflow-hidden rounded-xl border border-slate-200 bg-white shadow-3xs transition-all duration-200 hover:border-slate-400 hover:shadow-2xs"
+                className="group cursor-pointer flex flex-col justify-between overflow-hidden rounded-2xl border border-[#EAE5DD] bg-white shadow-xs transition-all duration-200 hover:border-[#8B6CF6]/40 hover:shadow-md"
               >
                 {/* Thumbnail Header Area */}
-                <div className="relative aspect-video w-full bg-slate-50 border-b border-slate-200/50 overflow-hidden flex items-center justify-center">
+                <div className="relative aspect-video w-full bg-[#FAF8F5] border-b border-[#F0EBE1] overflow-hidden flex items-center justify-center">
                   {proj.thumbnail ? (
                     <img 
                       src={proj.thumbnail} 
@@ -299,14 +309,18 @@ export const BusinessProjects: React.FC = () => {
                       className="h-full w-full object-cover group-hover:scale-103 transition duration-300"
                     />
                   ) : (
-                    <div className="text-slate-300 flex flex-col items-center">
-                      <FolderGit2 className="h-8 w-8 stroke-1" />
-                      <span className="font-sans text-[8px] uppercase tracking-wider mt-1">No Image Specs</span>
+                    <div className="text-[#69718A]/50 flex flex-col items-center">
+                      <FolderGit2 className="h-8 w-8 stroke-1 text-[#8B6CF6]/40" />
+                      <span className="font-sans text-[9px] font-semibold uppercase tracking-wider mt-1">No Image Preview</span>
                     </div>
                   )}
 
-                  <span className={`absolute top-3 right-3 inline-flex items-center space-x-0.5 rounded-md px-1.5 py-0.5 font-mono text-[8px] font-bold uppercase tracking-wider bg-white/90 border border-slate-200 shadow-3xs backdrop-blur-xs ${proj.isPublic ? 'text-slate-600' : 'text-slate-400'}`}>
-                    {proj.isPublic ? <Globe className="h-2.5 w-2.5 text-slate-500 mr-0.5" /> : <EyeOff className="h-2.5 w-2.5 text-slate-400 mr-0.5" />}
+                  <span className={`absolute top-3 right-3 inline-flex items-center space-x-1 rounded-full px-2.5 py-0.5 font-sans text-[10px] font-semibold shadow-xs backdrop-blur-xs ${
+                    proj.isPublic 
+                      ? 'bg-emerald-50/90 text-emerald-700 border border-emerald-200' 
+                      : 'bg-white/90 text-[#69718A] border border-[#EAE5DD]'
+                  }`}>
+                    {proj.isPublic ? <Globe className="h-3 w-3 text-emerald-600" /> : <EyeOff className="h-3 w-3 text-[#69718A]" />}
                     <span>{proj.isPublic ? 'Public' : 'Hidden'}</span>
                   </span>
                 </div>
@@ -314,46 +328,48 @@ export const BusinessProjects: React.FC = () => {
                 {/* Card Info details */}
                 <div className="p-5 flex-1 flex flex-col justify-between">
                   <div className="space-y-2.5">
-                    <div className="flex items-center justify-between font-mono text-[8px] font-bold uppercase tracking-wider text-slate-400">
-                      <span>{proj.projectType.replace('_', ' ')}</span>
+                    <div className="flex items-center justify-between font-mono text-[9px] font-bold uppercase tracking-wider text-[#69718A]">
+                      <span className="px-2 py-0.5 rounded-md bg-[#FAF8F5] border border-[#EAE5DD] text-[#8B6CF6]">
+                        {proj.projectType.replace('_', ' ')}
+                      </span>
                       {proj.year && (
-                        <span className="flex items-center">
-                          <Calendar className="h-2.5 w-2.5 mr-0.5" />
+                        <span className="flex items-center text-[#69718A]">
+                          <Calendar className="h-3 w-3 mr-1 text-[#8B6CF6]" />
                           {proj.year}
                         </span>
                       )}
                     </div>
 
-                    <h4 className="font-sans text-sm font-bold text-slate-900 group-hover:text-black line-clamp-1">
+                    <h4 className="font-sans text-sm font-bold text-[#202744] group-hover:text-[#8B6CF6] transition line-clamp-1">
                       {proj.title}
                     </h4>
 
                     {proj.clientName && (
-                      <p className="font-sans text-xs text-slate-550 flex items-center">
-                        <Building className="h-3.5 w-3.5 text-slate-400 mr-1 shrink-0" />
+                      <p className="font-sans text-xs text-[#69718A] flex items-center">
+                        <Building className="h-3.5 w-3.5 text-[#8B6CF6] mr-1.5 shrink-0" />
                         <span className="truncate">{proj.clientName}</span>
                       </p>
                     )}
 
                     {proj.location && (
-                      <p className="font-sans text-xs text-slate-500 flex items-center">
-                        <MapPin className="h-3.5 w-3.5 text-slate-400 mr-1 shrink-0" />
+                      <p className="font-sans text-xs text-[#69718A] flex items-center">
+                        <MapPin className="h-3.5 w-3.5 text-[#8B6CF6] mr-1.5 shrink-0" />
                         <span className="truncate">{proj.location}</span>
                       </p>
                     )}
                   </div>
 
                   {/* Footer options */}
-                  <div className="mt-5 border-t border-slate-100 pt-3 flex items-center justify-between">
-                    <span className="font-sans text-[9px] font-bold uppercase tracking-wider text-slate-400 inline-flex items-center group-hover:text-black transition">
+                  <div className="mt-5 border-t border-[#F0EBE1] pt-3.5 flex items-center justify-between">
+                    <span className="font-sans text-xs font-semibold text-[#8B6CF6] inline-flex items-center group-hover:translate-x-0.5 transition">
                       <span>Configure specs</span>
-                      <Edit className="h-3 w-3 ml-1" />
+                      <Edit className="h-3.5 w-3.5 ml-1.5" />
                     </span>
 
                     <button
                       onClick={(e) => handleDelete(proj.id, e)}
                       disabled={deleteMutation.isPending}
-                      className="rounded-md border border-slate-200 bg-white p-1.5 text-slate-400 hover:border-red-200 hover:text-red-650 hover:bg-red-50 transition cursor-pointer"
+                      className="rounded-xl border border-[#EAE5DD] bg-white p-2 text-[#69718A] hover:border-rose-200 hover:text-rose-600 hover:bg-rose-50 transition cursor-pointer shadow-xs"
                       title="Delete entry"
                     >
                       <Trash2 className="h-3.5 w-3.5" />
@@ -366,23 +382,23 @@ export const BusinessProjects: React.FC = () => {
 
           {/* Pagination */}
           {totalPages > 1 && (
-            <div className="flex items-center justify-between border-t border-slate-200 bg-slate-50 px-6 py-3 font-sans text-xs">
-              <div className="text-slate-450">
-                Showing page <span className="font-semibold text-slate-700">{activePage}</span> of{' '}
-                <span className="font-semibold text-slate-700">{totalPages}</span> ({filteredProjects.length} elements)
+            <div className="flex items-center justify-between rounded-xl border border-[#EAE5DD] bg-[#FAF8F5] px-6 py-3 font-sans text-xs">
+              <div className="text-[#69718A]">
+                Showing page <span className="font-semibold text-[#202744]">{activePage}</span> of{' '}
+                <span className="font-semibold text-[#202744]">{totalPages}</span> ({filteredProjects.length} projects)
               </div>
               <div className="flex items-center space-x-2">
                 <button
                   onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                   disabled={activePage <= 1}
-                  className="rounded-md border border-slate-200 bg-white px-2.5 py-1 text-slate-650 transition hover:bg-slate-55 disabled:opacity-50 cursor-pointer"
+                  className="rounded-lg border border-[#EAE5DD] bg-white px-3 py-1.5 text-xs font-semibold text-[#202744] transition hover:bg-[#FAF8F5] disabled:opacity-50 cursor-pointer shadow-xs"
                 >
                   Prev
                 </button>
                 <button
                   onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                   disabled={activePage >= totalPages}
-                  className="rounded-md border border-slate-200 bg-white px-2.5 py-1 text-slate-650 transition hover:bg-slate-55 disabled:opacity-50 cursor-pointer"
+                  className="rounded-lg border border-[#EAE5DD] bg-white px-3 py-1.5 text-xs font-semibold text-[#202744] transition hover:bg-[#FAF8F5] disabled:opacity-50 cursor-pointer shadow-xs"
                 >
                   Next
                 </button>
@@ -394,19 +410,24 @@ export const BusinessProjects: React.FC = () => {
 
       {/* Creator Modal Sheet */}
       <Dialog open={isModalOpen} onClose={handleCloseModal} className="relative z-50">
-        <DialogBackdrop className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs transition-opacity" />
+        <DialogBackdrop className="fixed inset-0 bg-[#202744]/40 backdrop-blur-xs transition-opacity" />
 
         <div className="fixed inset-0 flex w-screen items-center justify-center p-4">
-          <DialogPanel className="w-full max-w-lg overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg animate-in fade-in-50 zoom-in-95 duration-200">
+          <DialogPanel className="w-full max-w-lg overflow-hidden rounded-2xl border border-[#EAE5DD] bg-white shadow-2xl animate-in fade-in-50 zoom-in-95 duration-200">
             
-            <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
-              <DialogTitle className="font-sans text-sm font-bold uppercase tracking-wider text-slate-800">
-                Create Business Case Study
-              </DialogTitle>
+            <div className="px-6 py-4.5 border-b border-[#F0EBE1] flex items-center justify-between">
+              <div className="flex items-center space-x-2.5">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-violet-50 text-[#8B6CF6] border border-violet-100">
+                  <Plus className="h-4 w-4" />
+                </div>
+                <DialogTitle className="font-sans text-sm font-bold text-[#202744]">
+                  Create Business Case Study
+                </DialogTitle>
+              </div>
               <button 
                 type="button"
                 onClick={handleCloseModal}
-                className="text-slate-400 hover:text-slate-700 cursor-pointer"
+                className="p-1 rounded-lg text-[#69718A] hover:text-[#202744] hover:bg-[#FAF8F5] transition cursor-pointer"
               >
                 <X className="h-4.5 w-4.5" />
               </button>
@@ -414,27 +435,27 @@ export const BusinessProjects: React.FC = () => {
 
             <form onSubmit={handleSave} className="p-6 space-y-4 max-h-[80vh] overflow-y-auto">
               {error && (
-                <div className="flex items-start space-x-2 rounded-md border border-red-100 bg-red-50 p-3 text-xs text-red-650 font-sans font-semibold">
-                  <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0" />
+                <div className="flex items-start space-x-2.5 rounded-xl border border-rose-200 bg-rose-50/80 p-3.5 text-xs text-rose-800 font-sans font-semibold shadow-xs">
+                  <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0 text-rose-600" />
                   <span>{error}</span>
                 </div>
               )}
 
               {/* Assets Upload Section for Creation Mode */}
-              <div className="p-4 rounded-lg bg-slate-50 border border-slate-200 space-y-4">
-                <h4 className="font-mono text-[9px] font-bold text-slate-400 uppercase tracking-widest">Project Media Assets (Optional)</h4>
+              <div className="p-4 rounded-xl bg-[#FAF8F5] border border-[#EAE5DD] space-y-4">
+                <h4 className="font-mono text-[9px] font-bold text-[#69718A] uppercase tracking-wider">Project Media Assets (Optional)</h4>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {/* Thumbnail Selection */}
                   <div className="space-y-2">
-                    <span className="block font-sans text-[10px] font-bold text-slate-500 uppercase tracking-wider">Project Cover Thumbnail</span>
-                    <div className="flex items-center space-x-4">
+                    <span className="block font-sans text-[10px] font-bold text-[#69718A] uppercase tracking-wider">Cover Thumbnail</span>
+                    <div className="flex items-center space-x-3">
                       {createThumbnailPreview ? (
                         <div className="relative group/thumb">
                           <img
                             src={createThumbnailPreview}
                             alt="Thumbnail Preview"
-                            className="h-12 w-20 rounded-md object-cover border border-slate-200"
+                            className="h-12 w-20 rounded-lg object-cover border border-[#EAE5DD]"
                           />
                           <button
                             type="button"
@@ -443,18 +464,18 @@ export const BusinessProjects: React.FC = () => {
                               setCreateThumbnailFile(null);
                               setCreateThumbnailPreview('');
                             }}
-                            className="absolute -top-1.5 -right-1.5 h-4 w-4 bg-red-500 text-white rounded-full flex items-center justify-center text-[10px] hover:bg-red-650 cursor-pointer"
+                            className="absolute -top-1.5 -right-1.5 h-4 w-4 bg-rose-500 text-white rounded-full flex items-center justify-center text-[10px] hover:bg-rose-600 cursor-pointer shadow-xs"
                           >
                             ×
                           </button>
                         </div>
                       ) : (
-                        <div className="h-12 w-20 rounded-md bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-400">
+                        <div className="h-12 w-20 rounded-lg bg-white border border-[#EAE5DD] flex items-center justify-center text-[#8B6CF6]/40">
                           <ImageIcon className="h-5 w-5 stroke-1" />
                         </div>
                       )}
-                      <label className="px-3 py-1.5 bg-white border border-slate-200 hover:bg-slate-55 rounded-md font-sans text-[10px] font-bold uppercase tracking-wider text-slate-650 cursor-pointer flex items-center space-x-1.5 transition">
-                        <Camera className="h-3 w-3" />
+                      <label className="px-3 py-1.5 bg-white border border-[#EAE5DD] hover:border-[#8B6CF6] hover:text-[#8B6CF6] rounded-xl font-sans text-xs font-semibold text-[#202744] cursor-pointer flex items-center space-x-1.5 transition shadow-xs">
+                        <Camera className="h-3.5 w-3.5" />
                         <span>Select Cover</span>
                         <input
                           type="file"
@@ -475,10 +496,10 @@ export const BusinessProjects: React.FC = () => {
 
                   {/* Screenshots Selection */}
                   <div className="space-y-2">
-                    <span className="block font-sans text-[10px] font-bold text-slate-500 uppercase tracking-wider">Add Screenshots</span>
-                    <label className="px-4 py-3 bg-white border border-dashed border-slate-300 hover:border-slate-400 rounded-md font-sans text-[10px] text-slate-500 cursor-pointer flex flex-col items-center justify-center space-y-1 transition h-[50px]">
-                      <PlusCircle className="h-4 w-4 text-slate-400" />
-                      <span className="font-bold uppercase tracking-wider text-[8px]">Choose Screenshots</span>
+                    <span className="block font-sans text-[10px] font-bold text-[#69718A] uppercase tracking-wider">Add Screenshots</span>
+                    <label className="px-4 py-2.5 bg-white border border-dashed border-[#EAE5DD] hover:border-[#8B6CF6] rounded-xl font-sans text-xs text-[#69718A] cursor-pointer flex flex-col items-center justify-center space-y-0.5 transition h-[48px] shadow-xs">
+                      <PlusCircle className="h-4 w-4 text-[#8B6CF6]" />
+                      <span className="font-semibold text-[10px] text-[#202744]">Choose Screenshots</span>
                       <input
                         type="file"
                         accept="image/*"
@@ -501,10 +522,10 @@ export const BusinessProjects: React.FC = () => {
                 {/* Screenshots Gallery Previews */}
                 {createScreenshotPreviews.length > 0 && (
                   <div className="pt-2">
-                    <span className="block font-sans text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Selected Screenshots ({createScreenshotPreviews.length})</span>
+                    <span className="block font-sans text-[10px] font-bold text-[#69718A] uppercase tracking-wider mb-2">Selected Screenshots ({createScreenshotPreviews.length})</span>
                     <div className="flex flex-wrap gap-2">
                       {createScreenshotPreviews.map((url, idx) => (
-                        <div key={idx} className="relative group/img h-14 w-24 rounded-md overflow-hidden border border-slate-200">
+                        <div key={idx} className="relative group/img h-14 w-24 rounded-lg overflow-hidden border border-[#EAE5DD]">
                           <img
                             src={url}
                             alt={`Preview ${idx}`}
@@ -521,7 +542,7 @@ export const BusinessProjects: React.FC = () => {
                               setCreateScreenshotFiles(updatedFiles);
                               setCreateScreenshotPreviews(updatedPreviews);
                             }}
-                            className="absolute inset-0 bg-black/55 text-white flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition duration-150 cursor-pointer text-xs"
+                            className="absolute inset-0 bg-[#202744]/70 text-white flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition duration-150 cursor-pointer text-xs"
                           >
                             <X className="h-4 w-4" />
                           </button>
@@ -535,8 +556,8 @@ export const BusinessProjects: React.FC = () => {
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 {/* Title */}
                 <div>
-                  <label className="block font-sans text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
-                    Project Title <span className="text-red-500">*</span>
+                  <label className="block font-sans text-[10px] font-bold text-[#69718A] uppercase tracking-wider mb-1">
+                    Project Title <span className="text-rose-500">*</span>
                   </label>
                   <input
                     type="text"
@@ -544,13 +565,13 @@ export const BusinessProjects: React.FC = () => {
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                     placeholder="e.g. Acme E-Commerce Deployment"
-                    className="w-full rounded-md border border-slate-200 bg-slate-55 px-3 py-2 font-sans text-xs focus:border-slate-400 focus:bg-white focus:outline-hidden text-slate-900"
+                    className="w-full rounded-xl border border-[#EAE5DD] bg-[#FAF8F5] px-3.5 py-2.5 font-sans text-xs text-[#202744] focus:border-[#8B6CF6] focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-[#8B6CF6]/20"
                   />
                 </div>
 
                 {/* Client Name */}
                 <div>
-                  <label className="block font-sans text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                  <label className="block font-sans text-[10px] font-bold text-[#69718A] uppercase tracking-wider mb-1">
                     Client Name
                   </label>
                   <input
@@ -558,7 +579,7 @@ export const BusinessProjects: React.FC = () => {
                     value={clientName}
                     onChange={(e) => setClientName(e.target.value)}
                     placeholder="e.g. PT Acme Indonesia"
-                    className="w-full rounded-md border border-slate-200 bg-slate-55 px-3 py-2 font-sans text-xs focus:border-slate-400 focus:bg-white focus:outline-hidden text-slate-900"
+                    className="w-full rounded-xl border border-[#EAE5DD] bg-[#FAF8F5] px-3.5 py-2.5 font-sans text-xs text-[#202744] focus:border-[#8B6CF6] focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-[#8B6CF6]/20"
                   />
                 </div>
               </div>
@@ -566,7 +587,7 @@ export const BusinessProjects: React.FC = () => {
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 {/* Location */}
                 <div>
-                  <label className="block font-sans text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                  <label className="block font-sans text-[10px] font-bold text-[#69718A] uppercase tracking-wider mb-1">
                     Project Location
                   </label>
                   <input
@@ -574,13 +595,13 @@ export const BusinessProjects: React.FC = () => {
                     value={location}
                     onChange={(e) => setLocation(e.target.value)}
                     placeholder="e.g. Jakarta, ID (or Remote)"
-                    className="w-full rounded-md border border-slate-200 bg-slate-55 px-3 py-2 font-sans text-xs focus:border-slate-400 focus:bg-white focus:outline-hidden text-slate-900"
+                    className="w-full rounded-xl border border-[#EAE5DD] bg-[#FAF8F5] px-3.5 py-2.5 font-sans text-xs text-[#202744] focus:border-[#8B6CF6] focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-[#8B6CF6]/20"
                   />
                 </div>
 
                 {/* Year */}
                 <div>
-                  <label className="block font-sans text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                  <label className="block font-sans text-[10px] font-bold text-[#69718A] uppercase tracking-wider mb-1">
                     Completion Year
                   </label>
                   <input
@@ -588,37 +609,37 @@ export const BusinessProjects: React.FC = () => {
                     value={year}
                     onChange={(e) => setYear(e.target.value)}
                     placeholder="e.g. 2026"
-                    className="w-full rounded-md border border-slate-200 bg-slate-55 px-3 py-2 font-sans text-xs focus:border-slate-400 focus:bg-white focus:outline-hidden text-slate-900 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    className="w-full rounded-xl border border-[#EAE5DD] bg-[#FAF8F5] px-3.5 py-2.5 font-sans text-xs text-[#202744] focus:border-[#8B6CF6] focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-[#8B6CF6]/20 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                   />
                 </div>
               </div>
 
               {/* Project Type Listbox */}
               <div>
-                <label className="block font-sans text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                <label className="block font-sans text-[10px] font-bold text-[#69718A] uppercase tracking-wider mb-1">
                   Project Type Category
                 </label>
                 <Listbox value={projectType} onChange={setProjectType}>
                   <div className="relative">
-                    <ListboxButton className="relative w-full rounded-md border border-slate-200 bg-slate-55 py-2 pr-10 pl-3 text-left font-sans text-xs focus:border-slate-400 focus:bg-white focus:outline-hidden text-slate-900 cursor-pointer">
-                      <span className="block truncate text-left">{currentTypeLabel}</span>
+                    <ListboxButton className="relative w-full rounded-xl border border-[#EAE5DD] bg-[#FAF8F5] py-2.5 pr-10 pl-3.5 text-left font-sans text-xs focus:border-[#8B6CF6] focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-[#8B6CF6]/20 text-[#202744] cursor-pointer">
+                      <span className="block truncate text-left font-medium">{currentTypeLabel}</span>
                       <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-                        <ChevronDown className="h-4 w-4 text-slate-400" />
+                        <ChevronDown className="h-4 w-4 text-[#69718A]" />
                       </span>
                     </ListboxButton>
-                    <ListboxOptions className="absolute z-30 mt-1 max-h-48 w-full overflow-auto rounded-md bg-white py-1 text-xs shadow-lg ring-1 ring-black/5 focus:outline-hidden font-sans border border-slate-200">
+                    <ListboxOptions className="absolute z-30 mt-1 max-h-48 w-full overflow-auto rounded-xl bg-white py-1 text-xs shadow-lg ring-1 ring-black/5 focus:outline-hidden font-sans border border-[#EAE5DD]">
                       {projectTypesList.map(type => (
                         <ListboxOption
                           key={type.value}
                           value={type.value}
-                          className="relative cursor-pointer select-none py-2 pr-10 pl-3 text-slate-900 data-[focus]:bg-slate-50"
+                          className="relative cursor-pointer select-none py-2 pr-10 pl-3 text-[#202744] data-[focus]:bg-violet-50 data-[focus]:text-[#8B6CF6]"
                         >
                           {({ selected }) => (
                             <>
-                              <span className={`block truncate ${selected ? 'font-bold' : 'font-normal'}`}>{type.label}</span>
+                              <span className={`block truncate ${selected ? 'font-bold text-[#8B6CF6]' : 'font-normal'}`}>{type.label}</span>
                               {selected && (
-                                <span className="absolute inset-y-0 right-0 flex items-center pr-3 text-black">
-                                  <Check className="h-3.5 w-3.5" />
+                                <span className="absolute inset-y-0 right-0 flex items-center pr-3 text-[#8B6CF6]">
+                                  <Check className="h-4 w-4" />
                                 </span>
                               )}
                             </>
@@ -632,23 +653,23 @@ export const BusinessProjects: React.FC = () => {
 
               {/* Description */}
               <div>
-                <label className="block font-sans text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                <label className="block font-sans text-[10px] font-bold text-[#69718A] uppercase tracking-wider mb-1">
                   Description
                 </label>
                 <textarea
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="Detail project specifications, milestones achieved, key technologies..."
-                  className="w-full rounded-md border border-slate-200 bg-slate-55 px-3 py-2 font-sans text-xs focus:border-slate-400 focus:bg-white focus:outline-hidden text-slate-900 min-h-[90px]"
+                  className="w-full rounded-xl border border-[#EAE5DD] bg-[#FAF8F5] px-3.5 py-2.5 font-sans text-xs focus:border-[#8B6CF6] focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-[#8B6CF6]/20 text-[#202744] min-h-[90px]"
                 />
               </div>
 
               {/* Public visibility toggle */}
-              <div className="rounded-md border border-slate-200 bg-slate-55 p-3">
+              <div className="rounded-xl border border-[#EAE5DD] bg-[#FAF8F5] p-3.5">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h5 className="font-sans text-xs font-bold text-slate-900">Showcase Visibility</h5>
-                    <p className="font-sans text-[10px] text-slate-400">Toggle whether this case study is listed publicly.</p>
+                    <h5 className="font-sans text-xs font-bold text-[#202744]">Showcase Visibility</h5>
+                    <p className="font-sans text-[11px] text-[#69718A]">Toggle whether this case study is listed publicly.</p>
                   </div>
                   <label className="relative inline-flex items-center cursor-pointer select-none">
                     <input
@@ -657,28 +678,28 @@ export const BusinessProjects: React.FC = () => {
                       onChange={(e) => setIsPublic(e.target.checked)}
                       className="sr-only peer"
                     />
-                    <div className="w-11 h-6 bg-slate-200 peer-focus:outline-hidden rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-black"></div>
+                    <div className="w-11 h-6 bg-[#EAE5DD] peer-focus:outline-hidden rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#8B6CF6]"></div>
                   </label>
                 </div>
               </div>
 
               {/* Action buttons */}
-              <div className="flex items-center justify-end space-x-2 border-t border-slate-100 pt-4 mt-2">
+              <div className="flex items-center justify-end space-x-2.5 border-t border-[#F0EBE1] pt-4 mt-2">
                 <button
                   type="button"
                   onClick={handleCloseModal}
                   disabled={createMutation.isPending || isCreatingAndUploading}
-                  className="rounded-md border border-slate-200 bg-white px-4 py-2 font-sans text-[10px] font-bold uppercase tracking-wider text-slate-500 hover:bg-slate-50 cursor-pointer disabled:opacity-50"
+                  className="rounded-xl border border-[#EAE5DD] bg-white px-4 py-2 font-sans text-xs font-semibold text-[#69718A] hover:bg-[#FAF8F5] hover:text-[#202744] cursor-pointer disabled:opacity-50 transition"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={createMutation.isPending || isCreatingAndUploading}
-                  className="rounded-md bg-black px-4 py-2 font-sans text-[10px] font-bold uppercase tracking-wider text-white shadow-3xs hover:bg-slate-800 transition active:scale-95 cursor-pointer disabled:opacity-50"
+                  className="rounded-xl bg-[#8B6CF6] px-5 py-2 font-sans text-xs font-bold text-white shadow-xs hover:bg-[#7A5CE0] transition active:scale-95 cursor-pointer disabled:opacity-50"
                 >
                   {(createMutation.isPending || isCreatingAndUploading) && (
-                    <Loader2 className="h-3 w-3 animate-spin mr-1 inline" />
+                    <Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5 inline" />
                   )}
                   <span>{isCreatingAndUploading ? 'Uploading assets...' : 'Create Case Study'}</span>
                 </button>

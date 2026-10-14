@@ -203,30 +203,30 @@ export const AdminUsers: React.FC = () => {
     const meta = data?.meta;
 
     return (
-        <div className="space-y-6 admin-page-enter text-white font-sans">
+        <div className="space-y-6 admin-page-enter text-[#202744] font-sans">
             {/* Page Header with Stats */}
             <div className="mb-6">
-                <h2 className="font-sans text-2xl font-extrabold tracking-tight text-white">
+                <h2 className="font-sans text-2xl font-extrabold tracking-tight text-[#202744]">
                     User Management
                 </h2>
-                <p className="font-sans text-sm text-zinc-400 mt-1">
+                <p className="font-sans text-sm text-[#69718A] mt-1">
                     Manage accounts, role assignments, and access privileges across the platform.
                 </p>
 
                 {/* Stats Badges */}
                 {meta && (
                     <div className="flex flex-wrap items-center gap-2 mt-4">
-                        <span className="inline-flex items-center space-x-1.5 rounded-full bg-zinc-800 border border-zinc-700 px-3 py-1.5 font-mono text-[10px] font-bold text-zinc-300">
-                            <Users className="h-3 w-3" />
+                        <span className="inline-flex items-center space-x-1.5 rounded-full bg-white border border-[#EAE5DD] px-3 py-1.5 font-mono text-[10px] font-bold text-[#202744] shadow-3xs">
+                            <Users className="h-3 w-3 text-[#8B6CF6]" />
                             <span>{meta.total} Total Users</span>
                         </span>
                         {usersList.length > 0 && (
                             <>
-                                <span className="inline-flex items-center space-x-1 rounded-full bg-purple-950/50 border border-purple-800/40 px-3 py-1.5 font-mono text-[10px] font-bold text-purple-300">
+                                <span className="inline-flex items-center space-x-1.5 rounded-full bg-[#E8E0FF] border border-[#8B6CF6]/30 px-3 py-1.5 font-mono text-[10px] font-bold text-[#8B6CF6]">
                                     <Shield className="h-3 w-3" />
                                     <span>{usersList.filter(u => u.role === Role.ADMIN).length} Admin</span>
                                 </span>
-                                <span className="inline-flex items-center space-x-1 rounded-full bg-zinc-900 border border-zinc-800 px-3 py-1.5 font-mono text-[10px] font-bold text-zinc-400">
+                                <span className="inline-flex items-center space-x-1.5 rounded-full bg-[#FAF8F5] border border-[#EAE5DD] px-3 py-1.5 font-mono text-[10px] font-bold text-[#69718A]">
                                     <span>{usersList.filter(u => u.role === Role.USER).length} User</span>
                                 </span>
                             </>
@@ -236,23 +236,23 @@ export const AdminUsers: React.FC = () => {
             </div>
 
             {/* Search Header and Action panel */}
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-zinc-800/80 pb-6">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-[#EAE5DD] pb-6">
                 <div className="relative max-w-md w-full">
-                    <Search className="absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-zinc-500" />
+                    <Search className="absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-[#69718A]" />
                     <input
                         id="user-search"
                         type="text"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         placeholder="Search directory by email..."
-                        className="w-full rounded-xl border border-zinc-800 bg-[#101218] py-2.5 pr-4 pl-10 font-sans text-xs focus:border-zinc-700 focus:outline-hidden text-white placeholder:text-zinc-500 transition-all"
+                        className="w-full rounded-xl border border-[#EAE5DD] bg-white py-2.5 pr-4 pl-10 font-sans text-xs focus:border-[#8B6CF6] focus:outline-hidden text-[#202744] placeholder:text-[#69718A] transition-all shadow-3xs"
                     />
                 </div>
 
                 <button
                     id="create-new-user-btn"
                     onClick={handleOpenCreate}
-                    className="group flex cursor-pointer items-center justify-center space-x-2 rounded-full bg-white px-5 py-2.5 font-sans text-xs font-bold text-zinc-950 transition hover:bg-zinc-200 active:scale-95 shadow-md"
+                    className="group flex cursor-pointer items-center justify-center space-x-2 rounded-xl bg-[#8B6CF6] hover:bg-[#7A5CE6] px-5 py-2.5 font-sans text-xs font-bold text-white transition active:scale-95 shadow-sm"
                 >
                     <Plus className="h-4 w-4 transition-transform group-hover:rotate-90" />
                     <span>Add System User</span>
@@ -261,8 +261,8 @@ export const AdminUsers: React.FC = () => {
 
             {/* Error Message if fetching fails */}
             {isError && (
-                <div className="flex items-start space-x-2 rounded-xl border border-red-900/60 bg-red-950/30 p-4 text-xs text-red-400 font-sans">
-                    <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0 text-red-400" />
+                <div className="flex items-start space-x-2 rounded-xl border border-red-200 bg-red-50 p-4 text-xs text-red-700 font-sans">
+                    <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0 text-red-600" />
                     <div>
                         <p className="font-bold">Error loading users directory</p>
                         <p className="mt-1">{fetchError?.response?.data?.message || fetchError?.message || 'Check connection to backend server.'}</p>
@@ -271,10 +271,10 @@ export const AdminUsers: React.FC = () => {
             )}
 
             {/* Directory Table */}
-            <div className="overflow-hidden rounded-2xl border border-zinc-800/80 bg-[#101218] shadow-sm">
+            <div className="overflow-hidden rounded-2xl border border-[#EAE5DD] bg-white shadow-2xs">
                 <div className="overflow-x-auto">
                     <table className="w-full border-collapse text-left text-xs">
-                        <thead className="bg-zinc-900/90 border-b border-zinc-800 font-mono text-[10px] font-bold uppercase tracking-widest text-zinc-400">
+                        <thead className="bg-[#FAF8F5] border-b border-[#EAE5DD] font-mono text-[10px] font-bold uppercase tracking-widest text-[#69718A]">
                             <tr>
                                 <th className="px-6 py-4">User Identity</th>
                                 <th className="px-6 py-4">Role Privileges</th>
@@ -283,24 +283,24 @@ export const AdminUsers: React.FC = () => {
                                 <th className="px-6 py-4 text-right">Actions</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-zinc-800/60 font-sans text-zinc-300">
+                        <tbody className="divide-y divide-[#F0EBE1] font-sans text-[#202744]">
                             {isLoading ? (
                                 <tr>
-                                    <td colSpan={5} className="px-6 py-12 text-center text-zinc-500">
-                                        <Loader2 className="mx-auto h-8 w-8 animate-spin text-zinc-400 mb-2" />
+                                    <td colSpan={5} className="px-6 py-12 text-center text-[#69718A]">
+                                        <Loader2 className="mx-auto h-8 w-8 animate-spin text-[#8B6CF6] mb-2" />
                                         <p className="font-sans text-xs">Querying system database...</p>
                                     </td>
                                 </tr>
                             ) : usersList.length === 0 ? (
                                 <tr>
-                                    <td colSpan={5} className="px-6 py-12 text-center text-zinc-500">
-                                        <Users className="mx-auto h-8 w-8 text-zinc-600 mb-2" />
+                                    <td colSpan={5} className="px-6 py-12 text-center text-[#69718A]">
+                                        <Users className="mx-auto h-8 w-8 text-[#69718A]/50 mb-2" />
                                         <p className="font-sans text-xs">No users match your listing criteria.</p>
                                     </td>
                                 </tr>
                             ) : (
                                 usersList.map(user => (
-                                    <tr key={user.id} className="hover:bg-zinc-900/40 transition">
+                                    <tr key={user.id} className="hover:bg-[#FAF8F5] transition">
 
                                         {/* User Profile column */}
                                         <td className="px-6 py-4">
@@ -308,13 +308,13 @@ export const AdminUsers: React.FC = () => {
                                                 <img
                                                     src={user.profile?.profileImage || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200'}
                                                     alt={user.profile?.fullName || user.email}
-                                                    className="h-9 w-9 shrink-0 rounded-full object-cover border border-zinc-700"
+                                                    className="h-9 w-9 shrink-0 rounded-full object-cover border border-[#EAE5DD]"
                                                 />
                                                 <div>
-                                                    <p className="font-sans font-bold text-white leading-snug">
+                                                    <p className="font-sans font-bold text-[#202744] leading-snug">
                                                         {user.profile?.fullName || 'No Profile'}
                                                     </p>
-                                                    <p className="font-mono text-[10px] text-zinc-500">
+                                                    <p className="font-mono text-[10px] text-[#69718A]">
                                                         {user.email}
                                                     </p>
                                                 </div>
@@ -323,7 +323,7 @@ export const AdminUsers: React.FC = () => {
 
                                         {/* Role Permission */}
                                         <td className="px-6 py-4">
-                                            <span className={`inline-flex items-center space-x-1 rounded-md px-2.5 py-1 font-mono text-[9px] font-bold uppercase tracking-wider ${user.role === Role.ADMIN ? 'bg-purple-950/50 text-purple-300 border border-purple-800/40' : 'bg-zinc-800 text-zinc-300 border border-zinc-700'}`}>
+                                            <span className={`inline-flex items-center space-x-1 rounded-md px-2.5 py-1 font-mono text-[9px] font-bold uppercase tracking-wider ${user.role === Role.ADMIN ? 'bg-[#E8E0FF] text-[#8B6CF6] border border-[#8B6CF6]/30' : 'bg-[#FAF8F5] text-[#69718A] border border-[#EAE5DD]'}`}>
                                                 <Shield className="h-2.5 w-2.5" />
                                                 <span>{user.role}</span>
                                             </span>
@@ -332,12 +332,12 @@ export const AdminUsers: React.FC = () => {
                                         {/* Email Verification Status */}
                                         <td className="px-6 py-4">
                                             {user.isEmailVerified ? (
-                                                <span className="inline-flex items-center space-x-1 rounded-md bg-emerald-950/30 px-2.5 py-1 font-mono text-[9px] font-bold uppercase tracking-wider text-emerald-400 border border-emerald-500/30">
+                                                <span className="inline-flex items-center space-x-1 rounded-md bg-emerald-50 px-2.5 py-1 font-mono text-[9px] font-bold uppercase tracking-wider text-emerald-700 border border-emerald-200">
                                                     <CheckCircle2 className="h-2.5 w-2.5" />
                                                     <span>Verified</span>
                                                 </span>
                                             ) : (
-                                                <span className="inline-flex items-center space-x-1 rounded-md bg-amber-950/30 px-2.5 py-1 font-mono text-[9px] font-bold uppercase tracking-wider text-amber-400 border border-amber-500/30">
+                                                <span className="inline-flex items-center space-x-1 rounded-md bg-amber-50 px-2.5 py-1 font-mono text-[9px] font-bold uppercase tracking-wider text-amber-700 border border-amber-200">
                                                     <AlertCircle className="h-2.5 w-2.5" />
                                                     <span>Unverified</span>
                                                 </span>
@@ -346,8 +346,8 @@ export const AdminUsers: React.FC = () => {
 
                                         {/* Created At */}
                                         <td className="px-6 py-4">
-                                            <div className="flex items-center space-x-1.5 font-mono text-[10px] text-zinc-400">
-                                                <Calendar className="h-3.5 w-3.5 text-zinc-500" />
+                                            <div className="flex items-center space-x-1.5 font-mono text-[10px] text-[#69718A]">
+                                                <Calendar className="h-3.5 w-3.5 text-[#69718A]/70" />
                                                 <span>{new Date(user.createdAt).toLocaleDateString(undefined, {
                                                     year: 'numeric',
                                                     month: 'short',
@@ -365,7 +365,7 @@ export const AdminUsers: React.FC = () => {
                                                     <button
                                                         onClick={() => handleResendVerification(user)}
                                                         disabled={resendVerificationMutation.isPending}
-                                                        className="rounded-lg border border-amber-800/60 bg-amber-950/30 p-1.5 text-amber-400 hover:bg-amber-900/40 transition cursor-pointer disabled:opacity-50"
+                                                        className="rounded-lg border border-amber-200 bg-amber-50 p-1.5 text-amber-700 hover:bg-amber-100 transition cursor-pointer disabled:opacity-50"
                                                         title="Resend verification email"
                                                     >
                                                         <Mail className="h-3 w-3" />
@@ -373,7 +373,7 @@ export const AdminUsers: React.FC = () => {
                                                 )}
                                                 <button
                                                     onClick={() => handleOpenEdit(user)}
-                                                    className="rounded-lg border border-zinc-700 bg-zinc-800 p-1.5 text-zinc-300 hover:text-white hover:border-zinc-500 transition cursor-pointer"
+                                                    className="rounded-lg border border-[#EAE5DD] bg-white p-1.5 text-[#69718A] hover:text-[#8B6CF6] hover:border-[#8B6CF6] transition cursor-pointer shadow-3xs"
                                                     title="Edit user role"
                                                 >
                                                     <Edit className="h-3 w-3" />
@@ -382,7 +382,7 @@ export const AdminUsers: React.FC = () => {
                                                     <button
                                                         onClick={() => handleDeleteUser(user.id)}
                                                         disabled={deleteUserMutation.isPending}
-                                                        className="rounded-lg border border-zinc-800 bg-zinc-900 p-1.5 text-zinc-400 hover:border-red-900 hover:text-red-400 hover:bg-red-950/30 transition cursor-pointer disabled:opacity-50"
+                                                        className="rounded-lg border border-[#EAE5DD] bg-white p-1.5 text-[#69718A] hover:border-red-200 hover:text-red-600 hover:bg-red-50 transition cursor-pointer disabled:opacity-50 shadow-3xs"
                                                         title="Delete user"
                                                     >
                                                         <Trash2 className="h-3 w-3" />
@@ -400,16 +400,16 @@ export const AdminUsers: React.FC = () => {
 
                 {/* Pagination Controls */}
                 {meta && meta.totalPages > 1 && (
-                    <div className="flex items-center justify-between border-t border-zinc-800 bg-[#0c0d12] px-6 py-3.5 font-sans text-xs">
-                        <div className="text-zinc-500">
-                            Showing page <span className="font-semibold text-zinc-300">{meta.page}</span> of{' '}
-                            <span className="font-semibold text-zinc-300">{meta.totalPages}</span> ({meta.total} users)
+                    <div className="flex items-center justify-between border-t border-[#EAE5DD] bg-[#FAF8F5] px-6 py-3.5 font-sans text-xs">
+                        <div className="text-[#69718A]">
+                            Showing page <span className="font-semibold text-[#202744]">{meta.page}</span> of{' '}
+                            <span className="font-semibold text-[#202744]">{meta.totalPages}</span> ({meta.total} users)
                         </div>
                         <div className="flex items-center space-x-2">
                             <button
                                 onClick={() => setPage(p => Math.max(1, p - 1))}
                                 disabled={meta.page <= 1}
-                                className="flex items-center space-x-1 rounded-lg border border-zinc-800 bg-zinc-900 px-3 py-1.5 font-medium text-zinc-300 transition hover:bg-zinc-800 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                                className="flex items-center space-x-1 rounded-lg border border-[#EAE5DD] bg-white px-3 py-1.5 font-medium text-[#202744] transition hover:bg-[#FAF8F5] disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer shadow-3xs"
                             >
                                 <ChevronLeft className="h-3.5 w-3.5" />
                                 <span>Prev</span>
@@ -417,7 +417,7 @@ export const AdminUsers: React.FC = () => {
                             <button
                                 onClick={() => setPage(p => Math.min(meta.totalPages, p + 1))}
                                 disabled={meta.page >= meta.totalPages}
-                                className="flex items-center space-x-1 rounded-lg border border-zinc-800 bg-zinc-900 px-3 py-1.5 font-medium text-zinc-300 transition hover:bg-zinc-800 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                                className="flex items-center space-x-1 rounded-lg border border-[#EAE5DD] bg-white px-3 py-1.5 font-medium text-[#202744] transition hover:bg-[#FAF8F5] disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer shadow-3xs"
                             >
                                 <span>Next</span>
                                 <ChevronRight className="h-3.5 w-3.5" />
@@ -429,19 +429,19 @@ export const AdminUsers: React.FC = () => {
 
             {/* Creation Modal Dialog */}
             <Dialog open={isModalOpen} onClose={() => setIsModalOpen(false)} className="relative z-50">
-                <DialogBackdrop className="fixed inset-0 bg-black/75 backdrop-blur-sm transition-opacity" />
+                <DialogBackdrop className="fixed inset-0 bg-[#202744]/60 backdrop-blur-xs transition-opacity" />
 
                 <div className="fixed inset-0 flex w-screen items-center justify-center p-4">
-                    <DialogPanel className="w-full max-w-md overflow-hidden rounded-2xl border border-zinc-800 bg-[#0e1015] text-white shadow-2xl animate-in fade-in-50 zoom-in-95 duration-200">
-                        <div className="px-6 py-4.5 border-b border-zinc-800 flex items-center justify-between">
-                            <DialogTitle className="font-sans text-sm font-bold uppercase tracking-wider text-white">
+                    <DialogPanel className="w-full max-w-md overflow-hidden rounded-2xl border border-[#EAE5DD] bg-white text-[#202744] shadow-2xl animate-in fade-in-50 zoom-in-95 duration-200">
+                        <div className="px-6 py-4.5 border-b border-[#EAE5DD] flex items-center justify-between">
+                            <DialogTitle className="font-sans text-sm font-bold uppercase tracking-wider text-[#202744]">
                                 {editingUser ? 'Modify User Roles' : 'Introduce System User'}
                             </DialogTitle>
                             <button
                                 type="button"
                                 id="close-user-modal-top-btn"
                                 onClick={() => setIsModalOpen(false)}
-                                className="h-8 w-8 text-zinc-400 hover:text-white flex items-center justify-center rounded-lg hover:bg-zinc-800 font-sans text-lg cursor-pointer"
+                                className="h-8 w-8 text-[#69718A] hover:text-[#202744] flex items-center justify-center rounded-lg hover:bg-[#FAF8F5] font-sans text-lg cursor-pointer"
                             >
                                 ×
                             </button>
@@ -450,7 +450,7 @@ export const AdminUsers: React.FC = () => {
                         <form onSubmit={handleSave}>
                             <div className="p-6 space-y-4">
                                 {error && (
-                                    <div className="flex items-start space-x-2 rounded-xl border border-red-900/60 bg-red-950/30 p-3 text-xs text-red-400 font-sans font-medium">
+                                    <div className="flex items-start space-x-2 rounded-xl border border-red-200 bg-red-50 p-3 text-xs text-red-700 font-sans font-medium">
                                         <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0" />
                                         <span>{error}</span>
                                     </div>
@@ -458,7 +458,7 @@ export const AdminUsers: React.FC = () => {
 
                                 {/* Email Address */}
                                 <div>
-                                    <label className="block font-sans text-[10px] font-bold text-zinc-400 uppercase tracking-wider mb-1.5">
+                                    <label className="block font-sans text-[10px] font-bold text-[#69718A] uppercase tracking-wider mb-1.5">
                                         System Email Address <span className="text-red-500">*</span>
                                     </label>
                                     <input
@@ -468,14 +468,14 @@ export const AdminUsers: React.FC = () => {
                                         value={email}
                                         onChange={(e) => setEmail(e.target.value)}
                                         placeholder="developer@workplace.com"
-                                        className="w-full rounded-xl border border-zinc-800 bg-zinc-900/90 px-3.5 py-2.5 font-sans text-xs focus:border-zinc-700 focus:outline-hidden text-white placeholder:text-zinc-500"
+                                        className="w-full rounded-xl border border-[#EAE5DD] bg-white px-3.5 py-2.5 font-sans text-xs focus:border-[#8B6CF6] focus:outline-hidden text-[#202744] placeholder:text-[#69718A]"
                                     />
                                 </div>
 
                                 {/* Password PIN */}
                                 {!editingUser && (
                                     <div>
-                                        <label className="block font-sans text-[10px] font-bold text-zinc-400 uppercase tracking-wider mb-1.5">
+                                        <label className="block font-sans text-[10px] font-bold text-[#69718A] uppercase tracking-wider mb-1.5">
                                             Temporary Pin Password <span className="text-red-500">*</span>
                                         </label>
                                         <input
@@ -485,43 +485,43 @@ export const AdminUsers: React.FC = () => {
                                             value={password}
                                             onChange={(e) => setPassword(e.target.value)}
                                             placeholder="Min 6 characters"
-                                            className="w-full rounded-xl border border-zinc-800 bg-zinc-900/90 px-3.5 py-2.5 font-mono text-xs focus:border-zinc-700 focus:outline-hidden text-white placeholder:text-zinc-500"
+                                            className="w-full rounded-xl border border-[#EAE5DD] bg-white px-3.5 py-2.5 font-mono text-xs focus:border-[#8B6CF6] focus:outline-hidden text-[#202744] placeholder:text-[#69718A]"
                                         />
                                     </div>
                                 )}
 
                                 {/* Role */}
                                 <div>
-                                    <label className="block font-sans text-[10px] font-bold text-zinc-400 uppercase tracking-wider mb-1.5">
+                                    <label className="block font-sans text-[10px] font-bold text-[#69718A] uppercase tracking-wider mb-1.5">
                                         Role Privilege
                                     </label>
                                     <Listbox value={role} onChange={setRole}>
                                         <div className="relative">
                                             <ListboxButton
                                                 id="modal-role"
-                                                className="relative w-full rounded-xl border border-zinc-800 bg-zinc-900/90 py-2.5 pr-10 pl-3.5 text-left font-sans text-xs focus:border-zinc-700 focus:outline-hidden text-white cursor-pointer"
+                                                className="relative w-full rounded-xl border border-[#EAE5DD] bg-white py-2.5 pr-10 pl-3.5 text-left font-sans text-xs focus:border-[#8B6CF6] focus:outline-hidden text-[#202744] cursor-pointer"
                                             >
-                                                <span className="block truncate">
+                                                <span className="block truncate font-medium">
                                                     {role === Role.ADMIN
                                                         ? 'Administrator'
                                                         : 'Regular User'}
                                                 </span>
                                                 <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-                                                    <ChevronDown className="h-4 w-4 text-zinc-400" />
+                                                    <ChevronDown className="h-4 w-4 text-[#69718A]" />
                                                 </span>
                                             </ListboxButton>
-                                            <ListboxOptions className="absolute z-60 mt-1 max-h-60 w-full overflow-auto rounded-xl bg-zinc-900 py-1 text-xs shadow-xl ring-1 ring-white/10 focus:outline-hidden font-sans border border-zinc-800 text-white">
+                                            <ListboxOptions className="absolute z-60 mt-1 max-h-60 w-full overflow-auto rounded-xl bg-white py-1 text-xs shadow-xl border border-[#EAE5DD] focus:outline-hidden font-sans text-[#202744]">
                                                 <ListboxOption
                                                     value={Role.USER}
-                                                    className="relative cursor-pointer select-none py-2.5 pr-10 pl-3.5 text-zinc-200 data-[focus]:bg-zinc-800"
+                                                    className="relative cursor-pointer select-none py-2.5 pr-10 pl-3.5 text-[#202744] data-[focus]:bg-[#FAF8F5]"
                                                 >
                                                     {({ selected }) => (
                                                         <>
-                                                            <span className={`block truncate ${selected ? 'font-bold text-white' : 'font-normal'}`}>
+                                                            <span className={`block truncate ${selected ? 'font-bold text-[#8B6CF6]' : 'font-normal'}`}>
                                                                 Regular User
                                                             </span>
                                                             {selected && (
-                                                                <span className="absolute inset-y-0 right-0 flex items-center pr-3 text-white">
+                                                                <span className="absolute inset-y-0 right-0 flex items-center pr-3 text-[#8B6CF6]">
                                                                     <Check className="h-3.5 w-3.5" />
                                                                 </span>
                                                             )}
@@ -530,15 +530,15 @@ export const AdminUsers: React.FC = () => {
                                                 </ListboxOption>
                                                 <ListboxOption
                                                     value={Role.ADMIN}
-                                                    className="relative cursor-pointer select-none py-2.5 pr-10 pl-3.5 text-zinc-200 data-[focus]:bg-zinc-800"
+                                                    className="relative cursor-pointer select-none py-2.5 pr-10 pl-3.5 text-[#202744] data-[focus]:bg-[#FAF8F5]"
                                                 >
                                                     {({ selected }) => (
                                                         <>
-                                                            <span className={`block truncate ${selected ? 'font-bold text-white' : 'font-normal'}`}>
+                                                            <span className={`block truncate ${selected ? 'font-bold text-[#8B6CF6]' : 'font-normal'}`}>
                                                                 Administrator
                                                             </span>
                                                             {selected && (
-                                                                <span className="absolute inset-y-0 right-0 flex items-center pr-3 text-white">
+                                                                <span className="absolute inset-y-0 right-0 flex items-center pr-3 text-[#8B6CF6]">
                                                                     <Check className="h-3.5 w-3.5" />
                                                                 </span>
                                                             )}
@@ -552,12 +552,12 @@ export const AdminUsers: React.FC = () => {
 
                             </div>
 
-                            <div className="bg-zinc-950 border-t border-zinc-800 px-6 py-4 flex items-center justify-end space-x-2.5">
+                            <div className="bg-[#FAF8F5] border-t border-[#EAE5DD] px-6 py-4 flex items-center justify-end space-x-2.5">
                                 <button
                                     id="cancel-save-user-btn"
                                     type="button"
                                     onClick={() => setIsModalOpen(false)}
-                                    className="rounded-xl border border-zinc-800 bg-zinc-900 px-4 py-2 font-sans text-xs font-semibold text-zinc-400 hover:text-white transition cursor-pointer"
+                                    className="rounded-xl border border-[#EAE5DD] bg-white px-4 py-2 font-sans text-xs font-semibold text-[#69718A] hover:text-[#202744] transition cursor-pointer"
                                 >
                                     Cancel
                                 </button>
@@ -565,7 +565,7 @@ export const AdminUsers: React.FC = () => {
                                     id="submit-save-user-btn"
                                     type="submit"
                                     disabled={createUserMutation.isPending || updateUserMutation.isPending}
-                                    className="flex items-center space-x-1.5 rounded-xl bg-white px-5 py-2 font-sans text-xs font-bold text-zinc-950 shadow-md hover:bg-zinc-200 transition active:scale-95 cursor-pointer disabled:opacity-60"
+                                    className="flex items-center space-x-1.5 rounded-xl bg-[#8B6CF6] hover:bg-[#7A5CE6] px-5 py-2 font-sans text-xs font-bold text-white shadow-sm transition active:scale-95 cursor-pointer disabled:opacity-60"
                                 >
                                     {(createUserMutation.isPending || updateUserMutation.isPending) && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
                                     <span>{editingUser ? 'Save Changes' : 'Create User'}</span>
