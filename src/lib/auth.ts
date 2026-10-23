@@ -29,6 +29,10 @@ export function getAccessToken(): string | null {
 
 export function clearAccessToken(): void {
     localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem('has_business_profile');
+    if (typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('auth:logout'));
+    }
 }
 
 // ─── JWT decoding (no external lib needed) ──────────────────────────

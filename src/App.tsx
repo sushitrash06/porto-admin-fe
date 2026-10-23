@@ -50,6 +50,10 @@ interface AppContentProps {
 
 function AppContent({ currentUser, handleLoginSuccess, handleLogout }: AppContentProps) {
   const location = useLocation();
+  const token = getAccessToken();
+  const session = getSessionPayload();
+  const isAuthenticated = !!currentUser && !!token && !!session;
+
   const isLoginPage = location.pathname === '/login';
   const isRegisterPage = location.pathname === '/register';
   const isVerifyEmailPage = location.pathname === '/verify-email';
@@ -84,12 +88,12 @@ function AppContent({ currentUser, handleLoginSuccess, handleLogout }: AppConten
           <Route
             path="/login"
             element={
-              currentUser ? (
+              isAuthenticated ? (
                 <Navigate
                   to={
-                    currentUser.role === Role.ADMIN
+                    currentUser!.role === Role.ADMIN
                       ? '/admin/dashboard'
-                      : currentUser.businessProfile
+                      : currentUser!.businessProfile
                         ? '/admin/business/dashboard'
                         : '/admin/dashboard'
                   }
@@ -105,12 +109,12 @@ function AppContent({ currentUser, handleLoginSuccess, handleLogout }: AppConten
           <Route
             path="/register"
             element={
-              currentUser ? (
+              isAuthenticated ? (
                 <Navigate
                   to={
-                    currentUser.role === Role.ADMIN
+                    currentUser!.role === Role.ADMIN
                       ? '/admin/dashboard'
-                      : currentUser.businessProfile
+                      : currentUser!.businessProfile
                         ? '/admin/business/dashboard'
                         : '/admin/dashboard'
                   }
@@ -345,6 +349,11 @@ export default function App() {
   useEffect(() => {
     initializeDB();
 
+    const handleAuthLogout = () => {
+      setUserState(null);
+    };
+    window.addEventListener('auth:logout', handleAuthLogout);
+
     const token = getAccessToken();
     if (token) {
       api.get('/auth/me').then((res) => {
@@ -365,6 +374,10 @@ export default function App() {
         // ignore offline or unauthenticated
       });
     }
+
+    return () => {
+      window.removeEventListener('auth:logout', handleAuthLogout);
+    };
   }, []);
 
   const handleLoginSuccess = (user: User) => {
