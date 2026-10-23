@@ -8,6 +8,7 @@ import React from 'react';
 export type BadgeVariant =
   | 'primary'
   | 'secondary'
+  | 'neutral'
   | 'success'
   | 'warning'
   | 'danger'
@@ -19,12 +20,13 @@ export type BadgeVariant =
   | 'lavender'
   | 'navy';
 
-interface BadgeProps {
+export interface BadgeProps {
   children: React.ReactNode;
   variant?: BadgeVariant;
   size?: 'xs' | 'sm' | 'md';
   className?: string;
   dot?: boolean;
+  uppercase?: boolean;
 }
 
 export const Badge: React.FC<BadgeProps> = ({
@@ -33,11 +35,12 @@ export const Badge: React.FC<BadgeProps> = ({
   size = 'xs',
   className = '',
   dot = false,
+  uppercase = false,
 }) => {
   const sizeStyles = {
-    xs: 'px-2 py-0.5 text-[9px] font-bold tracking-wider',
-    sm: 'px-2.5 py-1 text-[10px] font-semibold tracking-wide',
-    md: 'px-3 py-1 text-xs font-semibold tracking-normal',
+    xs: 'px-2 py-0.5 text-[10px] font-semibold leading-tight',
+    sm: 'px-2.5 py-0.5 text-[11px] font-semibold leading-tight',
+    md: 'px-3 py-1 text-xs font-semibold leading-normal',
   }[size];
 
   const variants: Record<BadgeVariant, { bg: string; dotColor: string }> = {
@@ -46,8 +49,12 @@ export const Badge: React.FC<BadgeProps> = ({
       dotColor: 'bg-[#FFC45B]',
     },
     secondary: {
-      bg: 'bg-slate-100 text-[#69718A] border border-slate-200/80',
-      dotColor: 'bg-slate-400',
+      bg: 'bg-[#FAF8F5] text-[#69718A] border border-[#EAE5DD]',
+      dotColor: 'bg-[#69718A]',
+    },
+    neutral: {
+      bg: 'bg-[#FAF8F5] text-[#69718A] border border-[#EAE5DD]',
+      dotColor: 'bg-[#69718A]',
     },
     success: {
       bg: 'bg-emerald-50 text-emerald-700 border border-emerald-200',
@@ -58,11 +65,11 @@ export const Badge: React.FC<BadgeProps> = ({
       dotColor: 'bg-amber-500',
     },
     danger: {
-      bg: 'bg-red-50 text-red-700 border border-red-200',
-      dotColor: 'bg-red-500',
+      bg: 'bg-rose-50 text-rose-700 border border-rose-200',
+      dotColor: 'bg-rose-500',
     },
     info: {
-      bg: 'bg-blue-50 text-blue-700 border border-blue-200',
+      bg: 'bg-[#EFF6FF] text-[#1D63ED] border border-[#BFDBFE]',
       dotColor: 'bg-[#4697F5]',
     },
     dark: {
@@ -70,19 +77,19 @@ export const Badge: React.FC<BadgeProps> = ({
       dotColor: 'bg-[#8B6CF6]',
     },
     violet: {
-      bg: 'bg-[#E8E0FF] text-[#5533CC] border border-[#D5C6FF]',
+      bg: 'bg-[#F3EEFF] text-[#6941C6] border border-[#E8E0FF]',
       dotColor: 'bg-[#8B6CF6]',
     },
     blue: {
-      bg: 'bg-[#E7F2FF] text-[#1E6FD6] border border-[#BFDEFF]',
+      bg: 'bg-[#EFF6FF] text-[#1E40AF] border border-[#DBEAFE]',
       dotColor: 'bg-[#4697F5]',
     },
     yellow: {
-      bg: 'bg-[#FFF6E3] text-[#A66E00] border border-[#FFE19E]',
+      bg: 'bg-[#FFF8EC] text-[#9A6B0A] border border-[#FFE8BD]',
       dotColor: 'bg-[#FFC45B]',
     },
     lavender: {
-      bg: 'bg-[#F4EFFF] text-[#633CB8] border border-[#E8E0FF]',
+      bg: 'bg-[#FAF5FF] text-[#6B21A8] border border-[#F3E8FF]',
       dotColor: 'bg-[#8B6CF6]',
     },
     navy: {
@@ -95,12 +102,14 @@ export const Badge: React.FC<BadgeProps> = ({
 
   return (
     <span
-      className={`inline-flex items-center gap-1.5 rounded-full font-sans uppercase ${sizeStyles} ${currentVariant.bg} ${className}`}
+      className={`inline-flex items-center gap-1.5 rounded-full font-sans transition-colors ${
+        uppercase ? 'uppercase tracking-wider' : 'tracking-normal'
+      } ${sizeStyles} ${currentVariant.bg} ${className}`}
     >
       {dot && (
         <span className={`h-1.5 w-1.5 rounded-full ${currentVariant.dotColor} shrink-0`} />
       )}
-      <span>{children}</span>
+      {children}
     </span>
   );
 };

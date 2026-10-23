@@ -65,12 +65,19 @@ export function useUserDetail(id: string, options?: { enabled?: boolean }) {
   });
 }
 
+export interface UpdateUserPayload {
+  id: string;
+  email?: string;
+  role?: string;
+  isEmailVerified?: boolean;
+}
+
 /**
  * Hook to update a user (for SUPER_ADMIN only)
  */
 export function useUpdateUser() {
   const queryClient = useQueryClient();
-  return useMutation<User, AxiosError<{ message?: string }>, { id: string; email?: string; role?: string }>({
+  return useMutation<User, AxiosError<{ message?: string }>, UpdateUserPayload>({
     mutationFn: async ({ id, ...payload }) => {
       const { data } = await api.patch<User>(`/users/${id}`, payload);
       return data;

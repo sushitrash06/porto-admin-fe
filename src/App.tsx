@@ -39,6 +39,8 @@ import { ForgotPasswordPage } from './components/pages/ForgotPasswordPage';
 import { ResetPasswordPage } from './components/pages/ResetPasswordPage';
 import { UserThemeStudio } from './components/pages/UserThemeStudio';
 import { UserDashboard } from './components/pages/UserDashboard';
+import { ActivateBusinessPage } from './components/pages/ActivateBusinessPage';
+import { ToastProvider } from './context/ToastContext';
 
 interface AppContentProps {
   currentUser: User | null;
@@ -58,9 +60,8 @@ function AppContent({ currentUser, handleLoginSuccess, handleLogout }: AppConten
   const isStudioPage = location.pathname.includes('/theme-studio');
   const isAuthPage = isLoginPage || isRegisterPage || isVerifyEmailPage || isForgotPwPage || isResetPwPage;
   const isAdminPage = location.pathname.startsWith('/admin');
-  const isAdmin = currentUser?.role === Role.ADMIN;
-  // Hide navbar/footer for AUTH, PORTFOLIO, BUILDER STUDIO, USER THEME STUDIO, or ADMIN on admin pages
-  const hideChrome = isAuthPage || isPortfolioPage || isBuilderPage || isStudioPage || (isAdminPage && isAdmin);
+  // Hide public navbar and footer for AUTH, PORTFOLIO, BUILDER STUDIO, USER THEME STUDIO, and all /admin workspace pages
+  const hideChrome = isAuthPage || isPortfolioPage || isBuilderPage || isStudioPage || isAdminPage;
 
   return (
     <div className="flex min-h-screen flex-col bg-[#FAF8F5] text-[#202744]">
@@ -166,14 +167,20 @@ function AppContent({ currentUser, handleLoginSuccess, handleLogout }: AppConten
               <Route path="/admin/projects" element={<AdminProjects />} />
               <Route path="/admin/projects/:id" element={<AdminProjectDetail />} />
 
-              {/* Business Portfolio routes, restricted to BUSINESS role */}
+              {/* Business Profile Activation / Onboarding Page */}
+              <Route
+                path="/admin/business/activate"
+                element={<ActivateBusinessPage currentUser={currentUser!} />}
+              />
+
+              {/* Business Portfolio routes, restricted to users with active businessProfile */}
               <Route
                 path="/admin/business/dashboard"
                 element={
                   currentUser?.businessProfile ? (
                     <BusinessDashboard />
                   ) : (
-                    <Navigate to="/admin/profile" replace />
+                    <Navigate to="/admin/business/activate" replace />
                   )
                 }
               />
@@ -289,25 +296,25 @@ function AppContent({ currentUser, handleLoginSuccess, handleLogout }: AppConten
               <div className="flex flex-col items-center md:items-start">
                 <BrandLogo size="md" showTagline={true} />
                 <p className="mt-2 text-xs text-[#69718A] max-w-sm text-center md:text-left">
-                  The home for professional identity, creative portfolios, and business showcases.
+                  Rumah untuk identitas profesional, portofolio kreatif, dan showcase bisnismu.
                 </p>
               </div>
               <div className="flex flex-wrap items-center justify-center gap-6 text-xs font-semibold text-[#69718A]">
-                <a href="#features" className="hover:text-[#202744] transition-colors">Features</a>
-                <a href="#audiences" className="hover:text-[#202744] transition-colors">Solutions</a>
-                <a href="#templates" className="hover:text-[#202744] transition-colors">Templates</a>
-                <a href="#developer-api" className="hover:text-[#202744] transition-colors">Developer API</a>
-                <Link to="/login" className="hover:text-[#8B6CF6] transition-colors">Sign In</Link>
-                <Link to="/register" className="text-[#8B6CF6] hover:text-[#7A56F4] font-bold transition-colors">Get Started</Link>
+                <a href="#features" className="hover:text-[#202744] transition-colors">Fitur</a>
+                <a href="#audiences" className="hover:text-[#202744] transition-colors">Untuk Siapa</a>
+                <a href="#templates" className="hover:text-[#202744] transition-colors">Tema</a>
+                <a href="#faq" className="hover:text-[#202744] transition-colors">Tanya Jawab</a>
+                <Link to="/login" className="hover:text-[#8B6CF6] transition-colors">Masuk</Link>
+                <Link to="/register" className="text-[#8B6CF6] hover:text-[#7A56F4] font-bold transition-colors">Mulai Gratis</Link>
               </div>
             </div>
             <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#69718A]">
               <span>
-                © {new Date().getFullYear()} Foliowalaweh. All rights reserved.
+                © {new Date().getFullYear()} foliowalaweh. Hak cipta dilindungi.
               </span>
               <div className="flex items-center space-x-2 text-[11px] font-medium">
                 <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                <span>Dual-engine platform: Personal Portfolios & Commercial Showcases</span>
+                <span>Platform ganda: Portofolio Personal & Showcase Komersial</span>
               </div>
             </div>
           </div>
@@ -375,11 +382,13 @@ export default function App() {
 
   return (
     <BrowserRouter>
-      <AppContent
-        currentUser={currentUser}
-        handleLoginSuccess={handleLoginSuccess}
-        handleLogout={handleLogout}
-      />
+      <ToastProvider>
+        <AppContent
+          currentUser={currentUser}
+          handleLoginSuccess={handleLoginSuccess}
+          handleLogout={handleLogout}
+        />
+      </ToastProvider>
     </BrowserRouter>
   );
 }

@@ -200,10 +200,14 @@ export const ProfileThemeTab: React.FC<ProfileThemeTabProps> = ({ profile: _prof
   };
 
   const activeTemplate = myThemeData?.template;
+  const layoutConfig = myThemeData?.resolvedLayout || activeTemplate?.layoutConfig;
 
   const livePreviewData = {
     profile: _profile,
     layout: {
+      templateType: layoutConfig?.templateType || 'BUILDER',
+      customHtml: layoutConfig?.customHtml,
+      customCss: layoutConfig?.customCss,
       theme: {
         fontFamily: myThemeData?.resolvedLayout?.theme?.fontFamily || 'Inter, sans-serif',
         primaryColor: accentColor,

@@ -8,10 +8,9 @@ import { useNavigate, Link } from 'react-router-dom';
 import type { User } from '../../types';
 import { Role } from '../../types';
 import { useLogin } from '../../hooks/useLogin';
-import { ShieldAlert, LogIn, Eye, EyeOff, Lock, Mail, ArrowLeft } from 'lucide-react';
+import { ShieldAlert, Eye, EyeOff, CheckCircle2, ArrowUpRight } from 'lucide-react';
 import { BrandLogo } from '../atoms/BrandLogo';
-import { DotGridPattern, FlowRibbonPattern } from '../atoms/BrandPatterns';
-import { Button } from '../atoms/Button';
+import { AuthShowcaseCard } from '../organisms/AuthShowcaseCard';
 
 interface LoginPageProps {
   onLoginSuccess: (user: User) => void;
@@ -21,17 +20,20 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [rememberMe, setRememberMe] = useState<boolean>(true);
   const [error, setError] = useState<string>('');
   const navigate = useNavigate();
 
   const loginMutation = useLogin();
+
+  const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
     if (!email.trim() || !password) {
-      setError('Email and Password are required.');
+      setError('Email dan kata sandi wajib diisi.');
       return;
     }
 
@@ -61,141 +63,197 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
           const msg =
             err.response?.data?.message ||
             err.message ||
-            'Authentication failed. Please check your credentials.';
+            'Autentikasi gagal. Periksa kembali email dan kata sandi kamu.';
 
           if (msg === 'Please verify your email address first.') {
             navigate('/verify-required', { state: { email: email.trim() } });
             return;
           }
 
-          setError(typeof msg === 'string' ? msg : 'Authentication failed.');
+          setError(typeof msg === 'string' ? msg : 'Autentikasi gagal.');
         },
       }
     );
   };
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-[#FAF8F5] text-[#202744] p-4 relative overflow-hidden font-sans">
-      {/* Decorative patterns */}
-      <DotGridPattern dotColor="#8B6CF6" spacing={24} />
-      <FlowRibbonPattern position="top-right" intensity="subtle" />
-
-      <div className="w-full max-w-md overflow-hidden rounded-3xl border border-[#EAE5DD] bg-white shadow-xl animate-in fade-in-50 zoom-in-95 duration-200 z-10">
-        {/* Top brand accent ribbon */}
-        <div className="h-1.5 bg-gradient-to-r from-[#8B6CF6] via-[#4697F5] to-[#FFC45B]" />
-
-        <div className="p-7 sm:p-9">
-          {/* Header Bar */}
-          <div className="flex items-center justify-between mb-6">
-            <BrandLogo size="md" to="/" showTagline={false} />
-            <Link
-              id="login-cancel-btn"
-              to="/"
-              className="flex items-center space-x-1 rounded-full px-3 py-1 font-sans text-xs font-semibold text-[#69718A] hover:text-[#202744] bg-[#FAF8F5] hover:bg-[#F3EFEA] border border-[#E5E1DA] transition-all cursor-pointer"
-            >
-              <ArrowLeft className="h-3 w-3" />
-              <span>Back Home</span>
-            </Link>
-          </div>
-
-          <div>
-            <h2 className="font-sans text-2xl font-extrabold tracking-tight text-[#202744]">
-              Welcome back
-            </h2>
-            <p className="mt-1 font-sans text-xs text-[#69718A]">
-              Sign in to manage your portfolio, case studies, or business services.
-            </p>
-          </div>
-
-          {/* Errors */}
-          {error && (
-            <div className="mt-4 flex items-start space-x-2.5 rounded-2xl border border-red-200 bg-red-50 p-3 text-xs text-red-700">
-              <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0 text-red-500" />
-              <p className="font-sans font-medium">{error}</p>
-            </div>
-          )}
-
-          {/* Form */}
-          <form onSubmit={handleLogin} className="mt-6 space-y-4">
+    <div className="min-h-screen w-full bg-[#FAF8F5] text-[#202744] font-sans flex flex-col justify-between selection:bg-[#3B6BF5] selection:text-white">
+      <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-6 sm:py-8 flex-1 flex flex-col justify-center">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+          
+          {/* Left Column: Auth Form */}
+          <div className="lg:col-span-6 xl:col-span-6 w-full max-w-lg mx-auto lg:max-w-none flex flex-col justify-between py-2">
             <div>
-              <label className="block font-sans text-xs font-bold text-[#202744] mb-1.5">
-                Email Address <span className="text-red-500">*</span>
-              </label>
-              <div className="relative">
-                <Mail className="absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-[#69718A]" />
-                <input
-                  id="login-email"
-                  type="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="name@example.com"
-                  className="w-full rounded-xl border border-[#E5E1DA] bg-white py-2.5 pr-3.5 pl-10 font-sans text-xs text-[#202744] placeholder-[#69718A] focus:border-[#8B6CF6] focus:outline-hidden focus:ring-2 focus:ring-[#8B6CF6]/20 transition-all"
-                />
-              </div>
-            </div>
-
-            <div>
-              <div className="flex items-center justify-between mb-1.5">
-                <label className="block font-sans text-xs font-bold text-[#202744]">
-                  Password <span className="text-red-500">*</span>
-                </label>
+              {/* Header: Logo and Back Home Link */}
+              <div className="flex items-center justify-between mb-8">
+                <BrandLogo size="md" to="/" showTagline={false} monochromeWordmark={true} />
                 <Link
-                  id="login-forgot-pw-link"
-                  to="/forgot-password"
-                  className="font-sans text-xs font-medium text-[#8B6CF6] hover:underline"
+                  id="login-back-home"
+                  to="/"
+                  className="text-xs font-semibold text-[#69718A] hover:text-[#202744] transition-colors cursor-pointer flex items-center gap-1"
                 >
-                  Forgot password?
+                  <span>← Beranda</span>
                 </Link>
               </div>
-              <div className="relative">
-                <Lock className="absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-[#69718A]" />
-                <input
-                  id="login-password"
-                  type={showPassword ? 'text' : 'password'}
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  className="w-full rounded-xl border border-[#E5E1DA] bg-white py-2.5 pr-10 pl-10 font-sans text-xs text-[#202744] placeholder-[#69718A] focus:border-[#8B6CF6] focus:outline-hidden focus:ring-2 focus:ring-[#8B6CF6]/20 transition-all"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute top-1/2 right-3 -translate-y-1/2 text-[#69718A] hover:text-[#202744] cursor-pointer"
-                >
-                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                </button>
+
+              {/* Title Header */}
+              <div className="mb-6">
+                <span className="inline-block text-[11px] font-extrabold uppercase tracking-wider text-[#3B6BF5] mb-2">
+                  SELAMAT DATANG LAGI
+                </span>
+                <h1 className="text-3xl sm:text-4xl font-extrabold text-[#202744] tracking-tight mb-2">
+                  Lanjutkan ceritamu.
+                </h1>
+                <p className="text-xs sm:text-sm text-[#69718A]">
+                  Masuk untuk mengelola karya dan portofoliomu.
+                </p>
               </div>
-            </div>
 
-            <div className="pt-2">
-              <Button
-                id="login-submit-btn"
-                type="submit"
-                variant="primary"
-                fullWidth
-                isLoading={loginMutation.isPending}
-                leftIcon={<LogIn className="h-4 w-4" />}
-              >
-                Sign In
-              </Button>
-            </div>
-
-            {/* Register link */}
-            <div className="text-center pt-3 border-t border-[#F0EBE3] mt-4">
-              <p className="font-sans text-xs text-[#69718A]">
-                Don't have an account yet?{' '}
+              {/* Tab Switcher: Masuk / Daftar */}
+              <div className="bg-[#EFEAE2] p-1 rounded-2xl flex items-center mb-6">
+                <span className="flex-1 py-2 text-center text-xs sm:text-sm font-bold text-[#3B6BF5] bg-white rounded-xl shadow-3xs cursor-default">
+                  Masuk
+                </span>
                 <Link
-                  id="login-register-link"
                   to="/register"
-                  className="font-bold text-[#8B6CF6] hover:text-[#7A56F4] hover:underline"
+                  className="flex-1 py-2 text-center text-xs sm:text-sm font-semibold text-[#69718A] hover:text-[#202744] rounded-xl transition-colors cursor-pointer"
                 >
-                  Create your portfolio free
+                  Daftar
                 </Link>
-              </p>
+              </div>
+
+              {/* Divider */}
+              <div className="relative my-6 text-center">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-[#EAE5DD]" />
+                </div>
+                <span className="relative bg-[#FAF8F5] px-4 text-[11px] font-medium text-[#69718A]">
+                  atau pakai email
+                </span>
+              </div>
+
+              {/* Error Alert */}
+              {error && (
+                <div className="mb-4 flex items-start space-x-2.5 rounded-2xl border border-red-200 bg-red-50 p-3 text-xs text-red-700">
+                  <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0 text-red-500" />
+                  <p className="font-medium">{error}</p>
+                </div>
+              )}
+
+              {/* Credentials Form */}
+              <form onSubmit={handleLogin} className="space-y-4">
+                {/* Email */}
+                <div>
+                  <label className="block text-xs font-bold text-[#202744] mb-1.5">
+                    Email
+                  </label>
+                  <div className="relative">
+                    <input
+                      id="login-email"
+                      type="email"
+                      required
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="naya@contoh.id"
+                      className="w-full rounded-2xl border border-[#E5E1DA] bg-white py-3 pr-10 pl-4 text-xs sm:text-sm text-[#202744] placeholder-[#A0A6B8] focus:border-[#3B6BF5] focus:outline-hidden focus:ring-2 focus:ring-[#3B6BF5]/20 transition-all shadow-3xs"
+                    />
+                    {isEmailValid && (
+                      <CheckCircle2 className="absolute top-1/2 right-3.5 h-4 w-4 -translate-y-1/2 text-emerald-600" />
+                    )}
+                  </div>
+                </div>
+
+                {/* Password */}
+                <div>
+                  <label className="block text-xs font-bold text-[#202744] mb-1.5">
+                    Kata sandi
+                  </label>
+                  <div className="relative">
+                    <input
+                      id="login-password"
+                      type={showPassword ? 'text' : 'password'}
+                      required
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="••••••••••••"
+                      className="w-full rounded-2xl border border-[#E5E1DA] bg-white py-3 pr-10 pl-4 text-xs sm:text-sm text-[#202744] placeholder-[#A0A6B8] focus:border-[#3B6BF5] focus:outline-hidden focus:ring-2 focus:ring-[#3B6BF5]/20 transition-all shadow-3xs"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute top-1/2 right-3.5 -translate-y-1/2 text-[#69718A] hover:text-[#202744] cursor-pointer"
+                      tabIndex={-1}
+                    >
+                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Options: Remember me & Forgot password */}
+                <div className="flex items-center justify-between text-xs pt-1">
+                  <label className="flex items-center space-x-2 text-[#202744] cursor-pointer select-none">
+                    <input
+                      type="checkbox"
+                      checked={rememberMe}
+                      onChange={(e) => setRememberMe(e.target.checked)}
+                      className="h-4 w-4 rounded-md border-[#E5E1DA] text-[#3B6BF5] focus:ring-[#3B6BF5] cursor-pointer accent-[#3B6BF5]"
+                    />
+                    <span className="font-medium">Ingat saya</span>
+                  </label>
+                  <Link
+                    id="login-forgot-pw-link"
+                    to="/forgot-password"
+                    className="font-semibold text-[#3B6BF5] hover:underline"
+                  >
+                    Lupa kata sandi?
+                  </Link>
+                </div>
+
+                {/* Submit Button */}
+                <div className="pt-2">
+                  <button
+                    id="login-submit-btn"
+                    type="submit"
+                    disabled={loginMutation.isPending}
+                    className="w-full inline-flex items-center justify-center gap-2 rounded-full bg-[#3B6BF5] hover:bg-[#2F56D2] py-3.5 text-sm sm:text-base font-semibold text-white transition-all shadow-sm hover:shadow active:scale-95 disabled:opacity-50 cursor-pointer"
+                  >
+                    <span>{loginMutation.isPending ? 'Memproses...' : 'Masuk'}</span>
+                    <ArrowUpRight className="h-4 w-4" />
+                  </button>
+                </div>
+
+                {/* Register Link */}
+                <div className="text-center pt-3">
+                  <p className="text-xs text-[#69718A]">
+                    Belum punya akun?{' '}
+                    <Link
+                      id="login-register-link"
+                      to="/register"
+                      className="font-bold text-[#3B6BF5] hover:underline"
+                    >
+                      Daftar di sini
+                    </Link>
+                  </p>
+                </div>
+              </form>
             </div>
-          </form>
+
+            {/* Left Column Footer */}
+            <div className="pt-10 flex items-center justify-between text-xs text-[#69718A]">
+              <span>© {new Date().getFullYear()} foliowalaweh</span>
+              <div className="flex items-center space-x-3 text-xs">
+                <span className="hover:text-[#202744] cursor-pointer transition-colors">Butuh bantuan?</span>
+                <span>·</span>
+                <span className="hover:text-[#202744] cursor-pointer transition-colors">Privasi</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Right Column: Lavender Feature Showcase Card */}
+          <div className="hidden lg:block lg:col-span-6 xl:col-span-6 h-full">
+            <AuthShowcaseCard />
+          </div>
+
         </div>
       </div>
     </div>

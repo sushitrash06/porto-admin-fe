@@ -7,11 +7,30 @@ import React, { useState } from 'react';
 import { Role, type User } from '../../types';
 import { useUsers, useCreateUser, useUpdateUser, useDeleteUser, useResendVerification } from '../../hooks/useUsers';
 import { Dialog, DialogPanel, DialogTitle, DialogBackdrop, Listbox, ListboxButton, ListboxOptions, ListboxOption } from '@headlessui/react';
-import { Plus, ShieldAlert, Users, Search, Loader2, Calendar, ChevronLeft, ChevronRight, ChevronDown, Check, Edit, Trash2, Shield, Mail, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Plus, ShieldAlert, Users, Calendar, ChevronDown, Check, Edit, Trash2, Shield, Mail, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
 import { getSessionPayload } from '../../lib/auth';
 import { ConfirmDialog } from '../molecules/ConfirmDialog';
+import {
+    TableContainer,
+    Table,
+    TableHeader,
+    TableHead,
+    TableBody,
+    TableRow,
+    TableCell,
+    TableIdentityTile,
+    TableActionButton,
+    TableLoadingRow,
+    TableEmptyRow,
+} from '../molecules/Table';
+import { Pagination } from '../molecules/Pagination';
+import { Badge } from '../atoms/Badge';
+import { SearchBar } from '../molecules/SearchBar';
+
+import { useToast } from '../../hooks/useToast';
 
 export const AdminUsers: React.FC = () => {
+    const { toast } = useToast();
     const [searchQuery, setSearchQuery] = useState<string>('');
     const [debouncedSearch, setDebouncedSearch] = useState<string>('');
     const [page, setPage] = useState<number>(1);
@@ -43,6 +62,7 @@ export const AdminUsers: React.FC = () => {
     const [email, setEmail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
     const [role, setRole] = useState<Role>(Role.USER);
+    const [isEmailVerified, setIsEmailVerified] = useState<boolean>(false);
     const [error, setError] = useState<string>('');
 
     // Fetch users via React Query
@@ -72,6 +92,7 @@ export const AdminUsers: React.FC = () => {
         setEmail('');
         setPassword('');
         setRole(Role.USER);
+        setIsEmailVerified(false);
         setIsModalOpen(true);
     };
 
@@ -81,6 +102,7 @@ export const AdminUsers: React.FC = () => {
         setEmail(user.email);
         setPassword('');
         setRole(user.role);
+        setIsEmailVerified(user.isEmailVerified ?? false);
         setIsModalOpen(true);
     };
 
@@ -93,16 +115,12 @@ export const AdminUsers: React.FC = () => {
             showCancel: true,
             onConfirm: () => {
                 deleteUserMutation.mutate(userId, {
+                    onSuccess: () => {
+                        toast.success('User account has been deleted successfully.');
+                    },
                     onError: (err) => {
                         const errMsg = err.response?.data?.message || err.message || 'Failed to delete user.';
-                        setConfirmState({
-                            isOpen: true,
-                            title: 'Failed to Delete User',
-                            message: typeof errMsg === 'string' ? errMsg : 'An unexpected error occurred.',
-                            variant: 'info',
-                            showCancel: false,
-                            onConfirm: () => {}
-                        });
+                        toast.error(typeof errMsg === 'string' ? errMsg : 'Failed to delete user.');
                     }
                 });
             }
@@ -119,25 +137,11 @@ export const AdminUsers: React.FC = () => {
             onConfirm: () => {
                 resendVerificationMutation.mutate(user.id, {
                     onSuccess: (res) => {
-                        setConfirmState({
-                            isOpen: true,
-                            title: 'Verification Email Sent',
-                            message: res.message || `Verification link sent to ${user.email}.`,
-                            variant: 'info',
-                            showCancel: false,
-                            onConfirm: () => {}
-                        });
+                        toast.success(res.message || `Verification link sent to ${user.email}.`);
                     },
                     onError: (err) => {
                         const errMsg = err.response?.data?.message || err.message || 'Failed to send verification email.';
-                        setConfirmState({
-                            isOpen: true,
-                            title: 'Failed to Send Email',
-                            message: typeof errMsg === 'string' ? errMsg : 'An unexpected error occurred.',
-                            variant: 'danger',
-                            showCancel: false,
-                            onConfirm: () => {}
-                        });
+                        toast.error(typeof errMsg === 'string' ? errMsg : 'Failed to send verification email.');
                     }
                 });
             }
@@ -159,9 +163,11 @@ export const AdminUsers: React.FC = () => {
                     id: editingUser.id,
                     email: email.trim(),
                     role: role,
+                    isEmailVerified,
                 },
                 {
                     onSuccess: () => {
+                        toast.success(`User ${email.trim()} updated successfully.`);
                         setIsModalOpen(false);
                     },
                     onError: (err) => {
@@ -188,6 +194,7 @@ export const AdminUsers: React.FC = () => {
                 },
                 {
                     onSuccess: () => {
+                        toast.success(`New user ${email.trim()} created successfully.`);
                         setIsModalOpen(false);
                     },
                     onError: (err) => {
@@ -216,19 +223,19 @@ export const AdminUsers: React.FC = () => {
                 {/* Stats Badges */}
                 {meta && (
                     <div className="flex flex-wrap items-center gap-2 mt-4">
-                        <span className="inline-flex items-center space-x-1.5 rounded-full bg-white border border-[#EAE5DD] px-3 py-1.5 font-mono text-[10px] font-bold text-[#202744] shadow-3xs">
-                            <Users className="h-3 w-3 text-[#8B6CF6]" />
+                        <Badge variant="neutral" size="md">
+                            <Users className="h-3.5 w-3.5 text-[#8B6CF6]" />
                             <span>{meta.total} Total Users</span>
-                        </span>
+                        </Badge>
                         {usersList.length > 0 && (
                             <>
-                                <span className="inline-flex items-center space-x-1.5 rounded-full bg-[#E8E0FF] border border-[#8B6CF6]/30 px-3 py-1.5 font-mono text-[10px] font-bold text-[#8B6CF6]">
-                                    <Shield className="h-3 w-3" />
+                                <Badge variant="primary" size="md">
+                                    <Shield className="h-3.5 w-3.5" />
                                     <span>{usersList.filter(u => u.role === Role.ADMIN).length} Admin</span>
-                                </span>
-                                <span className="inline-flex items-center space-x-1.5 rounded-full bg-[#FAF8F5] border border-[#EAE5DD] px-3 py-1.5 font-mono text-[10px] font-bold text-[#69718A]">
+                                </Badge>
+                                <Badge variant="neutral" size="md">
                                     <span>{usersList.filter(u => u.role === Role.USER).length} User</span>
-                                </span>
+                                </Badge>
                             </>
                         )}
                     </div>
@@ -237,24 +244,21 @@ export const AdminUsers: React.FC = () => {
 
             {/* Search Header and Action panel */}
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-[#EAE5DD] pb-6">
-                <div className="relative max-w-md w-full">
-                    <Search className="absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-[#69718A]" />
-                    <input
+                <div className="max-w-md w-full">
+                    <SearchBar
                         id="user-search"
-                        type="text"
                         value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
+                        onChange={setSearchQuery}
                         placeholder="Search directory by email..."
-                        className="w-full rounded-xl border border-[#EAE5DD] bg-white py-2.5 pr-4 pl-10 font-sans text-xs focus:border-[#8B6CF6] focus:outline-hidden text-[#202744] placeholder:text-[#69718A] transition-all shadow-3xs"
                     />
                 </div>
 
                 <button
                     id="create-new-user-btn"
                     onClick={handleOpenCreate}
-                    className="group flex cursor-pointer items-center justify-center space-x-2 rounded-xl bg-[#8B6CF6] hover:bg-[#7A5CE6] px-5 py-2.5 font-sans text-xs font-bold text-white transition active:scale-95 shadow-sm"
+                    className="group flex cursor-pointer items-center justify-center space-x-2 rounded-xl bg-[#8B6CF6] hover:bg-[#7857ED] px-5 py-2.5 font-sans text-xs font-semibold text-white transition active:scale-95 shadow-sm"
                 >
-                    <Plus className="h-4 w-4 transition-transform group-hover:rotate-90" />
+                    <Plus className="h-4 w-4 transition-transform duration-200 group-hover:rotate-90" />
                     <span>Add System User</span>
                 </button>
             </div>
@@ -271,161 +275,139 @@ export const AdminUsers: React.FC = () => {
             )}
 
             {/* Directory Table */}
-            <div className="overflow-hidden rounded-2xl border border-[#EAE5DD] bg-white shadow-2xs">
-                <div className="overflow-x-auto">
-                    <table className="w-full border-collapse text-left text-xs">
-                        <thead className="bg-[#FAF8F5] border-b border-[#EAE5DD] font-mono text-[10px] font-bold uppercase tracking-widest text-[#69718A]">
-                            <tr>
-                                <th className="px-6 py-4">User Identity</th>
-                                <th className="px-6 py-4">Role Privileges</th>
-                                <th className="px-6 py-4">Status</th>
-                                <th className="px-6 py-4">Registration Date</th>
-                                <th className="px-6 py-4 text-right">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-[#F0EBE1] font-sans text-[#202744]">
-                            {isLoading ? (
-                                <tr>
-                                    <td colSpan={5} className="px-6 py-12 text-center text-[#69718A]">
-                                        <Loader2 className="mx-auto h-8 w-8 animate-spin text-[#8B6CF6] mb-2" />
-                                        <p className="font-sans text-xs">Querying system database...</p>
-                                    </td>
-                                </tr>
-                            ) : usersList.length === 0 ? (
-                                <tr>
-                                    <td colSpan={5} className="px-6 py-12 text-center text-[#69718A]">
-                                        <Users className="mx-auto h-8 w-8 text-[#69718A]/50 mb-2" />
-                                        <p className="font-sans text-xs">No users match your listing criteria.</p>
-                                    </td>
-                                </tr>
-                            ) : (
-                                usersList.map(user => (
-                                    <tr key={user.id} className="hover:bg-[#FAF8F5] transition">
+            <TableContainer>
+                <Table minWidth="min-w-[700px]">
+                    <TableHeader>
+                        <tr>
+                            <TableHead>User Identity</TableHead>
+                            <TableHead>Role Privileges</TableHead>
+                            <TableHead>Status</TableHead>
+                            <TableHead>Registration Date</TableHead>
+                            <TableHead align="right">Actions</TableHead>
+                        </tr>
+                    </TableHeader>
+                    <TableBody>
+                        {isLoading ? (
+                            <TableLoadingRow colSpan={5} message="Querying system database..." />
+                        ) : usersList.length === 0 ? (
+                            <TableEmptyRow
+                                colSpan={5}
+                                icon={<Users className="mx-auto h-8 w-8 text-[#69718A]/40 mb-2" />}
+                                message="No users match your listing criteria."
+                            />
+                        ) : (
+                            usersList.map(user => (
+                                <TableRow key={user.id}>
+                                    {/* User Profile column */}
+                                    <TableCell>
+                                        <div className="flex items-center space-x-3">
+                                            <TableIdentityTile
+                                                name={user.profile?.fullName || user.email}
+                                                image={user.profile?.profileImage}
+                                                variant={user.role === Role.ADMIN ? 'violet' : 'neutral'}
+                                            />
+                                            <div>
+                                                <p className="font-sans font-semibold text-[#202744] leading-snug">
+                                                    {user.profile?.fullName || 'No Profile'}
+                                                </p>
+                                                <p className="font-sans text-[11px] text-[#69718A]">
+                                                    {user.email}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </TableCell>
 
-                                        {/* User Profile column */}
-                                        <td className="px-6 py-4">
-                                            <div className="flex items-center space-x-3">
-                                                <img
-                                                    src={user.profile?.profileImage || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200'}
-                                                    alt={user.profile?.fullName || user.email}
-                                                    className="h-9 w-9 shrink-0 rounded-full object-cover border border-[#EAE5DD]"
+                                    {/* Role Permission */}
+                                    <TableCell>
+                                        <Badge
+                                            variant={user.role === Role.ADMIN ? 'primary' : 'neutral'}
+                                            size="sm"
+                                        >
+                                            <Shield className="h-3 w-3" />
+                                            <span>{user.role}</span>
+                                        </Badge>
+                                    </TableCell>
+
+                                    {/* Email Verification Status */}
+                                    <TableCell>
+                                        {user.isEmailVerified ? (
+                                            <Badge variant="success" size="sm">
+                                                <CheckCircle2 className="h-3 w-3" />
+                                                <span>Verified</span>
+                                            </Badge>
+                                        ) : (
+                                            <Badge variant="warning" size="sm">
+                                                <AlertCircle className="h-3 w-3" />
+                                                <span>Unverified</span>
+                                            </Badge>
+                                        )}
+                                    </TableCell>
+
+                                    {/* Created At */}
+                                    <TableCell>
+                                        <div className="flex items-center space-x-1.5 font-sans text-xs text-[#69718A]">
+                                            <Calendar className="h-3.5 w-3.5 text-[#69718A]/70" />
+                                            <span>{new Date(user.createdAt).toLocaleDateString(undefined, {
+                                                year: 'numeric',
+                                                month: 'short',
+                                                day: 'numeric',
+                                                hour: '2-digit',
+                                                minute: '2-digit'
+                                            })}</span>
+                                        </div>
+                                    </TableCell>
+
+                                    {/* Actions */}
+                                    <TableCell align="right">
+                                        <div className="flex items-center justify-end space-x-1">
+                                            {!user.isEmailVerified && (
+                                                <TableActionButton
+                                                    id={`resend-verification-${user.id}-btn`}
+                                                    icon={<Mail className="h-3.5 w-3.5" />}
+                                                    label="Resend verification email"
+                                                    variant="warning"
+                                                    onClick={() => handleResendVerification(user)}
+                                                    disabled={resendVerificationMutation.isPending}
                                                 />
-                                                <div>
-                                                    <p className="font-sans font-bold text-[#202744] leading-snug">
-                                                        {user.profile?.fullName || 'No Profile'}
-                                                    </p>
-                                                    <p className="font-mono text-[10px] text-[#69718A]">
-                                                        {user.email}
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </td>
-
-                                        {/* Role Permission */}
-                                        <td className="px-6 py-4">
-                                            <span className={`inline-flex items-center space-x-1 rounded-md px-2.5 py-1 font-mono text-[9px] font-bold uppercase tracking-wider ${user.role === Role.ADMIN ? 'bg-[#E8E0FF] text-[#8B6CF6] border border-[#8B6CF6]/30' : 'bg-[#FAF8F5] text-[#69718A] border border-[#EAE5DD]'}`}>
-                                                <Shield className="h-2.5 w-2.5" />
-                                                <span>{user.role}</span>
-                                            </span>
-                                        </td>
-
-                                        {/* Email Verification Status */}
-                                        <td className="px-6 py-4">
-                                            {user.isEmailVerified ? (
-                                                <span className="inline-flex items-center space-x-1 rounded-md bg-emerald-50 px-2.5 py-1 font-mono text-[9px] font-bold uppercase tracking-wider text-emerald-700 border border-emerald-200">
-                                                    <CheckCircle2 className="h-2.5 w-2.5" />
-                                                    <span>Verified</span>
-                                                </span>
-                                            ) : (
-                                                <span className="inline-flex items-center space-x-1 rounded-md bg-amber-50 px-2.5 py-1 font-mono text-[9px] font-bold uppercase tracking-wider text-amber-700 border border-amber-200">
-                                                    <AlertCircle className="h-2.5 w-2.5" />
-                                                    <span>Unverified</span>
-                                                </span>
                                             )}
-                                        </td>
-
-                                        {/* Created At */}
-                                        <td className="px-6 py-4">
-                                            <div className="flex items-center space-x-1.5 font-mono text-[10px] text-[#69718A]">
-                                                <Calendar className="h-3.5 w-3.5 text-[#69718A]/70" />
-                                                <span>{new Date(user.createdAt).toLocaleDateString(undefined, {
-                                                    year: 'numeric',
-                                                    month: 'short',
-                                                    day: 'numeric',
-                                                    hour: '2-digit',
-                                                    minute: '2-digit'
-                                                })}</span>
-                                            </div>
-                                        </td>
-
-                                        {/* Actions */}
-                                        <td className="px-6 py-4 text-right">
-                                            <div className="flex items-center justify-end space-x-1.5">
-                                                {!user.isEmailVerified && (
-                                                    <button
-                                                        onClick={() => handleResendVerification(user)}
-                                                        disabled={resendVerificationMutation.isPending}
-                                                        className="rounded-lg border border-amber-200 bg-amber-50 p-1.5 text-amber-700 hover:bg-amber-100 transition cursor-pointer disabled:opacity-50"
-                                                        title="Resend verification email"
-                                                    >
-                                                        <Mail className="h-3 w-3" />
-                                                    </button>
-                                                )}
-                                                <button
-                                                    onClick={() => handleOpenEdit(user)}
-                                                    className="rounded-lg border border-[#EAE5DD] bg-white p-1.5 text-[#69718A] hover:text-[#8B6CF6] hover:border-[#8B6CF6] transition cursor-pointer shadow-3xs"
-                                                    title="Edit user role"
-                                                >
-                                                    <Edit className="h-3 w-3" />
-                                                </button>
-                                                {currentUserId !== user.id && (
-                                                    <button
-                                                        onClick={() => handleDeleteUser(user.id)}
-                                                        disabled={deleteUserMutation.isPending}
-                                                        className="rounded-lg border border-[#EAE5DD] bg-white p-1.5 text-[#69718A] hover:border-red-200 hover:text-red-600 hover:bg-red-50 transition cursor-pointer disabled:opacity-50 shadow-3xs"
-                                                        title="Delete user"
-                                                    >
-                                                        <Trash2 className="h-3 w-3" />
-                                                    </button>
-                                                )}
-                                            </div>
-                                        </td>
-
-                                    </tr>
-                                ))
-                            )}
-                        </tbody>
-                    </table>
-                </div>
+                                            <TableActionButton
+                                                id={`edit-user-${user.id}-btn`}
+                                                icon={<Edit className="h-3.5 w-3.5" />}
+                                                label="Edit user role"
+                                                variant="default"
+                                                onClick={() => handleOpenEdit(user)}
+                                            />
+                                            {currentUserId !== user.id && (
+                                                <TableActionButton
+                                                    id={`delete-user-${user.id}-btn`}
+                                                    icon={<Trash2 className="h-3.5 w-3.5" />}
+                                                    label="Delete user"
+                                                    variant="danger"
+                                                    onClick={() => handleDeleteUser(user.id)}
+                                                    disabled={deleteUserMutation.isPending}
+                                                />
+                                            )}
+                                        </div>
+                                    </TableCell>
+                                </TableRow>
+                            ))
+                        )}
+                    </TableBody>
+                </Table>
 
                 {/* Pagination Controls */}
-                {meta && meta.totalPages > 1 && (
-                    <div className="flex items-center justify-between border-t border-[#EAE5DD] bg-[#FAF8F5] px-6 py-3.5 font-sans text-xs">
-                        <div className="text-[#69718A]">
-                            Showing page <span className="font-semibold text-[#202744]">{meta.page}</span> of{' '}
-                            <span className="font-semibold text-[#202744]">{meta.totalPages}</span> ({meta.total} users)
-                        </div>
-                        <div className="flex items-center space-x-2">
-                            <button
-                                onClick={() => setPage(p => Math.max(1, p - 1))}
-                                disabled={meta.page <= 1}
-                                className="flex items-center space-x-1 rounded-lg border border-[#EAE5DD] bg-white px-3 py-1.5 font-medium text-[#202744] transition hover:bg-[#FAF8F5] disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer shadow-3xs"
-                            >
-                                <ChevronLeft className="h-3.5 w-3.5" />
-                                <span>Prev</span>
-                            </button>
-                            <button
-                                onClick={() => setPage(p => Math.min(meta.totalPages, p + 1))}
-                                disabled={meta.page >= meta.totalPages}
-                                className="flex items-center space-x-1 rounded-lg border border-[#EAE5DD] bg-white px-3 py-1.5 font-medium text-[#202744] transition hover:bg-[#FAF8F5] disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer shadow-3xs"
-                            >
-                                <span>Next</span>
-                                <ChevronRight className="h-3.5 w-3.5" />
-                            </button>
-                        </div>
-                    </div>
+                {meta && (
+                    <Pagination
+                        currentPage={meta.page}
+                        totalPages={meta.totalPages}
+                        totalItems={meta.total}
+                        itemsPerPage={limit}
+                        itemLabel="users"
+                        onPageChange={setPage}
+                        variant="table"
+                    />
                 )}
-            </div>
+            </TableContainer>
 
             {/* Creation Modal Dialog */}
             <Dialog open={isModalOpen} onClose={() => setIsModalOpen(false)} className="relative z-50">
@@ -549,6 +531,26 @@ export const AdminUsers: React.FC = () => {
                                         </div>
                                     </Listbox>
                                 </div>
+
+                                {editingUser && (
+                                    <div className="pt-2 border-t border-[#F0EBE3]">
+                                        <label className="flex items-center space-x-2.5 cursor-pointer select-none">
+                                            <input
+                                                id="user-is-email-verified-checkbox"
+                                                type="checkbox"
+                                                checked={isEmailVerified}
+                                                onChange={(e) => setIsEmailVerified(e.target.checked)}
+                                                className="h-4 w-4 rounded-md border-[#EAE5DD] text-[#8B6CF6] focus:ring-[#8B6CF6] cursor-pointer"
+                                            />
+                                            <span className="font-sans text-xs font-bold text-[#202744]">
+                                                Email Verified (Manual Platform Verification)
+                                            </span>
+                                        </label>
+                                        <p className="font-sans text-[11px] text-[#69718A] mt-1 pl-6.5 leading-relaxed">
+                                            Enable to mark this user's email address as verified immediately without requiring email link confirmation.
+                                        </p>
+                                    </div>
+                                )}
 
                             </div>
 

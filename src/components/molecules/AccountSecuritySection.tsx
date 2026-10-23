@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { useChangePassword, useRequestEmailChange } from '../../hooks/useLogin';
 import { clearAccessToken } from '../../lib/auth';
 import { Lock, Mail, Loader2, ShieldAlert, Eye, EyeOff } from 'lucide-react';
+import { useToast } from '../../hooks/useToast';
 
 export const AccountSecuritySection: React.FC = () => {
+    const { toast } = useToast();
     const changePasswordMutation = useChangePassword();
     const requestEmailChangeMutation = useRequestEmailChange();
 
@@ -28,6 +30,7 @@ export const AccountSecuritySection: React.FC = () => {
 
         if (newPassword.length < 6) {
             setErrorMsg('New password must be at least 6 characters long.');
+            toast.error('New password must be at least 6 characters long.');
             return;
         }
 
@@ -36,7 +39,9 @@ export const AccountSecuritySection: React.FC = () => {
             newPassword
         }, {
             onSuccess: () => {
-                setSuccessMsg('Password changed successfully! Mengalihkan ke halaman login...');
+                const msg = 'Password changed successfully! Mengalihkan ke halaman login...';
+                setSuccessMsg(msg);
+                toast.success('Password changed successfully! Redirecting...');
                 setOldPassword('');
                 setNewPassword('');
                 setTimeout(() => {
@@ -45,7 +50,9 @@ export const AccountSecuritySection: React.FC = () => {
                 }, 1500);
             },
             onError: (err) => {
-                setErrorMsg(err.response?.data?.message || err.message || 'Failed to change password.');
+                const errMsg = err.response?.data?.message || err.message || 'Failed to change password.';
+                setErrorMsg(errMsg);
+                toast.error(errMsg);
             }
         });
     };
@@ -57,6 +64,7 @@ export const AccountSecuritySection: React.FC = () => {
 
         if (!newEmail || !emailChangePassword) {
             setErrorMsg('New email and current password are required.');
+            toast.error('New email and current password are required.');
             return;
         }
 
@@ -65,12 +73,16 @@ export const AccountSecuritySection: React.FC = () => {
             password: emailChangePassword
         }, {
             onSuccess: (data) => {
-                setSuccessMsg(data.message || 'Link konfirmasi telah dikirim. Silakan cek inbox di email baru Anda untuk meresmikan pergantian email.');
+                const msg = data.message || 'Verification link has been sent to your new email address.';
+                setSuccessMsg(msg);
+                toast.success(msg);
                 setNewEmail('');
                 setEmailChangePassword('');
             },
             onError: (err) => {
-                setErrorMsg(err.response?.data?.message || err.message || 'Failed to request email change.');
+                const errMsg = err.response?.data?.message || err.message || 'Failed to request email change.';
+                setErrorMsg(errMsg);
+                toast.error(errMsg);
             }
         });
     };

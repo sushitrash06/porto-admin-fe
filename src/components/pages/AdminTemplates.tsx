@@ -7,7 +7,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Plus, Search, Palette, Copy, Trash2, Edit3, Globe,
-  CheckCircle2, AlertCircle, Loader2, Users, Layers
+  CheckCircle2, AlertCircle, Loader2, Users, Layers, Eye
 } from 'lucide-react';
 import type { AxiosError } from 'axios';
 import {
@@ -17,9 +17,13 @@ import {
   useDeleteTemplate,
 } from '../../hooks/useTemplates';
 import type { TemplateCategory, Template } from '../../types/theme';
+import { Pagination } from '../molecules/Pagination';
+import { ThemeDeviceSimulator } from '../molecules/ThemeDeviceSimulator';
+import { useToast } from '../../hooks/useToast';
 
 export const AdminTemplates: React.FC = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   // Filters state
   const [search, setSearch] = useState<string>('');
@@ -28,6 +32,7 @@ export const AdminTemplates: React.FC = () => {
   const [page, setPage] = useState<number>(1);
   const [actionMessage, setActionMessage] = useState<string>('');
   const [deletingTemplate, setDeletingTemplate] = useState<Template | null>(null);
+  const [previewingTemplate, setPreviewingTemplate] = useState<Template | null>(null);
 
   // Queries & Mutations
   const queryParams = {
@@ -61,12 +66,14 @@ export const AdminTemplates: React.FC = () => {
       { id: template.id, isPublished: !template.isPublished },
       {
         onSuccess: () => {
-          showNotification(
-            `Template "${template.name}" ${!template.isPublished ? 'published' : 'moved to drafts'}.`
-          );
+          const msg = `Template "${template.name}" ${!template.isPublished ? 'published' : 'moved to drafts'}.`;
+          showNotification(msg);
+          toast.success(msg);
         },
         onError: (err: AxiosError<{ message?: string }>) => {
-          showNotification(err.response?.data?.message || 'Failed to update publish state.');
+          const errMsg = err.response?.data?.message || 'Failed to update publish state.';
+          showNotification(errMsg);
+          toast.error(errMsg);
         },
       }
     );
@@ -75,10 +82,14 @@ export const AdminTemplates: React.FC = () => {
   const handleClone = (template: Template) => {
     cloneMutation.mutate(template.id, {
       onSuccess: (cloned) => {
-        showNotification(`Cloned template as "${cloned.name}".`);
+        const msg = `Cloned template as "${cloned.name}".`;
+        showNotification(msg);
+        toast.success(msg);
       },
       onError: (err: AxiosError<{ message?: string }>) => {
-        showNotification(err.response?.data?.message || 'Failed to clone template.');
+        const errMsg = err.response?.data?.message || 'Failed to clone template.';
+        showNotification(errMsg);
+        toast.error(errMsg);
       },
     });
   };
@@ -87,11 +98,15 @@ export const AdminTemplates: React.FC = () => {
     if (!deletingTemplate) return;
     deleteMutation.mutate(deletingTemplate.id, {
       onSuccess: () => {
-        showNotification(`Template "${deletingTemplate.name}" deleted.`);
+        const msg = `Template "${deletingTemplate.name}" deleted.`;
+        showNotification(msg);
+        toast.success(msg);
         setDeletingTemplate(null);
       },
       onError: (err: AxiosError<{ message?: string }>) => {
-        showNotification(err.response?.data?.message || 'Failed to delete template.');
+        const errMsg = err.response?.data?.message || 'Failed to delete template.';
+        showNotification(errMsg);
+        toast.error(errMsg);
         setDeletingTemplate(null);
       },
     });
@@ -215,9 +230,10 @@ export const AdminTemplates: React.FC = () => {
           <button
             type="button"
             onClick={() => navigate('/admin/templates/builder')}
-            className="px-5 py-2.5 rounded-xl bg-[#8B6CF6] hover:bg-[#7A5CE6] text-white text-xs font-bold uppercase tracking-wider transition active:scale-95 shadow-sm"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#8B6CF6] hover:bg-[#7A5CE6] text-white text-xs font-bold uppercase tracking-wider transition active:scale-95 shadow-md cursor-pointer"
           >
-            Create First Template
+            <Plus className="w-4 h-4" />
+            <span>Create New Template</span>
           </button>
         </div>
       ) : (
@@ -335,6 +351,15 @@ export const AdminTemplates: React.FC = () => {
                   <div className="flex items-center gap-1">
                     <button
                       type="button"
+                      onClick={() => setPreviewingTemplate(tpl)}
+                      className="p-2 rounded-xl border border-[#EAE5DD] bg-white text-[#69718A] hover:text-[#8B6CF6] hover:border-[#8B6CF6] hover:bg-[#FAF8F5] text-xs transition cursor-pointer shadow-3xs"
+                      title="Quick Live Preview"
+                    >
+                      <Eye className="w-3.5 h-3.5" />
+                    </button>
+
+                    <button
+                      type="button"
                       onClick={() => handleTogglePublish(tpl)}
                       className={`p-2 rounded-xl border text-xs transition cursor-pointer shadow-3xs ${
                         tpl.isPublished
@@ -372,35 +397,35 @@ export const AdminTemplates: React.FC = () => {
           </div>
 
           {/* Pagination Controls */}
-          {meta && meta.totalPages > 1 && (
-            <div className="flex items-center justify-between pt-4 border-t border-[#EAE5DD]">
-              <span className="text-xs text-[#69718A] font-medium">
-                Page {meta.page} of {meta.totalPages} ({meta.total} templates)
-              </span>
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  disabled={page <= 1}
-                  onClick={() => setPage((p) => Math.max(1, p - 1))}
-                  className="px-3 py-1.5 rounded-xl border border-[#EAE5DD] bg-white text-xs font-semibold text-[#202744] hover:bg-[#FAF8F5] disabled:opacity-40 cursor-pointer shadow-3xs"
-                >
-                  Previous
-                </button>
-                <button
-                  type="button"
-                  disabled={page >= meta.totalPages}
-                  onClick={() => setPage((p) => p + 1)}
-                  className="px-3 py-1.5 rounded-xl border border-[#EAE5DD] bg-white text-xs font-semibold text-[#202744] hover:bg-[#FAF8F5] disabled:opacity-40 cursor-pointer shadow-3xs"
-                >
-                  Next
-                </button>
-              </div>
-            </div>
+          {meta && (
+            <Pagination
+              currentPage={meta.page}
+              totalPages={meta.totalPages}
+              totalItems={meta.total}
+              itemsPerPage={queryParams.limit}
+              itemLabel="templates"
+              onPageChange={setPage}
+              variant="standalone"
+            />
           )}
         </>
       )}
 
       {/* ─────────────────────────────────────────────────────────────────────────────
+          4. LIVE SIMULATOR PREVIEW MODAL
+         ───────────────────────────────────────────────────────────────────────────── */}
+      {previewingTemplate && (
+        <ThemeDeviceSimulator
+          data={{
+            layout: previewingTemplate.layoutConfig,
+          }}
+          title={`Template Preview: ${previewingTemplate.name}`}
+          onClose={() => setPreviewingTemplate(null)}
+          isModal
+        />
+      )}
+
+            {/* ─────────────────────────────────────────────────────────────────────────────
           4. DELETE CONFIRMATION MODAL
          ───────────────────────────────────────────────────────────────────────────── */}
       {deletingTemplate && (

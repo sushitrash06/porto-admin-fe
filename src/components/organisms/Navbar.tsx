@@ -3,11 +3,11 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import type { User } from '../../types';
 import { Role } from '../../types';
-import { LogOut, LayoutDashboard, Compass, ShieldCheck, Sparkles } from 'lucide-react';
+import { LogOut, LayoutDashboard, Compass, ShieldCheck, ArrowUpRight, Menu, X } from 'lucide-react';
 import { useProfile } from '../../hooks/useProfile';
 import { useBusinessProfile } from '../../hooks/useBusinessProfile';
 import { WorkspaceSwitcher } from './WorkspaceSwitcher';
@@ -21,6 +21,7 @@ interface NavbarProps {
 export const Navbar: React.FC<NavbarProps> = ({ currentUser, onLogout }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Reuse cached profile details for logged in user
   const { data: profile } = useProfile({ enabled: !!currentUser });
@@ -42,6 +43,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentUser, onLogout }) => {
   };
 
   const handleScrollTo = (id: string) => {
+    setMobileMenuOpen(false);
     if (location.pathname !== '/') {
       navigate('/');
       setTimeout(() => {
@@ -59,11 +61,11 @@ export const Navbar: React.FC<NavbarProps> = ({ currentUser, onLogout }) => {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-[#EAE5DD] bg-white/95 backdrop-blur-md shadow-[0_2px_8px_rgba(32,39,68,0.03)]">
+    <header className="sticky top-0 z-50 w-full border-b border-[#EAE5DD] bg-white/95 backdrop-blur-md shadow-[0_2px_8px_rgba(32,39,68,0.02)]">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* Brand Logo */}
         <div className="flex items-center space-x-3">
-          <BrandLogo size="md" to="/" showTagline={false} />
+          <BrandLogo size="md" to="/" showTagline={false} monochromeWordmark={true} />
           {currentUser?.role === Role.ADMIN && (
             <span className="hidden sm:inline-flex items-center gap-1 rounded-full bg-[#E8E0FF] border border-[#D5C6FF] px-2.5 py-0.5 font-sans text-[10px] font-bold uppercase tracking-wider text-[#5533CC]">
               <ShieldCheck className="h-3 w-3 text-[#8B6CF6]" />
@@ -74,37 +76,30 @@ export const Navbar: React.FC<NavbarProps> = ({ currentUser, onLogout }) => {
 
         {/* Middle Navigation Links (Logged-out visitors only) */}
         {!currentUser && (
-          <nav className="hidden md:flex items-center space-x-7">
+          <nav className="hidden md:flex items-center space-x-8">
             <button
-              onClick={() => handleScrollTo('features')}
-              className="text-sm font-semibold text-[#69718A] hover:text-[#202744] transition-colors cursor-pointer"
+              onClick={() => handleScrollTo('kenapa-foliowalaweh')}
+              className="text-sm font-medium text-[#202744] hover:text-[#3B6BF5] transition-colors cursor-pointer"
             >
-              Features
+              Kenapa foliowalaweh?
             </button>
             <button
-              onClick={() => handleScrollTo('audiences')}
-              className="text-sm font-semibold text-[#69718A] hover:text-[#202744] transition-colors cursor-pointer"
+              onClick={() => handleScrollTo('pilihan-tema')}
+              className="text-sm font-medium text-[#202744] hover:text-[#3B6BF5] transition-colors cursor-pointer"
             >
-              Solutions
+              Pilihan tema
             </button>
             <button
-              onClick={() => handleScrollTo('templates')}
-              className="text-sm font-semibold text-[#69718A] hover:text-[#202744] transition-colors cursor-pointer"
+              onClick={() => handleScrollTo('untuk-siapa')}
+              className="text-sm font-medium text-[#202744] hover:text-[#3B6BF5] transition-colors cursor-pointer"
             >
-              Templates
+              Untuk siapa
             </button>
             <button
-              onClick={() => handleScrollTo('developer-api')}
-              className="text-sm font-semibold text-[#69718A] hover:text-[#202744] transition-colors cursor-pointer flex items-center gap-1.5"
+              onClick={() => handleScrollTo('tanya-jawab')}
+              className="text-sm font-medium text-[#202744] hover:text-[#3B6BF5] transition-colors cursor-pointer"
             >
-              <span>Developer API</span>
-              <span className="rounded-md bg-[#E8E0FF] px-1.5 py-0.5 text-[9px] font-bold text-[#8B6CF6] uppercase">v1</span>
-            </button>
-            <button
-              onClick={() => handleScrollTo('how-it-works')}
-              className="text-sm font-semibold text-[#69718A] hover:text-[#202744] transition-colors cursor-pointer"
-            >
-              How It Works
+              Tanya jawab
             </button>
           </nav>
         )}
@@ -201,26 +196,65 @@ export const Navbar: React.FC<NavbarProps> = ({ currentUser, onLogout }) => {
               </button>
             </>
           ) : (
-            <div className="flex items-center space-x-2.5 sm:space-x-3">
+            <div className="flex items-center space-x-3 sm:space-x-4">
               <Link
                 id="open-login-btn"
                 to="/login"
-                className="text-xs sm:text-sm font-bold text-[#202744] hover:text-[#8B6CF6] transition-colors cursor-pointer px-3 py-2"
+                className="text-sm font-medium text-[#202744] hover:text-[#3B6BF5] transition-colors cursor-pointer px-2 py-1.5"
               >
-                Sign In
+                Masuk
               </Link>
               <Link
                 id="open-register-btn"
                 to="/register"
-                className="inline-flex items-center gap-1.5 rounded-full bg-[#8B6CF6] hover:bg-[#7A56F4] px-4 sm:px-5 py-2 font-sans text-xs sm:text-sm font-bold text-white transition-all shadow-sm hover:shadow active:scale-95 cursor-pointer"
+                className="inline-flex items-center gap-1.5 rounded-full bg-[#3B6BF5] hover:bg-[#2F56D2] px-5 py-2.5 font-sans text-sm font-semibold text-white transition-all shadow-sm hover:shadow active:scale-95 cursor-pointer"
               >
-                <Sparkles className="h-3.5 w-3.5 text-[#FFC45B]" />
-                <span>Create your portfolio</span>
+                <span>Mulai bikin</span>
+                <ArrowUpRight className="h-4 w-4" />
               </Link>
+
+              {/* Mobile menu button */}
+              <button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="md:hidden p-2 text-[#202744] hover:text-[#3B6BF5] transition-colors"
+                aria-label="Toggle Navigation Menu"
+              >
+                {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              </button>
             </div>
           )}
         </div>
       </div>
+
+      {/* Mobile Menu Dropdown */}
+      {!currentUser && mobileMenuOpen && (
+        <div className="md:hidden border-t border-[#EAE5DD] bg-white px-5 py-4 space-y-3 shadow-lg">
+          <button
+            onClick={() => handleScrollTo('kenapa-foliowalaweh')}
+            className="block w-full text-left py-2 text-sm font-medium text-[#202744] hover:text-[#3B6BF5]"
+          >
+            Kenapa foliowalaweh?
+          </button>
+          <button
+            onClick={() => handleScrollTo('pilihan-tema')}
+            className="block w-full text-left py-2 text-sm font-medium text-[#202744] hover:text-[#3B6BF5]"
+          >
+            Pilihan tema
+          </button>
+          <button
+            onClick={() => handleScrollTo('untuk-siapa')}
+            className="block w-full text-left py-2 text-sm font-medium text-[#202744] hover:text-[#3B6BF5]"
+          >
+            Untuk siapa
+          </button>
+          <button
+            onClick={() => handleScrollTo('tanya-jawab')}
+            className="block w-full text-left py-2 text-sm font-medium text-[#202744] hover:text-[#3B6BF5]"
+          >
+            Tanya jawab
+          </button>
+        </div>
+      )}
     </header>
   );
 };

@@ -162,12 +162,16 @@ export const BusinessThemeTab: React.FC<BusinessThemeTabProps> = ({ businessProf
   };
 
   const activeTemplate = myThemeData?.template;
+  const layoutConfig = myThemeData?.resolvedLayout || activeTemplate?.layoutConfig;
 
   const livePreviewData = {
     businessProfile: businessProfile,
     businessServices: [],
     businessProjects: [],
     layout: {
+      templateType: layoutConfig?.templateType || 'BUILDER',
+      customHtml: layoutConfig?.customHtml,
+      customCss: layoutConfig?.customCss,
       theme: {
         fontFamily: myThemeData?.resolvedLayout?.theme?.fontFamily || 'Inter, sans-serif',
         primaryColor: accentColor,

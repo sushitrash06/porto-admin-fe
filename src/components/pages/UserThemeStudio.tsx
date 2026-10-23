@@ -5,12 +5,13 @@
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 import { Reorder } from 'motion/react';
 import {
   ArrowLeft, RotateCcw, Monitor, Tablet, Smartphone, Palette,
   Layers, Sliders, Moon, Sun, Check, Loader2, GripVertical,
   Eye, EyeOff, CheckCircle2, ShieldAlert, ArrowUpDown, ExternalLink,
-  AlertTriangle, Pencil
+  AlertTriangle, Pencil, Maximize2, Minimize2
 } from 'lucide-react';
 import type { AxiosError } from 'axios';
 import {
@@ -25,12 +26,14 @@ import {
   useUpdateBusinessThemeConfig,
   useReorderBusinessSections,
   useResetBusinessThemeConfig,
+  TEMPLATES_QUERY_KEY,
 } from '../../hooks/useTemplates';
 import { useProfile } from '../../hooks/useProfile';
 import { useBusinessProfile } from '../../hooks/useBusinessProfile';
 import type { User } from '../../types';
 import type { Template, TemplateCategory, SectionBlock, LayoutConfig } from '../../types/theme';
 import { DynamicPortfolioRenderer } from '../organisms/DynamicPortfolioRenderer';
+import { ResponsiveSimulatorFrame } from '../organisms/ResponsiveSimulatorFrame';
 import { EditSectionContentModal } from '../organisms/EditSectionContentModal';
 
 interface UserThemeStudioProps {
@@ -49,12 +52,21 @@ const PERSONAL_ACCENT_PRESETS = [
 ];
 
 const BUSINESS_ACCENT_PRESETS = [
-  { name: 'Brand Violet', color: '#8B6CF6' },
   { name: 'Corporate Blue', color: '#4697F5' },
+  { name: 'Brand Violet', color: '#8B6CF6' },
   { name: 'Amber Gold', color: '#FFC45B' },
   { name: 'Deep Navy', color: '#202744' },
   { name: 'Emerald Trust', color: '#059669' },
   { name: 'Rose Prestige', color: '#e11d48' },
+];
+
+const AVAILABLE_FONTS = [
+  { label: 'Inter (Clean & Versatile)', value: 'Inter, sans-serif' },
+  { label: 'Plus Jakarta Sans (Modern Geometric)', value: '"Plus Jakarta Sans", sans-serif' },
+  { label: 'Outfit (Contemporary Tech)', value: 'Outfit, sans-serif' },
+  { label: 'Fira Code (Developer Monospace)', value: '"Fira Code", monospace' },
+  { label: 'Space Grotesk (Neo-Brutalist)', value: '"Space Grotesk", sans-serif' },
+  { label: 'Playfair Display (Editorial Serif)', value: '"Playfair Display", serif' },
 ];
 
 export const UserThemeStudio: React.FC<UserThemeStudioProps> = ({
@@ -63,6 +75,7 @@ export const UserThemeStudio: React.FC<UserThemeStudioProps> = ({
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const queryClient = useQueryClient();
 
   // Detect whether we are editing business or personal profile
   const isBusiness = isBusinessMode || location.pathname.includes('/business');
@@ -103,15 +116,30 @@ export const UserThemeStudio: React.FC<UserThemeStudioProps> = ({
   const resetMutation = isBusiness ? resetBusinessMutation : resetPersonalMutation;
 
   // ─── 3. LOCAL STUDIO STATE ────────────────────────────────────────────────
-  const [activeTab, setActiveTab] = useState<'layout' | 'templates' | 'appearance'>('layout');
+  const [activeTab, setActiveTab] = useState<'templates' | 'appearance' | 'layout'>('templates');
+  const [previewingTemplate, setPreviewingTemplate] = useState<Template | null>(null);
   const [sections, setSections] = useState<SectionBlock[]>([]);
-  const [accentColor, setAccentColor] = useState<string>(isBusiness ? '#2563eb' : '#6366f1');
+  const [accentColor, setAccentColor] = useState<string>(isBusiness ? '#4697F5' : '#8B6CF6');
+  const [secondaryColor, setSecondaryColor] = useState<string>('#4697F5');
+  const [fontFamily, setFontFamily] = useState<string>('"Plus Jakarta Sans", sans-serif');
   const [darkMode, setDarkMode] = useState<boolean>(false);
   const [hasUnsavedReorder, setHasUnsavedReorder] = useState<boolean>(false);
   const [previewDevice, setPreviewDevice] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
   const [statusMessage, setStatusMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
   const [showResetConfirm, setShowResetConfirm] = useState<boolean>(false);
   const [editingSection, setEditingSection] = useState<SectionBlock | null>(null);
+  const [isFullscreenPreview, setIsFullscreenPreview] = useState<boolean>(false);
+
+  // Close full screen preview on Escape key
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isFullscreenPreview) {
+        setIsFullscreenPreview(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isFullscreenPreview]);
 
   // Section types with editable rich content (business blocks)
   const RICH_BLOCK_TYPES = new Set([
@@ -129,12 +157,22 @@ export const UserThemeStudio: React.FC<UserThemeStudioProps> = ({
       const activeColor =
         themeData.userCustomConfig?.theme?.primaryColor ||
         themeData.resolvedLayout.theme.primaryColor ||
-        (isBusiness ? '#2563eb' : '#6366f1');
+        (isBusiness ? '#4697F5' : '#8B6CF6');
+      const activeSecondary =
+        themeData.userCustomConfig?.theme?.secondaryColor ||
+        themeData.resolvedLayout.theme.secondaryColor ||
+        '#4697F5';
+      const activeFont =
+        themeData.userCustomConfig?.theme?.fontFamily ||
+        themeData.resolvedLayout.theme.fontFamily ||
+        '"Plus Jakarta Sans", sans-serif';
       const activeDark =
         themeData.userCustomConfig?.theme?.darkMode ??
         themeData.resolvedLayout.theme.darkMode ??
         false;
       setAccentColor(activeColor);
+      setSecondaryColor(activeSecondary);
+      setFontFamily(activeFont);
       setDarkMode(activeDark);
     }
   }, [themeData, isBusiness]);
@@ -148,6 +186,7 @@ export const UserThemeStudio: React.FC<UserThemeStudioProps> = ({
   const handleApplyTemplate = (tpl: Template) => {
     applyTemplateMutation.mutate(tpl.id, {
       onSuccess: () => {
+        setPreviewingTemplate(null);
         showFeedback(`Template "${tpl.name}" applied successfully!`);
       },
       onError: (err: AxiosError<{ message?: string }>) => {
@@ -200,6 +239,8 @@ export const UserThemeStudio: React.FC<UserThemeStudioProps> = ({
       {
         theme: {
           primaryColor: accentColor,
+          secondaryColor,
+          fontFamily,
           darkMode,
         },
       },
@@ -220,6 +261,9 @@ export const UserThemeStudio: React.FC<UserThemeStudioProps> = ({
       prev.map((s) => (s.id === updatedSection.id ? updatedSection : s))
     );
     setEditingSection(null);
+    queryClient.invalidateQueries({
+      queryKey: isBusiness ? TEMPLATES_QUERY_KEY.myBusinessTheme() : TEMPLATES_QUERY_KEY.myTheme(),
+    });
     showFeedback(`Konten "${updatedSection.title || updatedSection.type}" berhasil disimpan!`);
   };
 
@@ -240,32 +284,54 @@ export const UserThemeStudio: React.FC<UserThemeStudioProps> = ({
   const backUrl = isBusiness ? '/admin/business/profile' : '/admin/profile';
   const publicUrl = `/portfolio/${currentUser.id}`;
 
+  // Auto-apply or switch to template if requested from URL (e.g. from Landing Page)
+  const requestedTemplateParam = new URLSearchParams(location.search).get('template');
+  useEffect(() => {
+    if (requestedTemplateParam && publishedTemplates.length > 0) {
+      const match = publishedTemplates.find(
+        (t) => t.slug === requestedTemplateParam || t.id === requestedTemplateParam
+      );
+      if (match && activeTemplate?.id !== match.id && !applyTemplateMutation.isPending) {
+        setActiveTab('templates');
+        handleApplyTemplate(match);
+      }
+    }
+  }, [requestedTemplateParam, publishedTemplates, activeTemplate?.id]);
+
   // ─── 5. REAL-TIME LIVE PREVIEW DATA ───────────────────────────────────────
+  const effectiveTemplate = previewingTemplate || activeTemplate;
+  const effectiveLayout = previewingTemplate?.layoutConfig || themeData?.resolvedLayout;
+  const effectiveTemplateType =
+    effectiveLayout?.templateType || effectiveTemplate?.layoutConfig?.templateType || 'BUILDER';
+  const effectiveCustomHtml =
+    effectiveLayout?.customHtml || effectiveTemplate?.layoutConfig?.customHtml;
+  const effectiveCustomCss =
+    effectiveLayout?.customCss || effectiveTemplate?.layoutConfig?.customCss;
+
   const livePreviewData = {
     profile: profile || null,
     businessProfile: businessProfile || null,
     businessServices: businessProfile ? [] : [],
     businessProjects: businessProfile ? [] : [],
     layout: {
+      templateType: effectiveTemplateType,
+      customHtml: effectiveCustomHtml,
+      customCss: effectiveCustomCss,
       theme: {
-        fontFamily: themeData?.resolvedLayout?.theme?.fontFamily || 'Inter, sans-serif',
+        fontFamily: fontFamily || effectiveLayout?.theme?.fontFamily || '"Plus Jakarta Sans", sans-serif',
         primaryColor: accentColor,
-        backgroundColor: darkMode ? '#0f172a' : '#ffffff',
-        surfaceColor: darkMode ? '#1e293b' : '#ffffff',
-        textColor: darkMode ? '#f8fafc' : '#0f172a',
-        borderRadius: themeData?.resolvedLayout?.theme?.borderRadius || '12px',
+        secondaryColor,
+        backgroundColor: darkMode ? '#0f172a' : (effectiveLayout?.theme?.backgroundColor || '#ffffff'),
+        surfaceColor: darkMode ? '#1e293b' : (effectiveLayout?.theme?.surfaceColor || '#ffffff'),
+        textColor: darkMode ? '#f8fafc' : (effectiveLayout?.theme?.textColor || '#0f172a'),
+        borderRadius: effectiveLayout?.theme?.borderRadius || '16px',
         darkMode,
       },
-      sections,
+      sections: previewingTemplate?.layoutConfig?.sections || sections,
     } as LayoutConfig,
   };
 
-  const previewFrameWidth =
-    previewDevice === 'mobile'
-      ? 'w-[375px]'
-      : previewDevice === 'tablet'
-      ? 'w-[768px]'
-      : 'w-full';
+
 
   return (
     <div className="flex flex-col h-screen w-full bg-[#131728] text-slate-100 font-sans overflow-hidden select-none">
@@ -306,6 +372,7 @@ export const UserThemeStudio: React.FC<UserThemeStudioProps> = ({
         {/* Center: Device Switcher (Desktop | Tablet | Mobile) */}
         <div className="flex items-center gap-1 bg-[#191F33] p-1 rounded-xl border border-[#2B3555]">
           <button
+            id="device-btn-desktop"
             type="button"
             onClick={() => setPreviewDevice('desktop')}
             className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold transition cursor-pointer ${
@@ -319,6 +386,7 @@ export const UserThemeStudio: React.FC<UserThemeStudioProps> = ({
             <span className="hidden md:inline">Desktop</span>
           </button>
           <button
+            id="device-btn-tablet"
             type="button"
             onClick={() => setPreviewDevice('tablet')}
             className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold transition cursor-pointer ${
@@ -332,6 +400,7 @@ export const UserThemeStudio: React.FC<UserThemeStudioProps> = ({
             <span className="hidden md:inline">Tablet</span>
           </button>
           <button
+            id="device-btn-mobile"
             type="button"
             onClick={() => setPreviewDevice('mobile')}
             className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold transition cursor-pointer ${
@@ -370,6 +439,17 @@ export const UserThemeStudio: React.FC<UserThemeStudioProps> = ({
           >
             <RotateCcw className="w-3.5 h-3.5 text-[#FFC45B]" />
             <span className="hidden xl:inline ml-1.5">Reset</span>
+          </button>
+
+          {/* Full Screen Live Preview Button */}
+          <button
+            type="button"
+            onClick={() => setIsFullscreenPreview(true)}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#2B3555] hover:bg-[#344066] text-white border border-white/10 text-xs font-semibold transition cursor-pointer active:scale-95 shadow-xs"
+            title="Full Screen Live Preview (Esc)"
+          >
+            <Maximize2 className="w-3.5 h-3.5 text-[#8B6CF6]" />
+            <span className="hidden lg:inline">Full Screen</span>
           </button>
 
           <a
@@ -413,18 +493,6 @@ export const UserThemeStudio: React.FC<UserThemeStudioProps> = ({
           <div className="px-4 py-2.5 bg-[#1C233C] border-b border-[#2A3454] flex items-center gap-1.5 shrink-0">
             <button
               type="button"
-              onClick={() => setActiveTab('layout')}
-              className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition cursor-pointer ${
-                activeTab === 'layout'
-                  ? 'bg-[#8B6CF6] text-white shadow-xs'
-                  : 'text-slate-400 hover:text-white hover:bg-[#242C4C]'
-              }`}
-            >
-              <ArrowUpDown className="w-3.5 h-3.5" />
-              <span>Sections</span>
-            </button>
-            <button
-              type="button"
               onClick={() => setActiveTab('templates')}
               className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition cursor-pointer ${
                 activeTab === 'templates'
@@ -433,7 +501,7 @@ export const UserThemeStudio: React.FC<UserThemeStudioProps> = ({
               }`}
             >
               <Layers className="w-3.5 h-3.5" />
-              <span>Templates</span>
+              <span>1. Templates</span>
             </button>
             <button
               type="button"
@@ -445,7 +513,19 @@ export const UserThemeStudio: React.FC<UserThemeStudioProps> = ({
               }`}
             >
               <Sliders className="w-3.5 h-3.5" />
-              <span>Colors</span>
+              <span>2. Styling</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('layout')}
+              className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition cursor-pointer ${
+                activeTab === 'layout'
+                  ? 'bg-[#8B6CF6] text-white shadow-xs'
+                  : 'text-slate-400 hover:text-white hover:bg-[#242C4C]'
+              }`}
+            >
+              <ArrowUpDown className="w-3.5 h-3.5" />
+              <span>3. Sections</span>
             </button>
           </div>
 
@@ -458,14 +538,299 @@ export const UserThemeStudio: React.FC<UserThemeStudioProps> = ({
               </div>
             ) : (
               <>
-                {/* ════ TAB 1: SECTIONS LAYOUT (DRAG & DROP) ════ */}
+                {/* ════ TAB 1: TEMPLATE SELECTOR (GALLERY) ════ */}
+                {activeTab === 'templates' && (
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between pb-2 border-b border-[#2A3454]">
+                      <div>
+                        <h4 className="text-xs font-bold uppercase tracking-wider text-white flex items-center gap-2">
+                          <Layers className="w-4 h-4 text-[#8B6CF6]" />
+                          <span>Catalog Blueprint Templates</span>
+                        </h4>
+                        <p className="text-[11px] text-white/60 mt-0.5">
+                          1-Click apply to swap layout structure and default styling.
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Category Filter Pills */}
+                    <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
+                      {(['ALL', 'DEVELOPER', 'DESIGNER', 'BUSINESS', 'MINIMAL'] as const).map((cat) => (
+                        <button
+                          key={cat}
+                          type="button"
+                          onClick={() => setSelectedCategory(cat as TemplateCategory | 'ALL')}
+                          className={`px-3 py-1 rounded-lg text-[10px] font-semibold whitespace-nowrap transition cursor-pointer ${
+                            selectedCategory === cat
+                              ? 'bg-[#8B6CF6] text-white shadow-xs'
+                              : 'bg-[#222944] text-slate-400 hover:text-white'
+                          }`}
+                        >
+                          {cat}
+                        </button>
+                      ))}
+                    </div>
+
+                    {isLoadingTemplates ? (
+                      <div className="py-12 flex flex-col items-center justify-center text-slate-400">
+                        <Loader2 className="w-6 h-6 animate-spin text-[#8B6CF6] mb-2" />
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        {publishedTemplates.map((tpl) => {
+                          const isActive = activeTemplate?.id === tpl.id;
+                          const isPreviewing = previewingTemplate?.id === tpl.id;
+                          const isCustom = tpl.layoutConfig?.templateType === 'CUSTOM_HTML';
+                          return (
+                            <div
+                              key={tpl.id}
+                              onClick={() => setPreviewingTemplate(tpl)}
+                              className={`p-4 rounded-xl border transition-all duration-200 flex flex-col justify-between cursor-pointer ${
+                                isActive
+                                  ? 'bg-[#8B6CF6]/15 border-[#8B6CF6] ring-1 ring-[#8B6CF6]/40 shadow-md'
+                                  : isPreviewing
+                                  ? 'bg-[#2A3454] border-[#8B6CF6]/80 ring-1 ring-[#8B6CF6]/30 shadow-md'
+                                  : 'bg-[#212842] border-[#2C3656] hover:border-[#8B6CF6]/50'
+                              }`}
+                            >
+                              <div>
+                                <div className="flex items-center justify-between text-[10px] font-mono text-slate-400 mb-1">
+                                  <span className="text-[#8B6CF6] font-bold uppercase">{tpl.category}</span>
+                                  <div className="flex items-center gap-1.5">
+                                    {isCustom ? (
+                                      <span className="px-1.5 py-0.5 rounded-sm bg-indigo-500/20 text-indigo-300 text-[9px] font-bold">
+                                        HTML+CSS
+                                      </span>
+                                    ) : (
+                                      <span className="px-1.5 py-0.5 rounded-sm bg-slate-700 text-slate-300 text-[9px]">
+                                        Builder
+                                      </span>
+                                    )}
+                                    <span>{tpl.layoutConfig?.sections?.length || 0} sec</span>
+                                  </div>
+                                </div>
+                                <h5 className="font-bold text-xs text-white leading-snug flex items-center justify-between">
+                                  <span>{tpl.name}</span>
+                                  {isPreviewing && !isActive && (
+                                    <span className="text-[10px] text-amber-300 font-mono font-normal">Previewing</span>
+                                  )}
+                                </h5>
+                                <p className="text-[11px] text-white/60 mt-1 line-clamp-2 leading-relaxed">
+                                  {tpl.description || 'AST layout blueprint.'}
+                                </p>
+                              </div>
+
+                              <div className="flex items-center gap-2 mt-3">
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setPreviewingTemplate(tpl);
+                                  }}
+                                  className={`flex-1 py-1.5 px-2.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition ${
+                                    isPreviewing
+                                      ? 'bg-[#8B6CF6]/40 text-white border border-[#8B6CF6]/60'
+                                      : 'bg-[#2A3454] hover:bg-[#344066] text-slate-300 hover:text-white'
+                                  }`}
+                                >
+                                  {isPreviewing ? '👁 Previewing' : '👁 Preview'}
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleApplyTemplate(tpl);
+                                  }}
+                                  disabled={isActive || applyTemplateMutation.isPending}
+                                  className={`flex-1 py-1.5 px-2.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition ${
+                                    isActive
+                                      ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 cursor-default'
+                                      : 'bg-[#8B6CF6] hover:bg-[#7A5CE0] text-white cursor-pointer shadow-xs'
+                                  }`}
+                                >
+                                  {isActive ? '✓ Active' : 'Use Template'}
+                                </button>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* ════ TAB 2: BRAND STYLING & COLORS ════ */}
+                {activeTab === 'appearance' && (
+                  <div className="space-y-5">
+                    <div className="pb-2 border-b border-[#2A3454]">
+                      <h4 className="text-xs font-bold uppercase tracking-wider text-white flex items-center gap-2">
+                        <Palette className="w-4 h-4 text-[#8B6CF6]" />
+                        <span>Brand Styling & Colors</span>
+                      </h4>
+                      <p className="text-[11px] text-white/60 mt-0.5">
+                        Customize accent colors, typography font, and surface contrast.
+                      </p>
+                    </div>
+
+                    {/* Presets */}
+                    <div>
+                      <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2">
+                        Quick Color Palettes
+                      </label>
+                      <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+                        {presets.map((preset) => {
+                          const isSelected = accentColor.toLowerCase() === preset.color.toLowerCase();
+                          return (
+                            <button
+                              key={preset.name}
+                              type="button"
+                              onClick={() => {
+                                setAccentColor(preset.color);
+                              }}
+                              className={`h-9 w-full rounded-xl flex items-center justify-center transition shadow-2xs cursor-pointer ${
+                                isSelected
+                                  ? 'ring-2 ring-white ring-offset-2 ring-offset-[#181E35] scale-105'
+                                  : 'hover:scale-105'
+                              }`}
+                              style={{ backgroundColor: preset.color }}
+                              title={preset.name}
+                            >
+                              {isSelected && <Check className="w-4 h-4 text-white drop-shadow-sm" />}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* Hex Color Input - Primary & Secondary */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2">
+                          Primary Accent
+                        </label>
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="color"
+                            value={accentColor}
+                            onChange={(e) => setAccentColor(e.target.value)}
+                            className="w-9 h-9 rounded-xl bg-transparent border border-[#2C3656] cursor-pointer shrink-0"
+                          />
+                          <input
+                            type="text"
+                            value={accentColor}
+                            onChange={(e) => setAccentColor(e.target.value)}
+                            className="flex-1 px-3 py-2 rounded-xl border border-[#2C3656] bg-[#212842] font-mono text-xs text-white font-bold"
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2">
+                          Secondary Accent
+                        </label>
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="color"
+                            value={secondaryColor}
+                            onChange={(e) => setSecondaryColor(e.target.value)}
+                            className="w-9 h-9 rounded-xl bg-transparent border border-[#2C3656] cursor-pointer shrink-0"
+                          />
+                          <input
+                            type="text"
+                            value={secondaryColor}
+                            onChange={(e) => setSecondaryColor(e.target.value)}
+                            className="flex-1 px-3 py-2 rounded-xl border border-[#2C3656] bg-[#212842] font-mono text-xs text-white font-bold"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Font Family Selector */}
+                    <div>
+                      <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2">
+                        Typography Font Family
+                      </label>
+                      <select
+                        value={fontFamily}
+                        onChange={(e) => setFontFamily(e.target.value)}
+                        className="w-full px-3.5 py-2.5 rounded-xl border border-[#2C3656] bg-[#212842] text-xs font-semibold text-white focus:outline-none focus:border-[#8B6CF6] cursor-pointer"
+                      >
+                        {AVAILABLE_FONTS.map((font) => (
+                          <option key={font.value} value={font.value}>
+                            {font.label}
+                          </option>
+                        ))}
+                      </select>
+                      <p className="text-[10px] text-white/50 mt-1">
+                        Overrides base font without altering the master template layout.
+                      </p>
+                    </div>
+
+                    {/* Dark Mode Switch */}
+                    <div className="p-3.5 rounded-xl border border-[#2A3454] bg-[#212842] flex items-center justify-between">
+                      <div className="flex items-center gap-2.5">
+                        {darkMode ? (
+                          <Moon className="w-4 h-4 text-[#8B6CF6]" />
+                        ) : (
+                          <Sun className="w-4 h-4 text-[#FFC45B]" />
+                        )}
+                        <div>
+                          <span className="text-xs font-bold text-white block">
+                            {darkMode ? 'Dark Theme Surface' : 'Light Clean Surface'}
+                          </span>
+                          <span className="text-[10px] text-slate-400">
+                            Switches background contrast
+                          </span>
+                        </div>
+                      </div>
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={darkMode}
+                          onChange={(e) => setDarkMode(e.target.checked)}
+                          className="sr-only peer"
+                        />
+                        <div className="w-11 h-6 bg-[#2B3555] rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#8B6CF6]" />
+                      </label>
+                    </div>
+
+                    {/* Save Button */}
+                    <div className="pt-2">
+                      <button
+                        type="button"
+                        onClick={() => handleSaveAppearance()}
+                        disabled={updateConfigMutation.isPending}
+                        className="w-full py-2.5 rounded-xl bg-[#8B6CF6] text-white text-xs font-bold uppercase tracking-wider hover:bg-[#7A5CE0] transition active:scale-95 disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2 shadow-md"
+                      >
+                        {updateConfigMutation.isPending && (
+                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        )}
+                        <span>Save Brand Styling</span>
+                      </button>
+                    </div>
+
+                    {/* Reset Option */}
+                    <div className="pt-2 border-t border-[#2A3454]/60">
+                      <button
+                        type="button"
+                        onClick={() => setShowResetConfirm(true)}
+                        className="w-full py-2 rounded-xl bg-[#222A44] hover:bg-[#2C3656] text-slate-300 hover:text-white text-xs font-semibold transition cursor-pointer flex items-center justify-center gap-2 border border-[#2C3656]"
+                      >
+                        <RotateCcw className="w-3.5 h-3.5 text-[#FFC45B]" />
+                        <span>Reset to Base Template Defaults</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* ════ TAB 3: SECTIONS & HIERARCHY (DRAG & DROP) ════ */}
                 {activeTab === 'layout' && (
                   <div className="space-y-4">
                     <div className="flex items-center justify-between pb-2 border-b border-[#2A3454]">
                       <div>
                         <h4 className="text-xs font-bold uppercase tracking-wider text-white flex items-center gap-2">
                           <GripVertical className="w-4 h-4 text-[#8B6CF6]" />
-                          <span>Drag & Drop Sections</span>
+                          <span>Sections & Hierarchy</span>
                         </h4>
                         <p className="text-[11px] text-white/60 mt-0.5">
                           Hold ⠿ to rearrange order. Changes show on preview instantly!
@@ -578,217 +943,66 @@ export const UserThemeStudio: React.FC<UserThemeStudioProps> = ({
                     )}
                   </div>
                 )}
-
-                {/* ════ TAB 2: TEMPLATE SELECTOR ════ */}
-                {activeTab === 'templates' && (
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between pb-2 border-b border-[#2A3454]">
-                      <div>
-                        <h4 className="text-xs font-bold uppercase tracking-wider text-white flex items-center gap-2">
-                          <Layers className="w-4 h-4 text-[#8B6CF6]" />
-                          <span>Catalog Blueprint Templates</span>
-                        </h4>
-                        <p className="text-[11px] text-white/60 mt-0.5">
-                          1-Click apply to swap layout structure and default styling.
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* Category Filter Pills */}
-                    <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
-                      {(['ALL', 'DEVELOPER', 'DESIGNER', 'BUSINESS', 'MINIMAL'] as const).map((cat) => (
-                        <button
-                          key={cat}
-                          type="button"
-                          onClick={() => setSelectedCategory(cat as TemplateCategory | 'ALL')}
-                          className={`px-3 py-1 rounded-lg text-[10px] font-semibold whitespace-nowrap transition cursor-pointer ${
-                            selectedCategory === cat
-                              ? 'bg-[#8B6CF6] text-white shadow-xs'
-                              : 'bg-[#222944] text-slate-400 hover:text-white'
-                          }`}
-                        >
-                          {cat}
-                        </button>
-                      ))}
-                    </div>
-
-                    {isLoadingTemplates ? (
-                      <div className="py-12 flex flex-col items-center justify-center text-slate-400">
-                        <Loader2 className="w-6 h-6 animate-spin text-[#8B6CF6] mb-2" />
-                      </div>
-                    ) : (
-                      <div className="space-y-3">
-                        {publishedTemplates.map((tpl) => {
-                          const isActive = activeTemplate?.id === tpl.id;
-                          return (
-                            <div
-                              key={tpl.id}
-                              className={`p-4 rounded-xl border transition-all duration-200 flex flex-col justify-between ${
-                                isActive
-                                  ? 'bg-[#8B6CF6]/10 border-[#8B6CF6] ring-1 ring-[#8B6CF6]/40 shadow-md'
-                                  : 'bg-[#212842] border-[#2C3656] hover:border-[#8B6CF6]/50'
-                              }`}
-                            >
-                              <div>
-                                <div className="flex items-center justify-between text-[10px] font-mono text-slate-400 mb-1">
-                                  <span className="text-[#8B6CF6] font-bold uppercase">{tpl.category}</span>
-                                  <span>{tpl.layoutConfig?.sections?.length || 0} sections</span>
-                                </div>
-                                <h5 className="font-bold text-xs text-white leading-snug">{tpl.name}</h5>
-                                <p className="text-[11px] text-white/60 mt-1 line-clamp-2 leading-relaxed">
-                                  {tpl.description || 'AST layout blueprint.'}
-                                </p>
-                              </div>
-
-                              <button
-                                type="button"
-                                onClick={() => handleApplyTemplate(tpl)}
-                                disabled={isActive || applyTemplateMutation.isPending}
-                                className={`mt-3 py-2 px-3 rounded-xl text-[11px] font-bold uppercase tracking-wider transition ${
-                                  isActive
-                                    ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 cursor-default'
-                                    : 'bg-[#8B6CF6] hover:bg-[#7A5CE0] text-white cursor-pointer shadow-xs'
-                                }`}
-                              >
-                                {isActive ? '✓ Active Template' : 'Use This Template'}
-                              </button>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {/* ════ TAB 3: COLORS & APPEARANCE ════ */}
-                {activeTab === 'appearance' && (
-                  <div className="space-y-5">
-                    <div className="pb-2 border-b border-[#2A3454]">
-                      <h4 className="text-xs font-bold uppercase tracking-wider text-white flex items-center gap-2">
-                        <Palette className="w-4 h-4 text-[#8B6CF6]" />
-                        <span>Brand Accent & Dark Mode</span>
-                      </h4>
-                      <p className="text-[11px] text-white/60 mt-0.5">
-                        Customize accent color and theme surface in real time.
-                      </p>
-                    </div>
-
-                    {/* Presets */}
-                    <div>
-                      <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2">
-                        Quick Color Palettes
-                      </label>
-                      <div className="grid grid-cols-4 sm:grid-cols-7 gap-2">
-                        {presets.map((preset) => {
-                          const isSelected = accentColor.toLowerCase() === preset.color.toLowerCase();
-                          return (
-                            <button
-                              key={preset.name}
-                              type="button"
-                              onClick={() => {
-                                setAccentColor(preset.color);
-                              }}
-                              className={`h-9 w-full rounded-xl flex items-center justify-center transition shadow-2xs cursor-pointer ${
-                                isSelected
-                                  ? 'ring-2 ring-white ring-offset-2 ring-offset-[#181E35] scale-105'
-                                  : 'hover:scale-105'
-                              }`}
-                              style={{ backgroundColor: preset.color }}
-                              title={preset.name}
-                            >
-                              {isSelected && <Check className="w-4 h-4 text-white drop-shadow-sm" />}
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
-
-                    {/* Hex Color Input */}
-                    <div>
-                      <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2">
-                        Custom Hex Accent
-                      </label>
-                      <div className="flex items-center gap-3">
-                        <input
-                          type="color"
-                          value={accentColor}
-                          onChange={(e) => setAccentColor(e.target.value)}
-                          className="w-10 h-10 rounded-xl bg-transparent border border-[#2C3656] cursor-pointer"
-                        />
-                        <input
-                          type="text"
-                          value={accentColor}
-                          onChange={(e) => setAccentColor(e.target.value)}
-                          className="flex-1 px-3.5 py-2.5 rounded-xl border border-[#2C3656] bg-[#212842] font-mono text-xs text-white font-bold"
-                        />
-                      </div>
-                    </div>
-
-                    {/* Dark Mode Switch */}
-                    <div className="p-3.5 rounded-xl border border-[#2A3454] bg-[#212842] flex items-center justify-between">
-                      <div className="flex items-center gap-2.5">
-                        {darkMode ? (
-                          <Moon className="w-4 h-4 text-[#8B6CF6]" />
-                        ) : (
-                          <Sun className="w-4 h-4 text-[#FFC45B]" />
-                        )}
-                        <div>
-                          <span className="text-xs font-bold text-white block">
-                            {darkMode ? 'Dark Theme Surface' : 'Light Clean Surface'}
-                          </span>
-                          <span className="text-[10px] text-slate-400">
-                            Switches background contrast
-                          </span>
-                        </div>
-                      </div>
-                      <label className="relative inline-flex items-center cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={darkMode}
-                          onChange={(e) => setDarkMode(e.target.checked)}
-                          className="sr-only peer"
-                        />
-                        <div className="w-11 h-6 bg-[#2B3555] rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#8B6CF6]" />
-                      </label>
-                    </div>
-
-                    {/* Save Button */}
-                    <div className="pt-2">
-                      <button
-                        type="button"
-                        onClick={() => handleSaveAppearance()}
-                        disabled={updateConfigMutation.isPending}
-                        className="w-full py-2.5 rounded-xl bg-[#8B6CF6] text-white text-xs font-bold uppercase tracking-wider hover:bg-[#7A5CE0] transition active:scale-95 disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2 shadow-md"
-                      >
-                        {updateConfigMutation.isPending && (
-                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                        )}
-                        <span>Save Brand Styling</span>
-                      </button>
-                    </div>
-                  </div>
-                )}
               </>
             )}
           </div>
         </aside>
 
         {/* ─── RIGHT PANEL: LIVE DEVICE SIMULATOR PLAYGROUND ─── */}
-        <main className="flex-1 bg-[#121625] flex flex-col items-center justify-start overflow-hidden relative p-3 sm:p-6">
+        <main className="flex-1 min-h-0 bg-[#121625] flex flex-col items-center justify-start overflow-hidden relative p-3 sm:p-6">
           <div className="w-full flex items-center justify-between pb-2 text-[11px] text-white/50 font-mono border-b border-[#202744] mb-3">
             <span className="flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
               <span>Realtime Live Preview</span>
             </span>
-            <span>Viewport: {previewDevice.toUpperCase()}</span>
+            <div className="flex items-center gap-3">
+              <span>Viewport: {previewDevice.toUpperCase()}</span>
+              <button
+                type="button"
+                onClick={() => setIsFullscreenPreview(true)}
+                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#202744] hover:bg-[#2A3454] text-white border border-[#2A3454] hover:border-[#8B6CF6]/50 text-xs font-semibold transition cursor-pointer active:scale-95 shadow-xs"
+                title="Buka Live Preview Layar Penuh"
+              >
+                <Maximize2 className="w-3 h-3 text-[#8B6CF6]" />
+                <span>Full Screen</span>
+              </button>
+            </div>
           </div>
 
-          {/* Interactive Screen Frame with Live Dynamic AST Renderer */}
-          <div
-            className={`flex-1 overflow-y-auto rounded-2xl shadow-2xl border border-[#2A3454] bg-white transition-all duration-300 ${previewFrameWidth} max-h-full`}
+          {/* Previewing Template Banner Indicator */}
+          {previewingTemplate && (
+            <div className="w-full mb-3 px-4 py-2.5 rounded-xl bg-indigo-950/80 border border-indigo-500/40 flex items-center justify-between text-xs text-indigo-200">
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping" />
+                <span>Previewing blueprint: <strong className="text-white">{previewingTemplate.name}</strong></span>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => handleApplyTemplate(previewingTemplate)}
+                  disabled={applyTemplateMutation.isPending}
+                  className="px-3 py-1 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-[11px] uppercase tracking-wider transition cursor-pointer"
+                >
+                  Apply This Template
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPreviewingTemplate(null)}
+                  className="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-[11px] transition cursor-pointer"
+                >
+                  Exit Preview
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Interactive Screen Frame with Isolated Responsive Viewport */}
+          <ResponsiveSimulatorFrame
+            device={previewDevice}
+            className="flex-1 min-h-0 overflow-hidden"
           >
             <DynamicPortfolioRenderer data={livePreviewData} isInteractivePreview />
-          </div>
+          </ResponsiveSimulatorFrame>
         </main>
       </div>
 
@@ -832,6 +1046,95 @@ export const UserThemeStudio: React.FC<UserThemeStudioProps> = ({
                 <span>Reset Now</span>
               </button>
             </div>
+          </div>
+        </div>
+      )}
+      {/* ─── FULL SCREEN LIVE PREVIEW OVERLAY MODAL ─── */}
+      {isFullscreenPreview && (
+        <div className="fixed inset-0 z-50 bg-[#0B0E17] flex flex-col overflow-hidden animate-in fade-in duration-150">
+          {/* Fullscreen Header Bar */}
+          <header className="h-16 px-4 sm:px-6 bg-[#181E35]/95 backdrop-blur-md border-b border-[#2A3454] flex items-center justify-between shrink-0 z-10 shadow-lg">
+            {/* Left: Identity */}
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
+                <span className="flex h-2.5 w-2.5 relative">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500" />
+                </span>
+                <span className="font-extrabold text-xs sm:text-sm text-white tracking-wide">
+                  Live Fullscreen Studio Preview
+                </span>
+              </div>
+              <span className="px-2.5 py-0.5 rounded-md bg-[#8B6CF6]/20 text-violet-200 border border-[#8B6CF6]/30 font-mono text-[10px] font-bold uppercase hidden md:inline">
+                {activeTemplate?.name || 'Live Editor'}
+              </span>
+            </div>
+
+            {/* Center: Device Switcher */}
+            <div className="flex items-center gap-1 bg-[#101424] p-1 rounded-xl border border-[#2A3454]">
+              <button
+                type="button"
+                onClick={() => setPreviewDevice('desktop')}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer ${
+                  previewDevice === 'desktop'
+                    ? 'bg-[#8B6CF6] text-white shadow-xs'
+                    : 'text-slate-400 hover:text-white'
+                }`}
+                title="Desktop View"
+              >
+                <Monitor className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Desktop</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setPreviewDevice('tablet')}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer ${
+                  previewDevice === 'tablet'
+                    ? 'bg-[#8B6CF6] text-white shadow-xs'
+                    : 'text-slate-400 hover:text-white'
+                }`}
+                title="Tablet View (768px)"
+              >
+                <Tablet className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Tablet</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setPreviewDevice('mobile')}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer ${
+                  previewDevice === 'mobile'
+                    ? 'bg-[#8B6CF6] text-white shadow-xs'
+                    : 'text-slate-400 hover:text-white'
+                }`}
+                title="Mobile View (375px)"
+              >
+                <Smartphone className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Mobile</span>
+              </button>
+            </div>
+
+            {/* Right: Exit Fullscreen Button */}
+            <button
+              type="button"
+              onClick={() => setIsFullscreenPreview(false)}
+              className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white border border-white/20 hover:border-white/40 text-xs font-bold uppercase tracking-wider transition cursor-pointer active:scale-95 shadow-md"
+              title="Kembali ke Studio (Esc)"
+            >
+              <Minimize2 className="w-4 h-4 text-[#FFC45B]" />
+              <span className="hidden sm:inline">Tutup Preview</span>
+              <kbd className="hidden md:inline px-1.5 py-0.5 rounded bg-black/40 text-[10px] font-mono text-slate-300">Esc</kbd>
+            </button>
+          </header>
+
+          {/* Fullscreen Body */}
+          <div className="flex-1 w-full min-h-0 bg-[#090C15] flex flex-col items-center justify-center p-2 sm:p-6 overflow-hidden relative">
+            <ResponsiveSimulatorFrame
+              device={previewDevice}
+              fullHeight={true}
+              className="w-full h-full flex-1"
+            >
+              <DynamicPortfolioRenderer data={livePreviewData} isInteractivePreview />
+            </ResponsiveSimulatorFrame>
           </div>
         </div>
       )}

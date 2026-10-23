@@ -61,7 +61,7 @@ const HeroBlock: React.FC<{
         <p className="text-lg md:text-xl font-semibold text-[var(--primary)] mb-4">
           {headline}
         </p>
-        <p className="text-base text-[var(--text)]/75 max-w-2xl mx-auto leading-relaxed mb-8">
+        <p className="text-base text-[var(--text-secondary)] max-w-2xl mx-auto leading-relaxed mb-8">
           {bio}
         </p>
         <div className="flex flex-wrap items-center justify-center gap-3">
@@ -76,7 +76,7 @@ const HeroBlock: React.FC<{
             </a>
           )}
           {location && (
-            <span className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-[var(--radius)] bg-[var(--surface)] border border-[var(--text)]/10 text-xs font-semibold text-[var(--text)]/80">
+            <span className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-[var(--radius)] bg-[var(--surface)] border border-[var(--text)]/10 text-xs font-semibold text-[var(--text-secondary)]">
               <MapPin className="w-3.5 h-3.5 text-[var(--primary)]" />
               <span>{location}</span>
             </span>
@@ -108,7 +108,7 @@ const HeroBlock: React.FC<{
               <p className="text-base md:text-lg font-medium text-[var(--primary)] mb-4">
                 {headline}
               </p>
-              <p className="text-sm md:text-base text-[var(--text)]/80 leading-relaxed mb-6">
+              <p className="text-sm md:text-base text-[var(--text-secondary)] leading-relaxed mb-6">
                 {bio}
               </p>
               <div className="flex flex-wrap items-center justify-center md:justify-start gap-3">
@@ -146,11 +146,11 @@ const HeroBlock: React.FC<{
             Hi, I'm <span className="text-[var(--primary)]">{name}</span>
           </h1>
 
-          <p className="text-lg md:text-xl font-medium text-[var(--text)]/80">
+          <p className="text-lg md:text-xl font-medium text-[var(--text-secondary)]">
             {headline}
           </p>
 
-          <p className="text-sm md:text-base text-[var(--text)]/70 leading-relaxed max-w-xl">
+          <p className="text-sm md:text-base text-[var(--text-secondary)] leading-relaxed max-w-xl">
             {bio}
           </p>
 
@@ -170,7 +170,7 @@ const HeroBlock: React.FC<{
           </div>
 
           {location && (
-            <div className="flex items-center gap-2 text-xs text-[var(--text)]/60 pt-2 font-mono">
+            <div className="flex items-center gap-2 text-xs text-[var(--text-secondary)] pt-2 font-mono">
               <MapPin className="w-3.5 h-3.5 text-[var(--primary)]" />
               <span>Based in {location}</span>
             </div>
@@ -220,7 +220,7 @@ const AboutBlock: React.FC<{
             )}
           </div>
           <div className="md:col-span-8">
-            <p className="text-base text-[var(--text)]/80 leading-relaxed whitespace-pre-line">
+            <p className="text-base text-[var(--text-secondary)] leading-relaxed whitespace-pre-line">
               {bio}
             </p>
           </div>
@@ -241,7 +241,7 @@ const AboutBlock: React.FC<{
             {headline}
           </p>
         )}
-        <p className="text-base text-[var(--text)]/80 leading-relaxed whitespace-pre-line">
+        <p className="text-base text-[var(--text-secondary)] leading-relaxed whitespace-pre-line">
           {bio}
         </p>
       </div>
@@ -270,7 +270,7 @@ const SkillsBlock: React.FC<{
         <h2 className="text-2xl md:text-3xl font-extrabold text-[var(--text)] tracking-tight">
           {title}
         </h2>
-        <p className="text-sm text-[var(--text)]/60 mt-1">Tools and frameworks I utilize</p>
+        <p className="text-sm text-[var(--text-secondary)] mt-1">Tools and frameworks I utilize</p>
       </div>
 
       {variant === 'PROGRESS_BARS' ? (
@@ -357,7 +357,7 @@ const ProjectsBlock: React.FC<{
           <h2 className="text-3xl font-extrabold text-[var(--text)] tracking-tight">
             {title}
           </h2>
-          <p className="text-sm text-[var(--text)]/60 mt-1">
+          <p className="text-sm text-[var(--text-secondary)] mt-1">
             Proven products and technical experiments
           </p>
         </div>
@@ -394,14 +394,14 @@ const ProjectsBlock: React.FC<{
                 <h3 className="text-lg font-bold text-[var(--text)] group-hover:text-[var(--primary)] transition mb-2">
                   {proj.title}
                 </h3>
-                <p className="text-xs text-[var(--text)]/70 line-clamp-2 leading-relaxed mb-4">
+                <p className="text-xs text-[var(--text-secondary)] line-clamp-2 leading-relaxed mb-4">
                   {proj.description || 'No project description provided.'}
                 </p>
                 <div className="flex flex-wrap gap-1.5 mb-2">
                   {proj.techStacks?.map((tech, i) => (
                     <span
                       key={i}
-                      className="px-2 py-0.5 rounded bg-[var(--text)]/5 text-[10px] font-mono font-semibold text-[var(--text)]/75"
+                      className="px-2 py-0.5 rounded bg-[var(--text)]/5 text-[10px] font-mono font-semibold text-[var(--text-secondary)]"
                     >
                       {tech}
                     </span>
@@ -430,7 +430,7 @@ const ProjectsBlock: React.FC<{
                   target="_blank"
                   rel="noreferrer"
                   onClick={() => onSocialClick?.('github', `GitHub: ${proj.title}`)}
-                  className="inline-flex items-center gap-1 hover:underline text-[var(--text)]/70 cursor-pointer"
+                  className="inline-flex items-center gap-1 hover:underline text-[var(--text-secondary)] cursor-pointer"
                 >
                   <Github className="w-3.5 h-3.5" />
                   <span>Source</span>
@@ -482,7 +482,7 @@ const ExperienceBlock: React.FC<{
           <h2 className="text-3xl font-extrabold text-[var(--text)] tracking-tight">
             {title}
           </h2>
-          <p className="text-sm text-[var(--text)]/60 mt-1">Career journey and contributions</p>
+          <p className="text-sm text-[var(--text-secondary)] mt-1">Career journey and contributions</p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {items.map((exp) => (
@@ -500,11 +500,11 @@ const ExperienceBlock: React.FC<{
                     {exp.startDate} — {exp.endDate || 'Active'}
                   </span>
                 </div>
-                <p className="text-xs font-semibold text-[var(--text)]/70 mb-3">
+                <p className="text-xs font-semibold text-[var(--text-secondary)] mb-3">
                   {exp.company}
                 </p>
                 {exp.description && (
-                  <p className="text-xs text-[var(--text)]/80 leading-relaxed whitespace-pre-line">
+                  <p className="text-xs text-[var(--text-secondary)] leading-relaxed whitespace-pre-line">
                     {exp.description}
                   </p>
                 )}
@@ -522,7 +522,7 @@ const ExperienceBlock: React.FC<{
         <h2 className="text-3xl font-extrabold text-[var(--text)] tracking-tight">
           {title}
         </h2>
-        <p className="text-sm text-[var(--text)]/60 mt-1">Career journey and contributions</p>
+        <p className="text-sm text-[var(--text-secondary)] mt-1">Career journey and contributions</p>
       </div>
 
       <div className="relative border-l-2 border-[var(--primary)]/30 pl-6 ml-4 space-y-8">
@@ -539,11 +539,11 @@ const ExperienceBlock: React.FC<{
                   {exp.startDate} — {exp.endDate || 'Active'}
                 </span>
               </div>
-              <p className="text-xs font-semibold text-[var(--text)]/70 mb-3">
+              <p className="text-xs font-semibold text-[var(--text-secondary)] mb-3">
                 {exp.company}
               </p>
               {exp.description && (
-                <p className="text-xs text-[var(--text)]/80 leading-relaxed whitespace-pre-line">
+                <p className="text-xs text-[var(--text-secondary)] leading-relaxed whitespace-pre-line">
                   {exp.description}
                 </p>
               )}
@@ -578,7 +578,7 @@ const ServicesBlock: React.FC<{
           <h2 className="text-3xl font-extrabold text-[var(--text)] tracking-tight">
             {title}
           </h2>
-          <p className="text-sm text-[var(--text)]/60 mt-1">High impact offerings for teams and businesses</p>
+          <p className="text-sm text-[var(--text-secondary)] mt-1">High impact offerings for teams and businesses</p>
         </div>
         <div className="space-y-4">
           {items.map((srv, idx) => {
@@ -592,7 +592,7 @@ const ServicesBlock: React.FC<{
                   </div>
                   <div>
                     <h3 className="text-sm font-bold text-[var(--text)]">{srvTitle}</h3>
-                    <p className="text-xs text-[var(--text)]/70 mt-0.5">{srvDesc}</p>
+                    <p className="text-xs text-[var(--text-secondary)] mt-0.5">{srvDesc}</p>
                   </div>
                 </div>
               </div>
@@ -609,7 +609,7 @@ const ServicesBlock: React.FC<{
         <h2 className="text-3xl font-extrabold text-[var(--text)] tracking-tight">
           {title}
         </h2>
-        <p className="text-sm text-[var(--text)]/60 mt-1">High impact offerings for teams and businesses</p>
+        <p className="text-sm text-[var(--text-secondary)] mt-1">High impact offerings for teams and businesses</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -642,7 +642,7 @@ const ServicesBlock: React.FC<{
               <h3 className="text-base font-bold text-[var(--text)] mb-2">
                 {srvTitle}
               </h3>
-              <p className="text-xs text-[var(--text)]/70 leading-relaxed">
+              <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
                 {srvDesc}
               </p>
             </div>
@@ -673,7 +673,7 @@ const ContactBlock: React.FC<{
         <h2 className="text-2xl md:text-3xl font-extrabold text-[var(--text)] tracking-tight mb-2">
           {title}
         </h2>
-        <p className="text-xs md:text-sm text-[var(--text)]/70 max-w-md mx-auto mb-6">
+        <p className="text-xs md:text-sm text-[var(--text-secondary)] max-w-md mx-auto mb-6">
           Reach out directly via email or phone.
         </p>
         <div className="flex flex-wrap items-center justify-center gap-3">
@@ -708,7 +708,7 @@ const ContactBlock: React.FC<{
         <h2 className="text-3xl font-extrabold text-[var(--text)] tracking-tight mb-3">
           {title}
         </h2>
-        <p className="text-sm text-[var(--text)]/70 max-w-lg mx-auto mb-8">
+        <p className="text-sm text-[var(--text-secondary)] max-w-lg mx-auto mb-8">
           Interested in starting a collaboration or discussing a technical project? Reach out directly.
         </p>
 
@@ -758,7 +758,7 @@ const BannerBlock: React.FC<{
         <div className="p-6 rounded-[var(--radius)] bg-[var(--surface)] border-2 border-[var(--primary)]/30 text-[var(--text)] shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
           <div>
             <h3 className="text-lg font-bold text-[var(--text)]">{title}</h3>
-            <p className="text-xs text-[var(--text)]/70 mt-0.5">Specialized in React, TypeScript, Cloud Architectures.</p>
+            <p className="text-xs text-[var(--text-secondary)] mt-0.5">Specialized in React, TypeScript, Cloud Architectures.</p>
           </div>
           <a
             href="#contact"
@@ -801,14 +801,14 @@ export const ClientsLogoBlock: React.FC<{
   return (
     <div className="py-12 border-y border-[var(--text)]/10 bg-[var(--surface)]/40">
       <div className="max-w-6xl mx-auto px-6 text-center">
-        {title && <p className="text-xs uppercase font-bold tracking-widest text-[var(--text)]/60 mb-8">{title}</p>}
+        {title && <p className="text-xs uppercase font-bold tracking-widest text-[var(--text-secondary)] mb-8">{title}</p>}
         <div className="flex flex-wrap items-center justify-center gap-8 md:gap-14 opacity-85 hover:opacity-100 transition-opacity">
           {logos.map((logo: any, idx: number) => (
             <div key={idx} className="flex items-center gap-2 text-[var(--text)] font-bold text-base tracking-tight">
               {logo.logoUrl ? (
                 <img src={logo.logoUrl} alt={logo.name || 'Client logo'} className="h-7 w-auto object-contain filter grayscale hover:grayscale-0 transition-all" />
               ) : (
-                <span className="px-4 py-2 rounded-[var(--radius)] bg-[var(--surface)] border border-[var(--text)]/10 text-[var(--text)]/80 hover:text-[var(--text)] transition-colors">
+                <span className="px-4 py-2 rounded-[var(--radius)] bg-[var(--surface)] border border-[var(--text)]/10 text-[var(--text-secondary)] hover:text-[var(--text)] transition-colors">
                   {logo.name}
                 </span>
               )}
@@ -843,7 +843,7 @@ export const CompanyStatsBlock: React.FC<{
               <h3 className="text-3xl md:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-[var(--primary)] to-[var(--secondary,#06b6d4)]">
                 {item.value}
               </h3>
-              <p className="mt-2 text-xs md:text-sm font-semibold text-[var(--text)]/80">{item.label}</p>
+              <p className="mt-2 text-xs md:text-sm font-semibold text-[var(--text-secondary)]">{item.label}</p>
             </div>
           ))}
         </div>
@@ -865,14 +865,14 @@ export const ProcessWorkflowBlock: React.FC<{
     <div className="py-20 max-w-6xl mx-auto px-6">
       <div className="text-center mb-14">
         <h2 className="text-2xl md:text-3xl font-bold text-[var(--text)]">{title}</h2>
-        <p className="text-sm text-[var(--text)]/60 mt-2">Bagaimana kami mengantarkan proyek Anda dari konsep hingga peluncuran.</p>
+        <p className="text-sm text-[var(--text-secondary)] mt-2">Bagaimana kami mengantarkan proyek Anda dari konsep hingga peluncuran.</p>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         {steps.map((step: any, idx: number) => (
           <div key={idx} className="relative p-6 rounded-[var(--radius)] bg-[var(--surface)] border border-[var(--text)]/10 hover:border-[var(--primary)]/50 transition-all shadow-xs">
             <span className="text-4xl font-extrabold text-[var(--primary)]/30 font-mono">{step.step || `0${idx + 1}`}</span>
             <h4 className="text-base font-bold text-[var(--text)] mt-4">{step.title}</h4>
-            <p className="text-xs text-[var(--text)]/70 mt-2 leading-relaxed">{step.description}</p>
+            <p className="text-xs text-[var(--text-secondary)] mt-2 leading-relaxed">{step.description}</p>
           </div>
         ))}
       </div>
@@ -904,7 +904,7 @@ export const TestimonialsBlock: React.FC<{
                     <Star key={i} className="w-4 h-4 fill-amber-400" />
                   ))}
                 </div>
-                <p className="text-xs md:text-sm text-[var(--text)]/80 italic leading-relaxed">
+                <p className="text-xs md:text-sm text-[var(--text-secondary)] italic leading-relaxed">
                   "{item.content}"
                 </p>
               </div>
@@ -918,7 +918,7 @@ export const TestimonialsBlock: React.FC<{
                 )}
                 <div>
                   <h4 className="text-xs font-bold text-[var(--text)]">{item.clientName}</h4>
-                  <p className="text-[11px] text-[var(--text)]/60">{item.clientRole} {item.clientCompany && `• ${item.clientCompany}`}</p>
+                  <p className="text-[11px] text-[var(--text-secondary)]">{item.clientRole} {item.clientCompany && `• ${item.clientCompany}`}</p>
                 </div>
               </div>
             </div>
@@ -959,7 +959,7 @@ export const FaqAccordionBlock: React.FC<{
                 <ChevronDown className={`w-4 h-4 text-[var(--text)]/50 transition-transform ${isOpen ? 'rotate-180 text-[var(--primary)]' : ''}`} />
               </button>
               {isOpen && (
-                <div className="px-5 pb-5 text-xs text-[var(--text)]/75 leading-relaxed border-t border-[var(--text)]/10 pt-3">
+                <div className="px-5 pb-5 text-xs text-[var(--text-secondary)] leading-relaxed border-t border-[var(--text)]/10 pt-3">
                   {faq.answer}
                 </div>
               )}
@@ -1004,6 +1004,183 @@ export const CtaBannerBlock: React.FC<{
 // ─────────────────────────────────────────────────────────────────────────────
 // Main Dynamic Portfolio Renderer
 // ─────────────────────────────────────────────────────────────────────────────
+// ─── Custom HTML Template Compiler ───────────────────────────────────────────
+export function compileCustomHtml(
+  templateHtml: string,
+  customCss: string | undefined,
+  data: DynamicPortfolioData
+): string {
+  const profile = data.profile || {};
+  const business = data.businessProfile || {};
+  const services = data.businessServices || profile.services || [];
+  const theme = data.layout.theme || ({} as any);
+
+  const fallbackProjects = [
+    {
+      id: 'sample-1',
+      title: 'DevPulse Cloud Analytics',
+      description: 'Real-time telemetry and error monitoring for modern distributed microservices and serverless infrastructure.',
+      thumbnail: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=800',
+      projectUrl: '#',
+      githubUrl: '#',
+      role: 'Lead Architect',
+    },
+    {
+      id: 'sample-2',
+      title: 'Hyperion UI Design System',
+      description: 'Accessible, scalable component library built with Tailwind CSS, React, and strict TypeScript types.',
+      thumbnail: 'https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?auto=format&fit=crop&q=80&w=800',
+      projectUrl: '#',
+      githubUrl: '#',
+      role: 'Frontend Engineer',
+    },
+    {
+      id: 'sample-3',
+      title: 'OmniFlow Workflow Engine',
+      description: 'High-throughput event-driven workflow engine handling 50k+ background tasks per minute.',
+      thumbnail: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=800',
+      projectUrl: '#',
+      githubUrl: '#',
+      role: 'Backend Developer',
+    },
+  ];
+
+  const fallbackExperiences = [
+    {
+      company: 'TechCorp Solutions',
+      position: 'Senior Software Engineer',
+      description: 'Spearheaded migration to cloud-native microservices architecture and improved API response times by 40%.',
+      startDate: '2022',
+      endDate: 'Present',
+    },
+    {
+      company: 'Creative Labs',
+      position: 'Frontend Developer',
+      description: 'Built interactive digital web experiences and high-conversion landing pages for tier-1 enterprise clients.',
+      startDate: '2020',
+      endDate: '2022',
+    },
+  ];
+
+  const projects = data.projects && data.projects.length > 0 ? data.projects : fallbackProjects;
+  const experiences = data.experiences && data.experiences.length > 0 ? data.experiences : fallbackExperiences;
+  const skills = profile.skills && profile.skills.length > 0 ? profile.skills : ['React', 'TypeScript', 'Node.js', 'Tailwind CSS'];
+
+  let output = templateHtml;
+
+  // 1. Loops: {{#each skills}}
+  output = output.replace(/{{#each skills}}([\s\S]*?){{\/each}}/g, (_, inner) => {
+    return skills.map((s) => inner.replace(/{{this}}/g, s)).join('\n');
+  });
+
+  // Loops: {{#each projects}}
+  output = output.replace(/{{#each projects}}([\s\S]*?){{\/each}}/g, (_, inner) => {
+    return projects
+      .map((p) => {
+        let item = inner;
+        item = item.replace(/{{id}}/g, p.id || '');
+        item = item.replace(/{{title}}/g, p.title || '');
+        item = item.replace(/{{description}}/g, p.description || '');
+        item = item.replace(
+          /{{thumbnail}}/g,
+          p.thumbnail || 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&q=80&w=800'
+        );
+        item = item.replace(/{{projectUrl}}/g, p.projectUrl || '#');
+        item = item.replace(/{{githubUrl}}/g, p.githubUrl || '#');
+        item = item.replace(/{{role}}/g, p.role || '');
+        return item;
+      })
+      .join('\n');
+  });
+
+  // Loops: {{#each experiences}}
+  output = output.replace(/{{#each experiences}}([\s\S]*?){{\/each}}/g, (_, inner) => {
+    return experiences
+      .map((exp) => {
+        let item = inner;
+        item = item.replace(/{{company}}/g, exp.company || '');
+        item = item.replace(/{{position}}/g, exp.position || '');
+        item = item.replace(/{{description}}/g, exp.description || '');
+        item = item.replace(/{{startDate}}/g, exp.startDate ? new Date(exp.startDate).getFullYear().toString() : '');
+        item = item.replace(/{{endDate}}/g, exp.endDate ? new Date(exp.endDate).getFullYear().toString() : 'Present');
+        return item;
+      })
+      .join('\n');
+  });
+
+  // Loops: {{#each services}}
+  output = output.replace(/{{#each services}}([\s\S]*?){{\/each}}/g, (_, inner) => {
+    return services
+      .map((srv: any) => {
+        const title = typeof srv === 'string' ? srv : srv.title || srv.serviceName || '';
+        const desc = typeof srv === 'string' ? '' : srv.description || '';
+        const price = typeof srv === 'string' ? '' : srv.startingPrice ? 'Starting at ' + srv.startingPrice : '';
+        let item = inner;
+        item = item.replace(/{{title}}/g, title);
+        item = item.replace(/{{description}}/g, desc);
+        item = item.replace(/{{price}}/g, price);
+        return item;
+      })
+      .join('\n');
+  });
+
+  // 2. Scalars: profile & business
+  const fullName = profile.fullName || 'Alex Rivera';
+  const headline = profile.headline || 'Full Stack Engineer & Cloud Architect';
+  const bio = profile.bio || 'Building robust, scalable applications and distributed systems.';
+  const avatar =
+    profile.profileImage ||
+    'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400';
+  const location = profile.location || 'San Francisco, CA';
+  const email = profile.contactEmail || 'alex@example.com';
+  const phone = profile.phoneNumber || '+1 555-0199';
+  const cvUrl = profile.cvUrl || '#';
+
+  output = output.replace(/{{(?:profile\.)?fullName}}/g, fullName);
+  output = output.replace(/{{(?:profile\.)?headline}}/g, headline);
+  output = output.replace(/{{(?:profile\.)?bio}}/g, bio);
+  output = output.replace(/{{(?:profile\.)?(?:avatar|profileImage)}}/g, avatar);
+  output = output.replace(/{{(?:profile\.)?location}}/g, location);
+  output = output.replace(/{{(?:profile\.)?(?:email|contactEmail)}}/g, email);
+  output = output.replace(/{{(?:profile\.)?(?:phone|phoneNumber)}}/g, phone);
+  output = output.replace(/{{(?:profile\.)?cvUrl}}/g, cvUrl);
+
+  output = output.replace(/{{(?:business\.)?(?:businessName|name)}}/g, business.businessName || fullName);
+  output = output.replace(/{{(?:business\.)?description}}/g, business.description || bio);
+  output = output.replace(/{{(?:business\.)?logo}}/g, business.logo || avatar);
+
+  // 3. Theme variables
+  output = output.replace(/{{theme\.primaryColor}}/g, theme.primaryColor || '#8B6CF6');
+  output = output.replace(/{{theme\.secondaryColor}}/g, theme.secondaryColor || '#4697F5');
+  output = output.replace(/{{theme\.backgroundColor}}/g, theme.backgroundColor || '#0F172A');
+  output = output.replace(/{{theme\.surfaceColor}}/g, theme.surfaceColor || '#1E293B');
+  output = output.replace(/{{theme\.textColor}}/g, theme.textColor || '#F8FAFC');
+  output = output.replace(/{{theme\.textSecondaryColor}}/g, theme.textSecondaryColor || '#94A3B8');
+
+  // 4. Injected CSS
+  const styleTag = `<style>
+    :root {
+      --primary: ${theme.primaryColor || '#8B6CF6'};
+      --secondary: ${theme.secondaryColor || '#4697F5'};
+      --bg: ${theme.backgroundColor || '#0F172A'};
+      --surface: ${theme.surfaceColor || '#1E293B'};
+      --text: ${theme.textColor || '#F8FAFC'};
+      --text-secondary: ${theme.textSecondaryColor || '#94A3B8'};
+      --radius: ${theme.borderRadius || '12px'};
+    }
+    body { margin: 0; padding: 0; font-family: ${theme.fontFamily || 'Inter, sans-serif'}; }
+    ${customCss || ''}
+  </style>`;
+
+  if (output.includes('</head>')) {
+    output = output.replace('</head>', `${styleTag}</head>`);
+  } else {
+    output = `${styleTag}\n${output}`;
+  }
+
+  return output;
+}
+
 export const DynamicPortfolioRenderer: React.FC<DynamicPortfolioRendererProps> = ({
   data,
   onProjectClick,
@@ -1070,6 +1247,25 @@ export const DynamicPortfolioRenderer: React.FC<DynamicPortfolioRendererProps> =
       ? businessServices
       : [];
 
+  const isDark = theme.darkMode ?? false;
+  const primaryTextColor = theme.textColor || (isDark ? '#F8FAFC' : '#0F172A');
+  const secondaryTextColor = theme.textSecondaryColor || (isDark ? '#94A3B8' : '#64748B');
+
+  // ─── If Template is Uploaded Custom HTML + CSS ───
+  if (layout.templateType === 'CUSTOM_HTML' && layout.customHtml) {
+    const compiledDoc = compileCustomHtml(layout.customHtml, layout.customCss, data);
+    return (
+      <div className="w-full min-h-screen bg-transparent flex flex-col">
+        <iframe
+          srcDoc={compiledDoc}
+          title="Custom HTML Portfolio"
+          className="w-full flex-1 border-0 min-h-screen"
+          sandbox="allow-scripts allow-same-origin allow-popups"
+        />
+      </div>
+    );
+  }
+
   const sections = layout.sections || [];
   const visibleSections = sections.filter((s) => s.isVisible);
 
@@ -1081,7 +1277,9 @@ export const DynamicPortfolioRenderer: React.FC<DynamicPortfolioRendererProps> =
           '--secondary': theme.secondaryColor || '#6366f1',
           '--bg': theme.backgroundColor || '#ffffff',
           '--surface': theme.surfaceColor || '#ffffff',
-          '--text': theme.textColor || '#0f172a',
+          '--text': primaryTextColor,
+          '--text-primary': primaryTextColor,
+          '--text-secondary': secondaryTextColor,
           '--radius': theme.borderRadius || '12px',
           fontFamily: theme.fontFamily || 'Inter, sans-serif',
           backgroundColor: 'var(--bg)',

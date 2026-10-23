@@ -12,11 +12,17 @@ import { useUsers } from '../../hooks/useUsers';
 import { getSessionPayload } from '../../lib/auth';
 import { Dialog, DialogPanel, DialogTitle, DialogBackdrop, Listbox, ListboxButton, ListboxOptions, ListboxOption } from '@headlessui/react';
 import { DatePicker } from '../atoms/DatePicker';
+import { Badge } from '../atoms/Badge';
 import {
     Briefcase, Search, Plus, Edit, Trash2, ShieldAlert,
     Calendar, Loader2, Eye, ChevronDown, Check, Info, Grid, List
 } from 'lucide-react';
 import { ConfirmDialog } from '../molecules/ConfirmDialog';
+import {
+    TableContainer, Table, TableHeader, TableHead,
+    TableBody, TableRow, TableCell, TableIdentityTile, TableActionButton
+} from '../molecules/Table';
+import { Pagination } from '../molecules/Pagination';
 
 export const AdminExperiences: React.FC = () => {
     const navigate = useNavigate();
@@ -520,239 +526,222 @@ export const AdminExperiences: React.FC = () => {
             ) : (
                 <>
                     {viewMode === 'grid' ? (
-                        <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-                            {filteredExperiences.slice((activePage - 1) * ITEMS_PER_PAGE, activePage * ITEMS_PER_PAGE).map(exp => {
-                                // For admin panel, try to match the owner
-                                const expOwner = usersList.find(u => u.id === exp.userId);
+                        <div className="space-y-6">
+                            <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+                                {filteredExperiences.slice((activePage - 1) * ITEMS_PER_PAGE, activePage * ITEMS_PER_PAGE).map(exp => {
+                                    const expOwner = usersList.find(u => u.id === exp.userId);
 
-                                return (
-                                    <div
-                                        key={exp.id}
-                                        className="group relative flex flex-col justify-between rounded-2xl border border-[#EAE5DD] bg-white p-5 shadow-xs transition hover:border-[#8B6CF6]/40 hover:shadow-md"
-                                    >
-                                        <div>
-                                            {/* Headline Info */}
-                                            <div className="flex items-start justify-between">
-                                                <div className="flex items-center space-x-3">
-                                                    {exp.companyLogo ? (
-                                                        <img
-                                                            src={exp.companyLogo}
-                                                            alt={exp.company}
-                                                            referrerPolicy="no-referrer"
-                                                            className="h-10 w-10 rounded-xl object-cover bg-[#FAF8F5] border border-[#EAE5DD]"
+                                    return (
+                                        <div
+                                            key={exp.id}
+                                            className="group relative flex flex-col justify-between rounded-2xl border border-[#EAE5DD] bg-white p-5 shadow-3xs transition-all duration-200 hover:border-[#8B6CF6]/40 hover:shadow-md"
+                                        >
+                                            <div>
+                                                {/* Headline Info */}
+                                                <div className="flex items-start justify-between gap-3">
+                                                    <div className="flex items-center space-x-3 min-w-0">
+                                                        <TableIdentityTile
+                                                            name={exp.company}
+                                                            image={exp.companyLogo}
+                                                            size="md"
+                                                            variant="violet"
                                                         />
-                                                    ) : (
-                                                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#E8E0FF]/60 font-mono text-[11px] font-bold text-[#8B6CF6] uppercase border border-[#8B6CF6]/20">
-                                                            {exp.company.substring(0, 2).toUpperCase()}
+                                                        <div className="min-w-0">
+                                                            <h4 className="font-sans text-sm font-bold text-[#202744] leading-snug truncate">
+                                                                {exp.position}
+                                                            </h4>
+                                                            <p className="font-sans text-xs text-[#69718A] font-medium truncate">{exp.company}</p>
                                                         </div>
-                                                    )}
-                                                    <div>
-                                                        <h4 className="font-sans text-sm font-bold text-[#202744] leading-tight">
-                                                            {exp.position}
-                                                        </h4>
-                                                        <p className="font-sans text-xs text-[#69718A] font-medium">{exp.company}</p>
                                                     </div>
+
+                                                    <Badge
+                                                        variant={exp.isPublic ? 'success' : 'secondary'}
+                                                        size="xs"
+                                                        dot={exp.isPublic}
+                                                    >
+                                                        {exp.isPublic ? 'Public' : 'Hidden'}
+                                                    </Badge>
                                                 </div>
 
-                                                <span className={`inline-flex items-center rounded-lg px-2 py-0.5 font-mono text-[9px] font-bold uppercase tracking-wider ${exp.isPublic
-                                                    ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                                                    : 'bg-[#FAF8F5] text-[#69718A] border border-[#EAE5DD]'
-                                                }`}>
-                                                    {exp.isPublic ? '🌐 Public' : '🔒 Hidden'}
-                                                </span>
-                                            </div>
+                                                {/* Timeline Dates */}
+                                                <div className="mt-4 flex items-center space-x-1.5 font-sans text-[11px] text-[#69718A] font-medium">
+                                                    <Calendar className="h-3.5 w-3.5 text-[#8B6CF6] shrink-0" />
+                                                    <span>{formatDate(exp.startDate)}</span>
+                                                    <span>—</span>
+                                                    <span className={!exp.endDate ? 'text-emerald-700 font-semibold' : ''}>
+                                                        {exp.endDate ? formatDate(exp.endDate) : 'Active Now'}
+                                                    </span>
+                                                </div>
 
-                                            {/* Timeline Dates */}
-                                            <div className="mt-4 flex items-center space-x-1.5 font-mono text-[10px] text-[#69718A] font-bold uppercase">
-                                                <Calendar className="h-3.5 w-3.5 text-[#8B6CF6]" />
-                                                <span>{formatDate(exp.startDate)}</span>
-                                                <span>—</span>
-                                                <span className={!exp.endDate ? 'text-emerald-600 font-semibold' : ''}>
-                                                    {exp.endDate ? formatDate(exp.endDate) : 'Active Now'}
-                                                </span>
-                                            </div>
-
-                                            {/* Description Paragraph */}
-                                            {exp.description && (
-                                                <p className="mt-3 font-sans text-xs text-[#69718A] leading-relaxed whitespace-pre-wrap line-clamp-3">
-                                                    {exp.description}
-                                                </p>
-                                            )}
-                                        </div>
-
-                                        {/* Grid card actions footer */}
-                                        <div className="mt-5 flex items-center justify-between border-t border-[#EAE5DD] pt-3">
-                                            {isSuper ? (
-                                                <span className="font-mono text-[9px] text-[#69718A] font-bold uppercase tracking-wider">
-                                                    Owner: {expOwner?.profile?.fullName || expOwner?.email || 'System Account'}
-                                                </span>
-                                            ) : (
-                                                <span className="font-sans text-[10px] text-[#69718A] font-bold uppercase tracking-wider">
-                                                    Self Milestone
-                                                </span>
-                                            )}
-
-                                            <div className="flex items-center space-x-1.5">
-                                                <button
-                                                    id={`view-exp-${exp.id}-btn`}
-                                                    onClick={() => navigate(`/admin/experiences/${exp.id}`)}
-                                                    className="rounded-xl border border-[#EAE5DD] bg-white p-2 text-[#69718A] hover:border-[#8B6CF6]/40 hover:text-[#8B6CF6] hover:bg-[#FAF8F5] transition cursor-pointer shadow-xs"
-                                                    title="View detail"
-                                                >
-                                                    <Eye className="h-3.5 w-3.5" />
-                                                </button>
-                                                {!isSuper && (
-                                                    <>
-                                                        <button
-                                                            id={`edit-exp-${exp.id}-btn`}
-                                                            onClick={() => handleOpenEdit(exp)}
-                                                            className="rounded-xl border border-[#EAE5DD] bg-white p-2 text-[#69718A] hover:border-[#8B6CF6]/40 hover:text-[#8B6CF6] hover:bg-[#FAF8F5] transition cursor-pointer shadow-xs"
-                                                            title="Modify parameters"
-                                                        >
-                                                            <Edit className="h-3.5 w-3.5" />
-                                                        </button>
-                                                        <button
-                                                            id={`delete-exp-${exp.id}-btn`}
-                                                            onClick={() => handleDelete(exp.id)}
-                                                            disabled={deleteMutation.isPending}
-                                                            className="rounded-xl border border-[#EAE5DD] bg-white p-2 text-[#69718A] hover:border-red-200 hover:text-red-600 hover:bg-red-50 transition cursor-pointer disabled:opacity-50 shadow-xs"
-                                                            title="Delete entry"
-                                                        >
-                                                            <Trash2 className="h-3.5 w-3.5" />
-                                                        </button>
-                                                    </>
+                                                {/* Description Paragraph */}
+                                                {exp.description && (
+                                                    <p className="mt-3 font-sans text-xs text-[#69718A] leading-relaxed whitespace-pre-wrap line-clamp-3">
+                                                        {exp.description}
+                                                    </p>
                                                 )}
                                             </div>
+
+                                            {/* Grid card actions footer */}
+                                            <div className="mt-5 flex items-center justify-between border-t border-[#F3EFEA] pt-3.5">
+                                                {isSuper ? (
+                                                    <span className="font-sans text-[11px] text-[#69718A] font-medium truncate max-w-[200px]">
+                                                        Owner: {expOwner?.profile?.fullName || expOwner?.email || 'System Account'}
+                                                    </span>
+                                                ) : (
+                                                    <span className="font-sans text-[11px] text-[#69718A] font-medium">
+                                                        Career Milestone
+                                                    </span>
+                                                )}
+
+                                                <div className="flex items-center space-x-1">
+                                                    <TableActionButton
+                                                        id={`view-exp-${exp.id}-btn`}
+                                                        icon={<Eye className="h-3.5 w-3.5" />}
+                                                        label="View detail"
+                                                        onClick={() => navigate(`/admin/experiences/${exp.id}`)}
+                                                    />
+                                                    {!isSuper && (
+                                                        <>
+                                                            <TableActionButton
+                                                                id={`edit-exp-${exp.id}-btn`}
+                                                                icon={<Edit className="h-3.5 w-3.5" />}
+                                                                label="Modify parameters"
+                                                                onClick={() => handleOpenEdit(exp)}
+                                                            />
+                                                            <TableActionButton
+                                                                id={`delete-exp-${exp.id}-btn`}
+                                                                icon={<Trash2 className="h-3.5 w-3.5" />}
+                                                                label="Delete entry"
+                                                                variant="danger"
+                                                                disabled={deleteMutation.isPending}
+                                                                onClick={() => handleDelete(exp.id)}
+                                                            />
+                                                        </>
+                                                    )}
+                                                </div>
+                                            </div>
                                         </div>
-                                    </div>
-                                );
-                            })}
+                                    );
+                                })}
+                            </div>
+
+                            <Pagination
+                                currentPage={activePage}
+                                totalPages={totalPages}
+                                totalItems={filteredExperiences.length}
+                                itemsPerPage={ITEMS_PER_PAGE}
+                                itemLabel="milestones"
+                                onPageChange={setCurrentPage}
+                                variant="standalone"
+                            />
                         </div>
                     ) : (
-                        <div className="overflow-x-auto rounded-2xl border border-[#EAE5DD] bg-white shadow-xs">
-                            <table className="w-full min-w-[700px] border-collapse text-left text-xs font-sans">
-                                <thead className="bg-[#FAF8F5] border-b border-[#EAE5DD] font-sans text-[10px] font-bold uppercase tracking-wider text-[#69718A]">
+                        <TableContainer>
+                            <Table minWidth="min-w-[720px]">
+                                <TableHeader>
                                     <tr>
-                                        {isSuper && <th className="px-6 py-4">Developer</th>}
-                                        <th className="px-6 py-4">Company Details</th>
-                                        <th className="px-6 py-4">Position Title</th>
-                                        <th className="px-6 py-4">Timeline</th>
-                                        <th className="px-6 py-4 text-center">Status</th>
-                                        <th className="px-6 py-4 text-right">Actions</th>
+                                        {isSuper && <TableHead>Developer</TableHead>}
+                                        <TableHead>Company</TableHead>
+                                        <TableHead>Position Title</TableHead>
+                                        <TableHead>Timeline</TableHead>
+                                        <TableHead align="center">Status</TableHead>
+                                        <TableHead align="right">Actions</TableHead>
                                     </tr>
-                                </thead>
-                                <tbody className="divide-y divide-[#F0EBE1] text-[#69718A]">
+                                </TableHeader>
+                                <TableBody>
                                     {filteredExperiences.slice((activePage - 1) * ITEMS_PER_PAGE, activePage * ITEMS_PER_PAGE).map(exp => {
                                         const expOwner = usersList.find(u => u.id === exp.userId);
 
                                         return (
-                                            <tr key={exp.id} className="hover:bg-[#FAF8F5]/60 transition">
+                                            <TableRow key={exp.id}>
                                                 {isSuper && (
-                                                    <td className="px-6 py-4">
+                                                    <TableCell>
                                                         <div className="font-bold text-[#202744] leading-snug">
                                                             {expOwner?.profile?.fullName || 'Sandbox Member'}
                                                         </div>
-                                                        <div className="font-mono text-[10px] text-[#69718A]">
+                                                        <div className="font-sans text-[11px] text-[#69718A]">
                                                             {expOwner?.email || 'N/A'}
                                                         </div>
-                                                    </td>
+                                                    </TableCell>
                                                 )}
-                                                <td className="px-6 py-4 font-bold text-[#202744]">
-                                                    <div className="flex items-center space-x-2.5">
-                                                        {exp.companyLogo ? (
-                                                            <img
-                                                                src={exp.companyLogo}
-                                                                alt={exp.company}
-                                                                referrerPolicy="no-referrer"
-                                                                className="h-8 w-8 rounded-lg object-cover bg-white border border-[#EAE5DD] shadow-xs"
-                                                            />
-                                                        ) : (
-                                                            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#E8E0FF] font-sans text-[10px] font-bold text-[#8B6CF6] uppercase">
-                                                                {exp.company.substring(0, 2).toUpperCase()}
-                                                            </div>
-                                                        )}
-                                                        <span>{exp.company}</span>
+                                                <TableCell>
+                                                    <div className="flex items-center space-x-3">
+                                                        <TableIdentityTile
+                                                            name={exp.company}
+                                                            image={exp.companyLogo}
+                                                            size="sm"
+                                                            variant="violet"
+                                                        />
+                                                        <span className="font-bold text-[#202744] text-xs">{exp.company}</span>
                                                     </div>
-                                                </td>
-                                                <td className="px-6 py-4 font-semibold text-[#202744]">
-                                                    {exp.position}
-                                                </td>
-                                                <td className="px-6 py-4 text-[11px] text-[#69718A]">
-                                                    {formatDate(exp.startDate)} — {exp.endDate ? formatDate(exp.endDate) : <span className="text-emerald-600 font-bold">Active Now</span>}
-                                                </td>
-                                                <td className="px-6 py-4 text-center">
-                                                    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-bold ${exp.isPublic
-                                                        ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                                                        : 'bg-[#FAF8F5] text-[#69718A] border border-[#EAE5DD]'
-                                                    }`}>
-                                                        {exp.isPublic ? 'Public' : 'Hidden'}
+                                                </TableCell>
+                                                <TableCell>
+                                                    <span className="font-semibold text-[#202744] text-xs">
+                                                        {exp.position}
                                                     </span>
-                                                </td>
-                                                <td className="px-6 py-4 text-right">
-                                                    <div className="flex items-center justify-end space-x-1.5">
-                                                        <button
+                                                </TableCell>
+                                                <TableCell>
+                                                    <div className="text-[11px] text-[#69718A] flex items-center gap-1.5">
+                                                        <span>{formatDate(exp.startDate)}</span>
+                                                        <span>—</span>
+                                                        <span className={!exp.endDate ? 'text-emerald-700 font-semibold' : ''}>
+                                                            {exp.endDate ? formatDate(exp.endDate) : 'Active Now'}
+                                                        </span>
+                                                    </div>
+                                                </TableCell>
+                                                <TableCell align="center">
+                                                    <Badge
+                                                        variant={exp.isPublic ? 'success' : 'secondary'}
+                                                        size="xs"
+                                                        dot={exp.isPublic}
+                                                    >
+                                                        {exp.isPublic ? 'Public' : 'Hidden'}
+                                                    </Badge>
+                                                </TableCell>
+                                                <TableCell align="right">
+                                                    <div className="flex items-center justify-end space-x-1">
+                                                        <TableActionButton
                                                             id={`view-exp-tbl-${exp.id}-btn`}
+                                                            icon={<Eye className="h-3.5 w-3.5" />}
+                                                            label="View detail"
                                                             onClick={() => navigate(`/admin/experiences/${exp.id}`)}
-                                                            className="rounded-lg border border-[#EAE5DD] bg-white p-2 text-[#69718A] hover:border-[#8B6CF6]/40 hover:text-[#8B6CF6] hover:bg-[#8B6CF6]/5 transition cursor-pointer"
-                                                            title="View detail"
-                                                        >
-                                                            <Eye className="h-3.5 w-3.5" />
-                                                        </button>
+                                                        />
                                                         {!isSuper && (
                                                             <>
-                                                                <button
+                                                                <TableActionButton
                                                                     id={`edit-exp-tbl-${exp.id}-btn`}
+                                                                    icon={<Edit className="h-3.5 w-3.5" />}
+                                                                    label="Edit"
                                                                     onClick={() => handleOpenEdit(exp)}
-                                                                    className="rounded-lg border border-[#EAE5DD] bg-white p-2 text-[#69718A] hover:border-[#8B6CF6]/40 hover:text-[#8B6CF6] hover:bg-[#8B6CF6]/5 transition cursor-pointer"
-                                                                    title="Edit"
-                                                                >
-                                                                    <Edit className="h-3.5 w-3.5" />
-                                                                </button>
-                                                                <button
+                                                                />
+                                                                <TableActionButton
                                                                     id={`delete-exp-tbl-${exp.id}-btn`}
-                                                                    onClick={() => handleDelete(exp.id)}
+                                                                    icon={<Trash2 className="h-3.5 w-3.5" />}
+                                                                    label="Delete"
+                                                                    variant="danger"
                                                                     disabled={deleteMutation.isPending}
-                                                                    className="rounded-lg border border-[#EAE5DD] bg-white p-2 text-[#69718A] hover:border-red-200 hover:text-red-600 hover:bg-red-50 transition cursor-pointer disabled:opacity-50"
-                                                                    title="Delete"
-                                                                >
-                                                                    <Trash2 className="h-3.5 w-3.5" />
-                                                                </button>
+                                                                    onClick={() => handleDelete(exp.id)}
+                                                                />
                                                             </>
                                                         )}
                                                     </div>
-                                                </td>
-                                            </tr>
+                                                </TableCell>
+                                            </TableRow>
                                         );
                                     })}
-                                </tbody>
-                            </table>
-                        </div>
-                    )}
+                                </TableBody>
+                            </Table>
 
-                    {/* Pagination Controls */}
-                    {totalPages > 1 && (
-                        <div className="flex items-center justify-between border-t border-[#EAE5DD] bg-[#FAF8F5]/80 px-6 py-3.5 rounded-b-2xl font-sans text-xs">
-                            <div className="text-[#69718A]">
-                                Showing page <span className="font-semibold text-[#202744]">{activePage}</span> of{' '}
-                                <span className="font-semibold text-[#202744]">{totalPages}</span> ({filteredExperiences.length} elements)
-                            </div>
-                            <div className="flex items-center space-x-2">
-                                <button
-                                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                                    disabled={activePage <= 1}
-                                    className="rounded-lg border border-[#EAE5DD] bg-white px-3 py-1.5 text-xs font-semibold text-[#202744] transition hover:bg-[#FAF8F5] disabled:opacity-50 cursor-pointer shadow-xs"
-                                >
-                                    Previous
-                                </button>
-                                <button
-                                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                                    disabled={activePage >= totalPages}
-                                    className="rounded-lg border border-[#EAE5DD] bg-white px-3 py-1.5 text-xs font-semibold text-[#202744] transition hover:bg-[#FAF8F5] disabled:opacity-50 cursor-pointer shadow-xs"
-                                >
-                                    Next
-                                </button>
-                            </div>
-                        </div>
+                            <Pagination
+                                currentPage={activePage}
+                                totalPages={totalPages}
+                                totalItems={filteredExperiences.length}
+                                itemsPerPage={ITEMS_PER_PAGE}
+                                itemLabel="experiences"
+                                onPageChange={setCurrentPage}
+                                variant="table"
+                            />
+                        </TableContainer>
                     )}
                 </>
             )}

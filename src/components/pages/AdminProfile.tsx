@@ -808,42 +808,42 @@ export const AdminProfile: React.FC = () => {
                             {/* Endpoints Table */}
                             <div className="space-y-2">
                                 <span className="font-sans text-[11px] font-bold uppercase tracking-wider text-[#202744]">📋 Daftar Endpoint</span>
-                                <div className="rounded-xl border border-[#EAE5DD] overflow-hidden">
-                                    <table className="w-full text-left">
+                                <div className="rounded-2xl border border-[#EAE5DD] overflow-hidden bg-white shadow-3xs">
+                                    <table className="w-full text-left border-collapse">
                                         <thead>
-                                            <tr className="bg-[#FAF8F5] border-b border-[#EAE5DD]">
-                                                <th className="font-sans text-[10px] font-bold uppercase tracking-wider text-[#69718A] px-3 py-2">Endpoint</th>
-                                                <th className="font-sans text-[10px] font-bold uppercase tracking-wider text-[#69718A] px-3 py-2">Keterangan</th>
+                                            <tr className="bg-[#FAF8F5]/85 border-b border-[#EAE5DD]">
+                                                <th className="font-sans text-[11px] font-semibold text-[#69718A] px-4 py-3">Endpoint</th>
+                                                <th className="font-sans text-[11px] font-semibold text-[#69718A] px-4 py-3">Keterangan</th>
                                             </tr>
                                         </thead>
-                                        <tbody className="divide-y divide-[#EAE5DD] text-xs">
-                                            <tr>
-                                                <td className="px-3 py-2"><code className="font-mono text-[10px] text-[#202744]">{'{baseUrl}'}/profiles/{'{userId}'}</code></td>
-                                                <td className="px-3 py-2 font-sans text-xs text-[#69718A]">Data profil public (nama, bio, skills, dll)</td>
+                                        <tbody className="divide-y divide-[#F3EFEA] text-xs font-sans text-[#202744]">
+                                            <tr className="transition-colors hover:bg-[#8B6CF6]/[0.035]">
+                                                <td className="px-4 py-3"><code className="font-mono text-[10px] text-[#8B6CF6] bg-[#FAF8F5] px-2 py-0.5 rounded-md border border-[#EAE5DD]">{'{baseUrl}'}/profiles/{'{userId}'}</code></td>
+                                                <td className="px-4 py-3 text-xs text-[#69718A]">Data profil public (nama, bio, skills, dll)</td>
                                             </tr>
-                                            <tr>
-                                                <td className="px-3 py-2"><code className="font-mono text-[10px] text-[#202744]">{'{baseUrl}'}/experiences/public/{'{userId}'}</code></td>
-                                                <td className="px-3 py-2 font-sans text-xs text-[#69718A]">Daftar pengalaman kerja public</td>
+                                            <tr className="transition-colors hover:bg-[#8B6CF6]/[0.035]">
+                                                <td className="px-4 py-3"><code className="font-mono text-[10px] text-[#8B6CF6] bg-[#FAF8F5] px-2 py-0.5 rounded-md border border-[#EAE5DD]">{'{baseUrl}'}/experiences/public/{'{userId}'}</code></td>
+                                                <td className="px-4 py-3 text-xs text-[#69718A]">Daftar pengalaman kerja public</td>
                                             </tr>
-                                            <tr>
-                                                <td className="px-3 py-2"><code className="font-mono text-[10px] text-[#202744]">{'{baseUrl}'}/projects/public/{'{userId}'}</code></td>
-                                                <td className="px-3 py-2 font-sans text-xs text-[#69718A]">Daftar project public</td>
+                                            <tr className="transition-colors hover:bg-[#8B6CF6]/[0.035]">
+                                                <td className="px-4 py-3"><code className="font-mono text-[10px] text-[#8B6CF6] bg-[#FAF8F5] px-2 py-0.5 rounded-md border border-[#EAE5DD]">{'{baseUrl}'}/projects/public/{'{userId}'}</code></td>
+                                                <td className="px-4 py-3 text-xs text-[#69718A]">Daftar project public</td>
                                             </tr>
-                                            <tr>
-                                                <td className="px-3 py-2"><code className="font-mono text-[10px] text-[#202744]">{'{baseUrl}'}/portfolio/{'{userId}'}</code></td>
-                                                <td className="px-3 py-2 font-sans text-xs text-[#69718A]">Semua data portfolio lengkap</td>
+                                            <tr className="transition-colors hover:bg-[#8B6CF6]/[0.035]">
+                                                <td className="px-4 py-3"><code className="font-mono text-[10px] text-[#8B6CF6] bg-[#FAF8F5] px-2 py-0.5 rounded-md border border-[#EAE5DD]">{'{baseUrl}'}/portfolio/{'{userId}'}</code></td>
+                                                <td className="px-4 py-3 text-xs text-[#69718A]">Semua data portfolio lengkap</td>
                                             </tr>
-                                            <tr>
-                                                <td className="px-3 py-2"><code className="font-mono text-[10px] text-[#202744]">{'{baseUrl}'}/business-profiles/{'{userId}'}</code></td>
-                                                <td className="px-3 py-2 font-sans text-xs text-[#69718A]">Data profil bisnis public</td>
+                                            <tr className="transition-colors hover:bg-[#8B6CF6]/[0.035]">
+                                                <td className="px-4 py-3"><code className="font-mono text-[10px] text-[#8B6CF6] bg-[#FAF8F5] px-2 py-0.5 rounded-md border border-[#EAE5DD]">{'{baseUrl}'}/business-profiles/{'{userId}'}</code></td>
+                                                <td className="px-4 py-3 text-xs text-[#69718A]">Data profil bisnis public</td>
                                             </tr>
-                                            <tr>
-                                                <td className="px-3 py-2"><code className="font-mono text-[10px] text-[#202744]">{'{baseUrl}'}/business-projects/public/{'{userId}'}</code></td>
-                                                <td className="px-3 py-2 font-sans text-xs text-[#69718A]">Daftar project bisnis public</td>
+                                            <tr className="transition-colors hover:bg-[#8B6CF6]/[0.035]">
+                                                <td className="px-4 py-3"><code className="font-mono text-[10px] text-[#8B6CF6] bg-[#FAF8F5] px-2 py-0.5 rounded-md border border-[#EAE5DD]">{'{baseUrl}'}/business-projects/public/{'{userId}'}</code></td>
+                                                <td className="px-4 py-3 text-xs text-[#69718A]">Daftar project bisnis public</td>
                                             </tr>
-                                            <tr>
-                                                <td className="px-3 py-2"><code className="font-mono text-[10px] text-[#202744]">{'{baseUrl}'}/business-services/public/{'{userId}'}</code></td>
-                                                <td className="px-3 py-2 font-sans text-xs text-[#69718A]">Daftar layanan bisnis public</td>
+                                            <tr className="transition-colors hover:bg-[#8B6CF6]/[0.035]">
+                                                <td className="px-4 py-3"><code className="font-mono text-[10px] text-[#8B6CF6] bg-[#FAF8F5] px-2 py-0.5 rounded-md border border-[#EAE5DD]">{'{baseUrl}'}/business-services/public/{'{userId}'}</code></td>
+                                                <td className="px-4 py-3 text-xs text-[#69718A]">Daftar layanan bisnis public</td>
                                             </tr>
                                         </tbody>
                                     </table>

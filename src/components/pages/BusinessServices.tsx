@@ -13,15 +13,18 @@ import {
 import type { BusinessService } from '../../types';
 import { Dialog, DialogPanel, DialogTitle, DialogBackdrop } from '@headlessui/react';
 import {
-  Briefcase, Plus, Edit, Trash2, ShieldAlert, Loader2, X,
-  Search
+  Briefcase, Plus, Edit, Trash2, ShieldAlert, Loader2, X
 } from 'lucide-react';
 import { ConfirmDialog } from '../molecules/ConfirmDialog';
 import { EmptyState } from '../molecules/EmptyState';
 import { Badge } from '../atoms/Badge';
 import { Button } from '../atoms/Button';
+import { SearchBar } from '../molecules/SearchBar';
+import { TableActionButton } from '../molecules/Table';
+import { useToast } from '../../hooks/useToast';
 
 export const BusinessServices: React.FC = () => {
+  const { toast } = useToast();
   // Queries
   const { data: services, isLoading, isError, error: fetchError } = useBusinessServices();
   const createMutation = useCreateBusinessService();
@@ -107,20 +110,24 @@ export const BusinessServices: React.FC = () => {
         },
         {
           onSuccess: () => {
+            toast.success(`Service "${name.trim()}" updated successfully.`);
             setIsModalOpen(false);
           },
           onError: (err) => {
-            setError(err.response?.data?.message || err.message || 'Failed to update service.');
+            const msg = err.response?.data?.message || err.message || 'Failed to update service.';
+            setError(typeof msg === 'string' ? msg : 'Failed to update service.');
           },
         }
       );
     } else {
       createMutation.mutate(payload, {
         onSuccess: () => {
+          toast.success(`Service "${name.trim()}" created successfully.`);
           setIsModalOpen(false);
         },
         onError: (err) => {
-          setError(err.response?.data?.message || err.message || 'Failed to create service.');
+          const msg = err.response?.data?.message || err.message || 'Failed to create service.';
+          setError(typeof msg === 'string' ? msg : 'Failed to create service.');
         },
       });
     }
@@ -132,8 +139,17 @@ export const BusinessServices: React.FC = () => {
       title: 'Delete Service Offering',
       message: `Are you sure you want to delete "${svc.name}"? This will remove it from your live business catalog.`,
       onConfirm: () => {
-        deleteMutation.mutate(svc.id);
-        setConfirmState((prev) => ({ ...prev, isOpen: false }));
+        deleteMutation.mutate(svc.id, {
+          onSuccess: () => {
+            toast.success(`Service "${svc.name}" deleted successfully.`);
+            setConfirmState((prev) => ({ ...prev, isOpen: false }));
+          },
+          onError: (err) => {
+            const errMsg = err.response?.data?.message || err.message || 'Failed to delete service.';
+            toast.error(typeof errMsg === 'string' ? errMsg : 'Failed to delete service.');
+            setConfirmState((prev) => ({ ...prev, isOpen: false }));
+          },
+        });
       },
     });
   };
@@ -189,14 +205,11 @@ export const BusinessServices: React.FC = () => {
 
       {/* Search Filter input */}
       {services && services.length > 0 && (
-        <div className="relative max-w-md">
-          <Search className="absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-[#69718A]" />
-          <input
-            type="text"
+        <div className="max-w-md w-full">
+          <SearchBar
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={setSearchQuery}
             placeholder="Search catalog by service name or keyword..."
-            className="w-full rounded-xl border border-[#E5E1DA] bg-[#FAF8F5] py-2 pr-4 pl-10 font-sans text-xs focus:border-[#8B6CF6] focus:bg-white focus:outline-hidden text-[#202744] placeholder-[#69718A] transition-all"
           />
         </div>
       )}
@@ -237,19 +250,19 @@ export const BusinessServices: React.FC = () => {
           {filteredServices.map((svc) => (
             <div
               key={svc.id}
-              className="flex flex-col justify-between rounded-3xl border border-[#EAE5DD] bg-white p-5 shadow-3xs hover:border-[#8B6CF6]/40 hover:shadow-md transition-all duration-200"
+              className="flex flex-col justify-between rounded-2xl border border-[#EAE5DD] bg-white p-5 shadow-3xs hover:border-[#8B6CF6]/40 hover:shadow-xs transition-all duration-200"
             >
               <div>
                 <div className="flex items-start justify-between mb-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#E8E0FF] text-[#8B6CF6] border border-[#D5C6FF]">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#F3EEFF] text-[#8B6CF6] border border-[#E8E0FF]">
                     <Briefcase className="h-5 w-5" />
                   </div>
-                  <Badge variant={svc.isPublic ? 'success' : 'secondary'} size="xs">
+                  <Badge variant={svc.isPublic ? 'success' : 'neutral'} size="xs">
                     {svc.isPublic ? 'Published' : 'Hidden'}
                   </Badge>
                 </div>
 
-                <h3 className="font-sans text-sm font-bold text-[#202744] mb-1.5 leading-snug">
+                <h3 className="font-sans text-sm font-semibold text-[#202744] mb-1.5 leading-snug">
                   {svc.name}
                 </h3>
 
@@ -258,37 +271,35 @@ export const BusinessServices: React.FC = () => {
                     {svc.description}
                   </p>
                 ) : (
-                  <p className="font-sans text-xs text-slate-400 italic mb-4">
+                  <p className="font-sans text-xs text-[#69718A]/60 italic mb-4">
                     No description provided.
                   </p>
                 )}
               </div>
 
-              <div className="border-t border-[#F0EBE3] pt-3 flex items-center justify-between">
+              <div className="border-t border-[#F3EFEA] pt-3 flex items-center justify-between">
                 <div>
-                  <span className="block text-[10px] uppercase font-bold text-[#69718A]">
+                  <span className="block text-[10px] uppercase font-semibold text-[#69718A]">
                     Starting From
                   </span>
-                  <span className="font-mono text-xs font-bold text-[#4697F5]">
+                  <span className="font-sans text-xs font-bold text-[#4697F5]">
                     {formatRupiah(svc.priceStartFrom) || 'Negotiable'}
                   </span>
                 </div>
 
                 <div className="flex items-center space-x-1">
-                  <button
+                  <TableActionButton
+                    icon={<Edit className="h-3.5 w-3.5" />}
+                    label="Edit Service"
+                    variant="default"
                     onClick={() => handleOpenEdit(svc)}
-                    className="p-1.5 text-[#69718A] hover:text-[#8B6CF6] hover:bg-[#FAF8F5] rounded-lg transition cursor-pointer"
-                    title="Edit Service"
-                  >
-                    <Edit className="h-4 w-4" />
-                  </button>
-                  <button
+                  />
+                  <TableActionButton
+                    icon={<Trash2 className="h-3.5 w-3.5" />}
+                    label="Delete Service"
+                    variant="danger"
                     onClick={() => handleDelete(svc)}
-                    className="p-1.5 text-[#69718A] hover:text-red-600 hover:bg-red-50 rounded-lg transition cursor-pointer"
-                    title="Delete Service"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
+                  />
                 </div>
               </div>
             </div>

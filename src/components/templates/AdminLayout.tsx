@@ -3,17 +3,18 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
-import { Outlet, useNavigate } from 'react-router-dom';
+import React, { useState, useRef, useEffect } from 'react';
+import { Outlet, useNavigate, useLocation, Navigate } from 'react-router-dom';
 import { Sidebar } from '../organisms/Sidebar';
-import { AdminSidebar } from '../organisms/AdminSidebar';
 import { useProfile } from '../../hooks/useProfile';
 import { useBusinessProfile } from '../../hooks/useBusinessProfile';
 import type { User } from '../../types';
 import { Role } from '../../types';
-import { Loader2, Globe, Search, Shield } from 'lucide-react';
-import { WorkspaceSwitcher } from '../organisms/WorkspaceSwitcher';
-import { Navigate, useLocation } from 'react-router-dom';
+import {
+  Loader2, Search, Bell, ChevronDown,
+  Shield, LogOut, Settings as SettingsIcon, ExternalLink
+} from 'lucide-react';
+import { clearAccessToken } from '../../lib/auth';
 
 interface AdminLayoutProps {
   currentUser: User;
@@ -26,8 +27,25 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ currentUser }) => {
   const isSuper = currentUser.role === Role.ADMIN;
 
   const [searchVal, setSearchVal] = useState<string>('');
+  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+  const profileMenuRef = useRef<HTMLDivElement>(null);
 
-  // Conditionally fetch profile, and load businessProfile in background for switcher
+  // Close profile dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (profileMenuRef.current && !profileMenuRef.current.contains(event.target as Node)) {
+        setIsProfileMenuOpen(false);
+      }
+    };
+    if (isProfileMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isProfileMenuOpen]);
+
+  // Conditionally fetch profile, and load businessProfile in background
   const { data: profile, isLoading: isLoadingProfile } = useProfile({ enabled: !isBusiness });
   const { data: businessProfile, isLoading: isLoadingBusiness } = useBusinessProfile();
 
@@ -35,15 +53,18 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ currentUser }) => {
 
   if (isLoading) {
     return (
-      <div className="flex h-96 flex-col items-center justify-center text-[#69718A]">
+      <div className="flex h-screen w-full flex-col items-center justify-center text-[#69718A] bg-[#FAF8F5]">
         <Loader2 className="h-8 w-8 animate-spin text-[#8B6CF6] mb-2" />
-        <span className="font-sans text-xs font-semibold">Initializing admin session...</span>
+        <span className="font-sans text-xs font-semibold">Initializing workspace session...</span>
       </div>
     );
   }
 
   // Determine if active workspace profile is incomplete
+  const isActivatingBusiness = location.pathname === '/admin/business/activate';
   const isProfileIncomplete = isSuper
+    ? false
+    : isActivatingBusiness
     ? false
     : isBusiness
     ? !businessProfile || !businessProfile.businessName
@@ -53,7 +74,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ currentUser }) => {
   const targetProfilePath = isBusiness ? '/admin/business/profile' : '/admin/profile';
 
   // Force redirect if incomplete and not already on the profile page
-  if (isProfileIncomplete && location.pathname !== targetProfilePath) {
+  if (isProfileIncomplete && location.pathname !== targetProfilePath && !isActivatingBusiness) {
     return <Navigate to={targetProfilePath} replace />;
   }
 
@@ -65,117 +86,182 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ currentUser }) => {
     return <Outlet />;
   }
 
-  // ═══════════════════════════════════════════════════════════════════
-  // SUPER_ADMIN (When on superadmin routes or overview)
-  // ═══════════════════════════════════════════════════════════════════
-  if (isSuper && !location.pathname.includes('/business')) {
-    return (
-      <div className="flex h-screen w-full bg-[#FAF8F5] text-[#202744] font-sans overflow-hidden">
-        {/* Fixed Left Admin Sidebar */}
-        <aside className="hidden lg:flex w-[260px] shrink-0">
-          <AdminSidebar currentUser={currentUser} />
-        </aside>
+  // Derive breadcrumbs based on pathname
+  const getBreadcrumb = () => {
+    const path = location.pathname;
+    const isSuperAdminSection =
+      isSuper &&
+      (path.includes('/users') ||
+        path.includes('/templates') ||
+        path.includes('/diagnostics') ||
+        (path === '/admin/dashboard' && isSuper));
 
-        {/* Main Content Area */}
-        <main className="flex-1 overflow-y-auto bg-[#FAF8F5] relative p-6 lg:p-10">
-          <div className="mx-auto max-w-7xl">
+    const workspacePrefix = isBusiness
+      ? 'Business workspace'
+      : isSuperAdminSection
+      ? 'Superadmin Console'
+      : 'Personal workspace';
+
+    if (path.includes('/projects')) return `${workspacePrefix} / Projects`;
+    if (path.includes('/experiences')) return `${workspacePrefix} / Experiences`;
+    if (path.includes('/dashboard')) return `${workspacePrefix} / Overview`;
+    if (path.includes('/profile')) return `${workspacePrefix} / My profile`;
+    if (path.includes('/services')) return `${workspacePrefix} / Commercial Services`;
+    if (path.includes('/templates')) return `${workspacePrefix} / Theme Templates`;
+    if (path.includes('/users')) return `${workspacePrefix} / User Directory`;
+    if (path.includes('/diagnostics')) return `${workspacePrefix} / System Diagnostics`;
+    return `${workspacePrefix} / Dashboard`;
+  };
+
+  const publicPortfolioUrl = `/portfolio/${currentUser.id}`;
+  const displayName = isBusiness
+    ? businessProfile?.businessName || profile?.fullName || 'Creator'
+    : profile?.fullName || currentUser.email.split('@')[0] || 'Personal';
+
+  const userAvatar = profile?.profileImage || currentUser.profile?.profileImage;
+
+  const handleLogout = () => {
+    clearAccessToken();
+    navigate('/login');
+  };
+
+  return (
+    <div className="flex h-screen w-full bg-[#FAF8F5] text-[#202744] font-sans overflow-hidden">
+      {/* ─── Fixed Left Sidebar ─── */}
+      <Sidebar
+        currentUser={currentUser}
+        profile={profile || undefined}
+        businessProfile={businessProfile || undefined}
+        isProfileIncomplete={isProfileIncomplete}
+      />
+
+      {/* ─── Main Column: Top Navbar + Scrollable Content ─── */}
+      <div className="flex-1 flex flex-col h-full overflow-hidden min-w-0">
+        {/* Top Navbar */}
+        <header className="h-16 shrink-0 border-b border-[#EAE5DD] bg-white px-6 sm:px-8 flex items-center justify-between z-20">
+          {/* Left: Breadcrumbs */}
+          <div className="flex items-center space-x-2 text-xs sm:text-sm font-medium text-[#69718A]">
+            <span>{getBreadcrumb()}</span>
+          </div>
+
+          {/* Center: Search Bar with ⌘ K */}
+          <div className="relative max-w-md lg:max-w-lg w-full mx-6 hidden md:block">
+            <Search className="absolute top-1/2 left-3.5 h-3.5 w-3.5 -translate-y-1/2 text-[#8A90A2]" />
+            <input
+              type="text"
+              value={searchVal}
+              onChange={(e) => setSearchVal(e.target.value)}
+              placeholder="Search anything..."
+              className="w-full rounded-2xl border border-[#EAE5DD] bg-white py-2 pl-9 pr-12 font-sans text-xs text-[#202744] placeholder:text-[#8A90A2] focus:border-[#8B6CF6] focus:outline-hidden transition-all shadow-3xs"
+            />
+            <span className="absolute top-1/2 right-3 -translate-y-1/2 font-mono text-[11px] text-[#8A90A2] select-none">
+              ⌘ K
+            </span>
+          </div>
+
+          {/* Right: Notification Bell & Profile Avatar */}
+          <div className="flex items-center space-x-3 shrink-0">
+            {/* Notification Bell */}
+            <button
+              type="button"
+              className="p-2 rounded-xl text-[#69718A] hover:text-[#202744] hover:bg-[#FAF8F5] transition cursor-pointer"
+              title="Notifications"
+            >
+              <Bell className="h-4 w-4" />
+            </button>
+
+            {/* Profile Avatar Dropdown */}
+            <div className="relative" ref={profileMenuRef}>
+              <button
+                type="button"
+                onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
+                className="flex items-center space-x-1.5 rounded-full p-1 hover:bg-[#FAF8F5] transition cursor-pointer"
+              >
+                {userAvatar ? (
+                  <img
+                    src={userAvatar}
+                    alt={displayName}
+                    referrerPolicy="no-referrer"
+                    className="h-8 w-8 rounded-full object-cover border border-[#EAE5DD]"
+                  />
+                ) : (
+                  <div className="h-8 w-8 rounded-full bg-[#E8E0FF] text-[#8B6CF6] font-bold text-xs flex items-center justify-center border border-[#D5C6FF]">
+                    {displayName.slice(0, 2).toUpperCase()}
+                  </div>
+                )}
+                <ChevronDown
+                  className={`h-3.5 w-3.5 text-[#69718A] transition-transform ${
+                    isProfileMenuOpen ? 'rotate-180' : ''
+                  }`}
+                />
+              </button>
+
+              {/* Profile Dropdown Menu */}
+              {isProfileMenuOpen && (
+                <div className="absolute right-0 mt-2 w-56 rounded-2xl bg-white border border-[#EAE5DD] shadow-xl p-1.5 space-y-1 animate-in fade-in-50 zoom-in-95 duration-150 z-50">
+                  <div className="px-3 py-2 border-b border-[#F3EFEA]">
+                    <p className="font-sans font-bold text-xs text-[#202744] truncate">{displayName}</p>
+                    <p className="font-sans text-[11px] text-[#8A90A2] truncate">{currentUser.email}</p>
+                  </div>
+
+                  <a
+                    href={publicPortfolioUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center space-x-2 px-3 py-2 text-xs font-medium text-[#202744] hover:bg-[#FAF8F5] rounded-xl transition"
+                  >
+                    <ExternalLink className="h-3.5 w-3.5 text-[#8B6CF6]" />
+                    <span>View Public Portfolio</span>
+                  </a>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsProfileMenuOpen(false);
+                      navigate(isBusiness ? '/admin/business/profile' : '/admin/profile');
+                    }}
+                    className="w-full flex items-center space-x-2 px-3 py-2 text-xs font-medium text-[#202744] hover:bg-[#FAF8F5] rounded-xl transition text-left cursor-pointer"
+                  >
+                    <SettingsIcon className="h-3.5 w-3.5 text-[#69718A]" />
+                    <span>Profile Settings</span>
+                  </button>
+
+                  {isSuper && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsProfileMenuOpen(false);
+                        navigate('/admin/dashboard');
+                      }}
+                      className="w-full flex items-center space-x-2 px-3 py-2 text-xs font-bold text-[#8B6CF6] hover:bg-[#F3EEFF] rounded-xl transition text-left cursor-pointer"
+                    >
+                      <Shield className="h-3.5 w-3.5" />
+                      <span>Superadmin Console</span>
+                    </button>
+                  )}
+
+                  <div className="border-t border-[#F3EFEA] pt-1">
+                    <button
+                      type="button"
+                      onClick={handleLogout}
+                      className="w-full flex items-center space-x-2 px-3 py-2 text-xs font-semibold text-rose-600 hover:bg-rose-50 rounded-xl transition text-left cursor-pointer"
+                    >
+                      <LogOut className="h-3.5 w-3.5" />
+                      <span>Sign Out</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </header>
+
+        {/* ─── Scrollable Main Content View ─── */}
+        <main className="flex-1 overflow-y-auto bg-[#FAF8F5] p-6 lg:p-8">
+          <div className="mx-auto max-w-[1340px]">
             <Outlet />
           </div>
         </main>
-      </div>
-    );
-  }
-
-  // ═══════════════════════════════════════════════════════════════════
-  // USER & BUSINESS WORKSPACE
-  // ═══════════════════════════════════════════════════════════════════
-  const publicPortfolioUrl = `/portfolio/${currentUser.id}`;
-
-  return (
-    <div className="min-h-screen bg-[#FAF8F5] text-[#202744] font-sans flex flex-col">
-      {/* ─── Top Workspace Bar ─── */}
-      <header className="sticky top-0 z-40 w-full border-b border-[#EAE5DD] bg-white/95 backdrop-blur-md px-4 sm:px-6 lg:px-8 py-2.5 shadow-3xs">
-        <div className="mx-auto max-w-7xl flex flex-wrap items-center justify-between gap-3">
-          {/* Left/Center: Workspace Switcher Dropdown */}
-          <WorkspaceSwitcher
-            currentUser={{
-              name: profile?.fullName || businessProfile?.businessName || currentUser.email,
-              email: currentUser.email,
-              hasProfile: !!profile,
-              hasBusinessProfile:
-                !!currentUser.businessProfile ||
-                !!businessProfile ||
-                localStorage.getItem('has_business_profile') === 'true',
-            }}
-            currentWorkspace={isBusiness ? 'BUSINESS' : 'PERSONAL'}
-          />
-
-          {/* Right Action Controls */}
-          <div className="flex items-center space-x-2.5 sm:space-x-3">
-            {/* Quick Find Search */}
-            <div className="relative hidden md:block">
-              <Search className="absolute top-1/2 left-3 h-3.5 w-3.5 -translate-y-1/2 text-[#69718A]" />
-              <input
-                type="text"
-                value={searchVal}
-                onChange={(e) => setSearchVal(e.target.value)}
-                placeholder="Quick Find... ⌘K"
-                className="rounded-xl border border-[#E5E1DA] bg-[#FAF8F5] py-1.5 pr-3 pl-8 font-sans text-xs text-[#202744] placeholder-[#69718A] focus:border-[#8B6CF6] focus:bg-white focus:outline-hidden transition-all"
-              />
-            </div>
-
-            {/* Superadmin shortcut button if admin */}
-            {isSuper && (
-              <button
-                onClick={() => navigate('/admin/dashboard')}
-                className="flex items-center space-x-1.5 rounded-full border border-[#D5C6FF] bg-[#E8E0FF] px-3.5 py-1.5 font-sans text-xs font-bold text-[#5533CC] hover:bg-[#DCD0FF] transition cursor-pointer"
-                title="Open Superadmin Console"
-              >
-                <Shield className="h-3 w-3 text-[#8B6CF6]" />
-                <span>Superadmin</span>
-              </button>
-            )}
-
-            {/* View Live Site */}
-            <a
-              href={publicPortfolioUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center space-x-1.5 rounded-full bg-[#8B6CF6] hover:bg-[#7A56F4] px-4 py-1.5 font-sans text-xs font-bold text-white transition active:scale-95 shadow-xs"
-            >
-              <Globe className="h-3.5 w-3.5" />
-              <span>View Live Site</span>
-            </a>
-
-            {/* Exit Link */}
-            <button
-              onClick={() => navigate('/')}
-              className="font-sans text-xs font-semibold text-[#69718A] hover:text-[#202744] transition px-2 py-1 cursor-pointer"
-            >
-              Exit
-            </button>
-          </div>
-        </div>
-      </header>
-
-      {/* ─── Main Workspace Grid ─── */}
-      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 flex-1 w-full">
-        <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
-          {/* SIDEBAR COLUMN */}
-          <div className="lg:col-span-3 space-y-6">
-            <Sidebar
-              currentUser={currentUser}
-              profile={profile || undefined}
-              businessProfile={businessProfile || undefined}
-              isProfileIncomplete={isProfileIncomplete}
-            />
-          </div>
-
-          {/* MAIN VIEW OUTLET COLUMN */}
-          <div className="lg:col-span-9 rounded-3xl border border-[#EAE5DD] bg-white p-6 lg:p-8 shadow-sm min-h-[580px]">
-            <Outlet />
-          </div>
-        </div>
       </div>
     </div>
   );

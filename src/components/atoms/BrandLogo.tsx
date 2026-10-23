@@ -11,6 +11,7 @@ interface BrandLogoProps {
   variant?: 'full' | 'icon' | 'wordmark';
   theme?: 'light' | 'dark' | 'auto';
   showTagline?: boolean;
+  monochromeWordmark?: boolean;
   className?: string;
   to?: string;
 }
@@ -83,6 +84,7 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({
   variant = 'full',
   theme = 'auto',
   showTagline = false,
+  monochromeWordmark = false,
   className = '',
   to,
 }) => {
@@ -134,7 +136,13 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({
               className={`font-sans ${textStyleMap[size]} ${textColor} transition-colors`}
               style={{ fontFamily: '"Plus Jakarta Sans", "Outfit", sans-serif' }}
             >
-              folio<span className="text-[#8B6CF6]">walaweh</span>
+              {monochromeWordmark ? (
+                'foliowalaweh'
+              ) : (
+                <>
+                  folio<span className="text-[#8B6CF6]">walaweh</span>
+                </>
+              )}
             </span>
           </div>
 

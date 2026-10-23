@@ -23,10 +23,34 @@ import { getSessionPayload } from '../../lib/auth';
 import { Dialog, DialogPanel, DialogTitle, DialogBackdrop, Listbox, ListboxButton, ListboxOptions, ListboxOption } from '@headlessui/react';
 import {
     FolderGit2, Search, Plus, Edit, Trash2, Globe, Github, ShieldAlert,
-    Code2, Info, Grid, List, Loader2, Camera, X, ImageIcon, PlusCircle, Eye, ChevronDown, Check
+    Info, List, Loader2, Camera, X, ImageIcon, PlusCircle, Eye, ChevronDown, Check,
+    MoreHorizontal, ExternalLink, Pencil, Star, LayoutGrid
 } from 'lucide-react';
 import { ConfirmDialog } from '../molecules/ConfirmDialog';
 import { TagsInput } from '../atoms/TagsInput';
+import { Badge } from '../atoms/Badge';
+import {
+    TableContainer, Table, TableHeader, TableHead,
+    TableBody, TableRow, TableCell, TableActionButton
+} from '../molecules/Table';
+import { Pagination } from '../molecules/Pagination';
+import { DeviceMockupIllustration, type DeviceMockupTheme } from '../molecules/DeviceMockupIllustration';
+
+const ProjectCardThumbnail: React.FC<{ thumbnail?: string | null; title: string; theme: DeviceMockupTheme }> = ({ thumbnail, title, theme }) => {
+    const [hasError, setHasError] = useState(false);
+    if (!thumbnail || !thumbnail.trim() || hasError) {
+        return <DeviceMockupIllustration theme={theme} />;
+    }
+    return (
+        <img
+            src={thumbnail}
+            alt={title}
+            referrerPolicy="no-referrer"
+            onError={() => setHasError(true)}
+            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-102"
+        />
+    );
+};
 
 export const AdminProjects: React.FC = () => {
     const navigate = useNavigate();
@@ -36,6 +60,11 @@ export const AdminProjects: React.FC = () => {
     const [typeFilter, setTypeFilter] = useState<string>('all');
     const [developerFilter, setDeveloperFilter] = useState<string>('all');
     const [publicFilter, setPublicFilter] = useState<string>('all');
+    const [categoryFilter, setCategoryFilter] = useState<string>('all');
+    const [quickFilter, setQuickFilter] = useState<'all' | 'public' | 'private' | 'draft'>('all');
+    const [sortBy, setSortBy] = useState<'recent' | 'name' | 'oldest'>('recent');
+    const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
+    const [currentTime, setCurrentTime] = useState<string>('10:42');
 
     // View switch and Pagination state
     const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
@@ -67,7 +96,27 @@ export const AdminProjects: React.FC = () => {
     // Reset pagination on filter parameter change
     useEffect(() => {
         setCurrentPage(1);
-    }, [searchQuery, typeFilter, developerFilter, publicFilter]);
+    }, [searchQuery, typeFilter, developerFilter, publicFilter, categoryFilter, quickFilter, sortBy]);
+
+    // Live clock for footer "All changes saved · {time}"
+    useEffect(() => {
+        const updateTime = () => {
+            const now = new Date();
+            setCurrentTime(now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }));
+        };
+        updateTime();
+        const timer = setInterval(updateTime, 60000);
+        return () => clearInterval(timer);
+    }, []);
+
+    // Dismiss card options popup menu on window click
+    useEffect(() => {
+        const handleClickOutside = () => setActiveMenuId(null);
+        if (activeMenuId) {
+            window.addEventListener('click', handleClickOutside);
+        }
+        return () => window.removeEventListener('click', handleClickOutside);
+    }, [activeMenuId]);
 
     // Fetch users list for Super Admin dropdown filter
     const { data: usersData } = useUsers(
@@ -342,29 +391,96 @@ export const AdminProjects: React.FC = () => {
         });
     };
 
-    // Filter projects client-side for public Filter
+    // Helper to resolve clean display category for mockup cards
+    const getProjectCategory = (proj: Project): string => {
+        if (proj.role) {
+            const r = proj.role.toUpperCase();
+            if (r.includes('DESIGN') || r.includes('UI') || r.includes('UX')) return 'UI / UX DESIGN';
+            if (r.includes('FRONT') || r.includes('WEB') || r.includes('FULL') || r.includes('DEV')) return 'WEB DEVELOPMENT';
+            if (r.includes('BRAND')) return 'BRANDING';
+            if (r.includes('PRODUCT')) return 'PRODUCT DESIGN';
+            return proj.role.toUpperCase();
+        }
+        if (proj.type === ProjectType.WORK) return 'WEB DEVELOPMENT';
+        if (proj.techStacks && proj.techStacks.length > 0) {
+            const first = proj.techStacks[0].toLowerCase();
+            if (first.includes('figma') || first.includes('design')) return 'PRODUCT DESIGN';
+            if (first.includes('react') || first.includes('next') || first.includes('web') || first.includes('vue')) return 'WEB DEVELOPMENT';
+            if (first.includes('brand') || first.includes('logo')) return 'BRANDING';
+        }
+        return 'PERSONAL PROJECT';
+    };
+
+    // Helper to deterministically pick mockup theme
+    const getMockupTheme = (index: number, id: string): DeviceMockupTheme => {
+        const themes: DeviceMockupTheme[] = ['violet', 'blue', 'warm', 'dark'];
+        const charCode = id ? id.charCodeAt(id.length - 1) : index;
+        return themes[(index + charCode) % themes.length];
+    };
+
+    // Project counts for tab pills
+    const allCount = projectsList.length;
+    const publicCount = useMemo(() => projectsList.filter(p => p.isPublic).length, [projectsList]);
+    const privateCount = useMemo(() => projectsList.filter(p => !p.isPublic && (p.projectUrl || p.githubUrl)).length, [projectsList]);
+    const draftCount = useMemo(() => projectsList.filter(p => !p.isPublic && (!p.projectUrl && !p.githubUrl)).length, [projectsList]);
+
+    // Filter projects client-side
     const filteredProjects = useMemo(() => {
         return projectsList.filter(proj => {
-            // Apply public status filter
-            const matchPublic = publicFilter === 'all' ||
-                (publicFilter === 'public' && proj.isPublic) ||
-                (publicFilter === 'private' && !proj.isPublic);
+            // Quick tab filter: all | public | private | draft
+            if (quickFilter === 'public' && !proj.isPublic) return false;
+            if (quickFilter === 'private' && (proj.isPublic || (!proj.projectUrl && !proj.githubUrl && draftCount > 0))) return false;
+            if (quickFilter === 'draft' && (proj.isPublic || (proj.projectUrl || proj.githubUrl))) return false;
 
-            if (isSuper) {
-                return matchPublic;
+            // Visibility dropdown filter
+            if (publicFilter === 'public' && !proj.isPublic) return false;
+            if (publicFilter === 'private' && proj.isPublic) return false;
+
+            // Category filter
+            if (categoryFilter !== 'all') {
+                const cat = getProjectCategory(proj).toLowerCase().replace(/[^a-z]/g, '');
+                const target = categoryFilter.toLowerCase().replace(/[^a-z]/g, '');
+                if (!cat.includes(target) && !proj.techStacks.some(t => t.toLowerCase().replace(/[^a-z]/g, '').includes(target))) {
+                    return false;
+                }
             }
 
-            // Regular user client-side search query
-            const matchSearch = !searchQuery ||
-                proj.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                (proj.description && proj.description.toLowerCase().includes(searchQuery.toLowerCase())) ||
-                proj.techStacks.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
+            // Type filter
+            if (typeFilter !== 'all' && proj.type !== typeFilter) {
+                return false;
+            }
 
-            const matchType = typeFilter === 'all' || proj.type === typeFilter;
+            // Developer filter (Super Admin)
+            if (isSuper && developerFilter !== 'all' && proj.userId !== developerFilter) {
+                return false;
+            }
 
-            return matchSearch && matchType && matchPublic;
+            // Regular search query
+            if (debouncedSearch.trim()) {
+                const q = debouncedSearch.toLowerCase();
+                const matchTitle = proj.title.toLowerCase().includes(q);
+                const matchDesc = proj.description?.toLowerCase().includes(q);
+                const matchStack = proj.techStacks.some(tag => tag.toLowerCase().includes(q));
+                const matchRole = proj.role?.toLowerCase().includes(q);
+                if (!matchTitle && !matchDesc && !matchStack && !matchRole) return false;
+            }
+
+            return true;
+        }).sort((a, b) => {
+            if (sortBy === 'name') {
+                return a.title.localeCompare(b.title);
+            }
+            if (sortBy === 'oldest') {
+                const dateA = new Date(a.createdAt || 0).getTime();
+                const dateB = new Date(b.createdAt || 0).getTime();
+                return dateA - dateB;
+            }
+            // Default: 'recent'
+            const dateA = new Date(a.updatedAt || a.createdAt || 0).getTime();
+            const dateB = new Date(b.updatedAt || b.createdAt || 0).getTime();
+            return dateB - dateA;
         });
-    }, [projectsList, isSuper, searchQuery, typeFilter, publicFilter]);
+    }, [projectsList, isSuper, quickFilter, publicFilter, categoryFilter, developerFilter, debouncedSearch, sortBy, draftCount]);
 
     const totalPages = Math.ceil(filteredProjects.length / ITEMS_PER_PAGE);
     const activePage = Math.max(1, Math.min(currentPage, totalPages || 1));
@@ -375,15 +491,37 @@ export const AdminProjects: React.FC = () => {
         return `Creator: ${selectedDevUser?.profile?.fullName || selectedDevUser?.email || developerFilter}`;
     }, [developerFilter, selectedDevUser]);
 
-    const typeFilterLabel = useMemo(() => {
-        if (typeFilter === 'all') return 'Types: All Projects';
-        return typeFilter === 'PERSONAL' ? 'Types: 📍 Personal' : 'Types: 💼 Work Products';
-    }, [typeFilter]);
+    const categoryFilterLabel = useMemo(() => {
+        switch (categoryFilter) {
+            case 'product_design': return 'Product design';
+            case 'ui_ux': return 'UI / UX design';
+            case 'web_dev': return 'Web development';
+            case 'branding': return 'Branding';
+            case 'personal': return 'Personal project';
+            default: return 'All categories';
+        }
+    }, [categoryFilter]);
 
     const publicFilterLabel = useMemo(() => {
-        if (publicFilter === 'all') return 'Status: All Records';
-        return publicFilter === 'public' ? 'Status: 🌐 Published' : 'Status: 🔒 Hidden';
+        if (publicFilter === 'all') return 'All visibility';
+        return publicFilter === 'public' ? 'Public' : 'Private';
     }, [publicFilter]);
+
+    const typeFilterLabel = useMemo(() => {
+        switch (typeFilter) {
+            case 'WORK': return 'Type: Work';
+            case 'PERSONAL': return 'Type: Personal';
+            case 'FREELANCE': return 'Type: Freelance';
+            case 'OPEN_SOURCE': return 'Type: Open Source';
+            default: return 'All types';
+        }
+    }, [typeFilter]);
+
+    const sortLabel = useMemo(() => {
+        if (sortBy === 'name') return 'Sort: Name (A-Z)';
+        if (sortBy === 'oldest') return 'Sort: Oldest first';
+        return 'Sort: Recently updated';
+    }, [sortBy]);
 
     if (!currentUser) {
         return (
@@ -396,276 +534,266 @@ export const AdminProjects: React.FC = () => {
 
     return (
         <div className="space-y-6 admin-page-enter">
-            {/* Self-contained header display */}
-            <div className="mb-6">
-                <h2 className="font-sans text-2xl font-extrabold tracking-tight text-[#202744]">
-                    {isSuper ? 'Project Audit' : 'My Project Repositories'}
-                </h2>
-                <p className="font-sans text-sm text-[#69718A] mt-1">
-                    {isSuper ? 'Audit, filter, and inspect project portfolios submitted by all platform users.' : 'Document your open-source projects, link relevant jobs, and customize stack tags.'}
-                </p>
+            {/* ─── Top Header Section ─── */}
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                    <span className="block text-[11px] font-bold uppercase tracking-wider text-[#8B6CF6] mb-1">
+                        PERSONAL WORKSPACE
+                    </span>
+                    <h1 className="font-sans text-2xl sm:text-3xl font-extrabold tracking-tight text-[#202744]">
+                        {isSuper ? 'Project repositories audit' : 'My project repositories'}
+                    </h1>
+                    <p className="font-sans text-xs sm:text-sm text-[#69718A] mt-1">
+                        {isSuper
+                            ? 'Audit, filter, and inspect project repositories submitted by all platform users.'
+                            : 'Thoughtful work, carefully collected. Choose what the world gets to see.'}
+                    </p>
+                </div>
+
+                {!isSuper && (
+                    <button
+                        id="create-new-project-btn"
+                        onClick={handleOpenCreate}
+                        className="flex items-center space-x-2 rounded-xl bg-[#8B6CF6] hover:bg-[#7857ED] text-white px-5 py-2.5 font-sans text-xs font-bold shadow-xs transition cursor-pointer active:scale-95 shrink-0"
+                    >
+                        <Plus className="h-4 w-4" />
+                        <span>Add project</span>
+                    </button>
+                )}
             </div>
 
-            {/* Superadmin Information Banner */}
+            {/* Superadmin System Banner */}
             {isSuper && (
                 <div className="flex items-center space-x-2.5 rounded-2xl border border-[#4697F5]/20 bg-[#4697F5]/5 px-4 py-3 text-xs text-[#202744]">
                     <Info className="h-4 w-4 shrink-0 text-[#4697F5]" />
                     <p className="font-sans font-medium leading-relaxed">
-                        <strong>System Privilege: Read Only Sandbox</strong>. You are logged as a <strong>Super Administrator</strong>. Project files can only be created or modified by their respective creative owners.
+                        <strong>System Privilege: Read Only Sandbox</strong>. You are logged as a <strong>Super Administrator</strong>.
                     </p>
                 </div>
             )}
 
-            {/* Control panel & Filter suite */}
-            <div className="flex flex-col gap-4 border-b border-[#EAE5DD] pb-5">
-                <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+            {/* ─── Toolbar Row: Search, Categories, Visibility, View Toggle ─── */}
+            <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+                {/* Search Bar with ⌘ K */}
+                <div className="relative flex-1 max-w-xl">
+                    <Search className="absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-[#8A90A2]" />
+                    <input
+                        id="project-search"
+                        type="text"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        placeholder="Find a project, technology, or idea..."
+                        className="w-full rounded-xl border border-[#EAE5DD] bg-white py-2.5 pl-10 pr-12 font-sans text-xs text-[#202744] placeholder:text-[#8A90A2] focus:border-[#8B6CF6] focus:outline-hidden shadow-3xs transition"
+                    />
+                    <span className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 rounded-md bg-[#FAF8F5] border border-[#EAE5DD] px-1.5 py-0.5 font-mono text-[10px] text-[#8A90A2] select-none">
+                        ⌘ K
+                    </span>
+                </div>
 
-                    {/* Query search */}
-                    <div className="relative flex-1 max-w-md">
-                        <Search className="absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-[#69718A]" />
-                        <input
-                            id="project-search"
-                            type="text"
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            placeholder="Filter by title, keywords, or tech stack..."
-                            className="w-full rounded-xl border border-[#EAE5DD] bg-white py-2.5 pr-4 pl-10 font-sans text-xs text-[#202744] focus:border-[#8B6CF6] focus:outline-hidden focus:ring-2 focus:ring-[#8B6CF6]/20 shadow-xs"
-                        />
-                    </div>
-
-                    <div className="flex flex-wrap items-center gap-2">
-                        {/* Developer Filter (Super admin only) */}
-                        {isSuper && (
-                            <Listbox value={developerFilter} onChange={setDeveloperFilter}>
-                                <div className="relative">
-                                    <ListboxButton
-                                        id="proj-developer-select"
-                                        className="relative rounded-xl border border-[#EAE5DD] bg-white py-2.5 pr-9 pl-3.5 text-left font-sans text-xs focus:border-[#8B6CF6] focus:outline-hidden text-[#202744] cursor-pointer min-w-[160px] shadow-xs"
+                {/* Right Filter Actions */}
+                <div className="flex flex-wrap items-center gap-2">
+                    {/* Superadmin Developer Select */}
+                    {isSuper && (
+                        <Listbox value={developerFilter} onChange={setDeveloperFilter}>
+                            <div className="relative">
+                                <ListboxButton
+                                    id="proj-developer-select"
+                                    className="relative rounded-xl border border-[#EAE5DD] bg-white py-2.5 pr-8 pl-3.5 text-left font-sans text-xs focus:border-[#8B6CF6] focus:outline-hidden text-[#202744] cursor-pointer min-w-[140px] shadow-3xs flex items-center justify-between"
+                                >
+                                    <span className="block truncate font-semibold">{developerFilterLabel}</span>
+                                    <ChevronDown className="h-3.5 w-3.5 text-[#8A90A2] shrink-0 ml-1.5" />
+                                </ListboxButton>
+                                <ListboxOptions className="absolute right-0 z-30 mt-1 max-h-60 w-52 overflow-auto rounded-xl bg-white py-1 text-xs shadow-lg ring-1 ring-black/5 focus:outline-hidden font-sans border border-[#EAE5DD]">
+                                    <ListboxOption
+                                        value="all"
+                                        className="relative cursor-pointer select-none py-2 pr-8 pl-3.5 text-[#202744] data-[focus]:bg-[#FAF8F5]"
                                     >
-                                        <span className="block truncate font-medium">{developerFilterLabel}</span>
-                                        <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2.5">
-                                            <ChevronDown className="h-3.5 w-3.5 text-[#69718A]" />
-                                        </span>
-                                    </ListboxButton>
-                                    <ListboxOptions className="absolute z-30 mt-1 max-h-60 w-56 overflow-auto rounded-xl bg-white py-1 text-xs shadow-lg ring-1 ring-black/5 focus:outline-hidden font-sans border border-[#EAE5DD]">
+                                        Creators: All Users
+                                    </ListboxOption>
+                                    {usersList.filter(u => u.role !== Role.ADMIN).map(u => (
                                         <ListboxOption
-                                            value="all"
+                                            key={u.id}
+                                            value={u.id}
                                             className="relative cursor-pointer select-none py-2 pr-8 pl-3.5 text-[#202744] data-[focus]:bg-[#FAF8F5]"
                                         >
-                                            {({ selected }) => (
-                                                <>
-                                                    <span className={`block truncate ${selected ? 'font-bold text-[#8B6CF6]' : 'font-normal'}`}>
-                                                        Creators: All Users
-                                                    </span>
-                                                    {selected && (
-                                                        <span className="absolute inset-y-0 right-0 flex items-center pr-2.5 text-[#8B6CF6]">
-                                                            <Check className="h-3.5 w-3.5" />
-                                                        </span>
-                                                    )}
-                                                </>
-                                            )}
+                                            {u.profile?.fullName || u.email}
                                         </ListboxOption>
-                                        {usersList.filter(u => u.role !== Role.ADMIN).map(u => (
-                                            <ListboxOption
-                                                key={u.id}
-                                                value={u.id}
-                                                className="relative cursor-pointer select-none py-2 pr-8 pl-3.5 text-[#202744] data-[focus]:bg-[#FAF8F5]"
-                                            >
-                                                {({ selected }) => (
-                                                    <>
-                                                        <span className={`block truncate ${selected ? 'font-bold text-[#8B6CF6]' : 'font-normal'}`}>
-                                                            {u.profile?.fullName || u.email}
-                                                        </span>
-                                                        {selected && (
-                                                            <span className="absolute inset-y-0 right-0 flex items-center pr-2.5 text-[#8B6CF6]">
-                                                                <Check className="h-3.5 w-3.5" />
-                                                            </span>
-                                                        )}
-                                                    </>
-                                                )}
-                                            </ListboxOption>
-                                        ))}
-                                    </ListboxOptions>
-                                </div>
-                            </Listbox>
-                        )}
-
-                        {/* Type constraint */}
-                        <Listbox value={typeFilter} onChange={setTypeFilter}>
-                            <div className="relative">
-                                <ListboxButton
-                                    id="proj-type-select"
-                                    className="relative rounded-xl border border-[#EAE5DD] bg-white py-2.5 pr-9 pl-3.5 text-left font-sans text-xs focus:border-[#8B6CF6] focus:outline-hidden text-[#202744] cursor-pointer min-w-[150px] shadow-xs"
-                                >
-                                    <span className="block truncate font-medium">{typeFilterLabel}</span>
-                                    <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2.5">
-                                        <ChevronDown className="h-3.5 w-3.5 text-[#69718A]" />
-                                    </span>
-                                </ListboxButton>
-                                <ListboxOptions className="absolute z-30 mt-1 max-h-60 w-44 overflow-auto rounded-xl bg-white py-1 text-xs shadow-lg ring-1 ring-black/5 focus:outline-hidden font-sans border border-[#EAE5DD]">
-                                    <ListboxOption
-                                        value="all"
-                                        className="relative cursor-pointer select-none py-2 pr-8 pl-3.5 text-[#202744] data-[focus]:bg-[#FAF8F5]"
-                                    >
-                                        {({ selected }) => (
-                                            <>
-                                                <span className={`block truncate ${selected ? 'font-bold text-[#8B6CF6]' : 'font-normal'}`}>
-                                                    Types: All Projects
-                                                </span>
-                                                {selected && (
-                                                    <span className="absolute inset-y-0 right-0 flex items-center pr-2.5 text-[#8B6CF6]">
-                                                        <Check className="h-3.5 w-3.5" />
-                                                    </span>
-                                                )}
-                                            </>
-                                        )}
-                                    </ListboxOption>
-                                    <ListboxOption
-                                        value="PERSONAL"
-                                        className="relative cursor-pointer select-none py-2 pr-8 pl-3.5 text-[#202744] data-[focus]:bg-[#FAF8F5]"
-                                    >
-                                        {({ selected }) => (
-                                            <>
-                                                <span className={`block truncate ${selected ? 'font-bold text-[#8B6CF6]' : 'font-normal'}`}>
-                                                    📍 Personal
-                                                </span>
-                                                {selected && (
-                                                    <span className="absolute inset-y-0 right-0 flex items-center pr-2.5 text-[#8B6CF6]">
-                                                        <Check className="h-3.5 w-3.5" />
-                                                    </span>
-                                                )}
-                                            </>
-                                        )}
-                                    </ListboxOption>
-                                    <ListboxOption
-                                        value="WORK"
-                                        className="relative cursor-pointer select-none py-2 pr-8 pl-3.5 text-[#202744] data-[focus]:bg-[#FAF8F5]"
-                                    >
-                                        {({ selected }) => (
-                                            <>
-                                                <span className={`block truncate ${selected ? 'font-bold text-[#8B6CF6]' : 'font-normal'}`}>
-                                                    💼 Work Products
-                                                </span>
-                                                {selected && (
-                                                    <span className="absolute inset-y-0 right-0 flex items-center pr-2.5 text-[#8B6CF6]">
-                                                        <Check className="h-3.5 w-3.5" />
-                                                    </span>
-                                                )}
-                                            </>
-                                        )}
-                                    </ListboxOption>
+                                    ))}
                                 </ListboxOptions>
                             </div>
                         </Listbox>
+                    )}
 
-                        {/* Public status */}
-                        <Listbox value={publicFilter} onChange={setPublicFilter}>
-                            <div className="relative">
-                                <ListboxButton
-                                    id="proj-public-select"
-                                    className="relative rounded-xl border border-[#EAE5DD] bg-white py-2.5 pr-9 pl-3.5 text-left font-sans text-xs focus:border-[#8B6CF6] focus:outline-hidden text-[#202744] cursor-pointer min-w-[140px] shadow-xs"
-                                >
-                                    <span className="block truncate font-medium">{publicFilterLabel}</span>
-                                    <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2.5">
-                                        <ChevronDown className="h-3.5 w-3.5 text-[#69718A]" />
-                                    </span>
-                                </ListboxButton>
-                                <ListboxOptions className="absolute z-30 mt-1 max-h-60 w-40 overflow-auto rounded-xl bg-white py-1 text-xs shadow-lg ring-1 ring-black/5 focus:outline-hidden font-sans border border-[#EAE5DD]">
-                                    <ListboxOption
-                                        value="all"
-                                        className="relative cursor-pointer select-none py-2 pr-8 pl-3.5 text-[#202744] data-[focus]:bg-[#FAF8F5]"
-                                    >
-                                        {({ selected }) => (
-                                            <>
-                                                <span className={`block truncate ${selected ? 'font-bold text-[#8B6CF6]' : 'font-normal'}`}>
-                                                    Status: All Records
-                                                </span>
-                                                {selected && (
-                                                    <span className="absolute inset-y-0 right-0 flex items-center pr-2.5 text-[#8B6CF6]">
-                                                        <Check className="h-3.5 w-3.5" />
-                                                    </span>
-                                                )}
-                                            </>
-                                        )}
-                                    </ListboxOption>
-                                    <ListboxOption
-                                        value="public"
-                                        className="relative cursor-pointer select-none py-2 pr-8 pl-3.5 text-[#202744] data-[focus]:bg-[#FAF8F5]"
-                                    >
-                                        {({ selected }) => (
-                                            <>
-                                                <span className={`block truncate ${selected ? 'font-bold text-[#8B6CF6]' : 'font-normal'}`}>
-                                                    🌐 Published
-                                                </span>
-                                                {selected && (
-                                                    <span className="absolute inset-y-0 right-0 flex items-center pr-2.5 text-[#8B6CF6]">
-                                                        <Check className="h-3.5 w-3.5" />
-                                                    </span>
-                                                )}
-                                            </>
-                                        )}
-                                    </ListboxOption>
-                                    <ListboxOption
-                                        value="private"
-                                        className="relative cursor-pointer select-none py-2 pr-8 pl-3.5 text-[#202744] data-[focus]:bg-[#FAF8F5]"
-                                    >
-                                        {({ selected }) => (
-                                            <>
-                                                <span className={`block truncate ${selected ? 'font-bold text-[#8B6CF6]' : 'font-normal'}`}>
-                                                    🔒 Hidden
-                                                </span>
-                                                {selected && (
-                                                    <span className="absolute inset-y-0 right-0 flex items-center pr-2.5 text-[#8B6CF6]">
-                                                        <Check className="h-3.5 w-3.5" />
-                                                    </span>
-                                                )}
-                                            </>
-                                        )}
-                                    </ListboxOption>
-                                </ListboxOptions>
-                            </div>
-                        </Listbox>
-
-                        {/* View Mode Switcher */}
-                        <div className="flex rounded-xl border border-[#EAE5DD] bg-[#FAF8F5] p-1">
-                            <button
-                                type="button"
-                                onClick={() => setViewMode('grid')}
-                                className={`rounded-lg p-1.5 transition-all text-xs cursor-pointer flex items-center ${viewMode === 'grid'
-                                    ? 'bg-white text-[#8B6CF6] shadow-xs'
-                                    : 'text-[#69718A] hover:text-[#202744]'
-                                    }`}
-                                title="Grid representation"
-                            >
-                                <Grid className="h-4 w-4" />
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => setViewMode('table')}
-                                className={`rounded-lg p-1.5 transition-all text-xs cursor-pointer flex items-center ${viewMode === 'table'
-                                    ? 'bg-white text-[#8B6CF6] shadow-xs'
-                                    : 'text-[#69718A] hover:text-[#202744]'
-                                    }`}
-                                title="Table representation"
-                            >
-                                <List className="h-4 w-4" />
-                            </button>
+                    {/* All Categories Dropdown */}
+                    <Listbox value={categoryFilter} onChange={setCategoryFilter}>
+                        <div className="relative">
+                            <ListboxButton className="rounded-xl border border-[#EAE5DD] bg-white py-2.5 pr-8 pl-3.5 text-left font-sans text-xs focus:border-[#8B6CF6] focus:outline-hidden text-[#202744] cursor-pointer min-w-[130px] shadow-3xs flex items-center justify-between">
+                                <span className="block truncate font-semibold">{categoryFilterLabel}</span>
+                                <ChevronDown className="h-3.5 w-3.5 text-[#8A90A2] shrink-0 ml-1.5" />
+                            </ListboxButton>
+                            <ListboxOptions className="absolute right-0 z-30 mt-1 max-h-60 w-44 overflow-auto rounded-xl bg-white py-1 text-xs shadow-lg ring-1 ring-black/5 focus:outline-hidden font-sans border border-[#EAE5DD]">
+                                <ListboxOption value="all" className="cursor-pointer select-none py-2 px-3 text-[#202744] data-[focus]:bg-[#FAF8F5]">
+                                    All categories
+                                </ListboxOption>
+                                <ListboxOption value="product_design" className="cursor-pointer select-none py-2 px-3 text-[#202744] data-[focus]:bg-[#FAF8F5]">
+                                    Product design
+                                </ListboxOption>
+                                <ListboxOption value="ui_ux" className="cursor-pointer select-none py-2 px-3 text-[#202744] data-[focus]:bg-[#FAF8F5]">
+                                    UI / UX design
+                                </ListboxOption>
+                                <ListboxOption value="web_dev" className="cursor-pointer select-none py-2 px-3 text-[#202744] data-[focus]:bg-[#FAF8F5]">
+                                    Web development
+                                </ListboxOption>
+                                <ListboxOption value="branding" className="cursor-pointer select-none py-2 px-3 text-[#202744] data-[focus]:bg-[#FAF8F5]">
+                                    Branding
+                                </ListboxOption>
+                                <ListboxOption value="personal" className="cursor-pointer select-none py-2 px-3 text-[#202744] data-[focus]:bg-[#FAF8F5]">
+                                    Personal project
+                                </ListboxOption>
+                            </ListboxOptions>
                         </div>
+                    </Listbox>
 
-                        {/* Regular User Addition Button */}
-                        {!isSuper && (
-                            <button
-                                id="create-new-project-btn"
-                                onClick={handleOpenCreate}
-                                className="flex cursor-pointer items-center justify-center space-x-1.5 rounded-xl bg-[#8B6CF6] px-4 py-2.5 font-sans text-xs font-bold text-white shadow-xs transition hover:bg-[#7A5CE5] active:scale-95"
-                            >
-                                <Plus className="h-4 w-4" />
-                                <span>Add Project</span>
-                            </button>
+                    {/* All Visibility Dropdown */}
+                    <Listbox value={publicFilter} onChange={setPublicFilter}>
+                        <div className="relative">
+                            <ListboxButton className="rounded-xl border border-[#EAE5DD] bg-white py-2.5 pr-8 pl-3.5 text-left font-sans text-xs focus:border-[#8B6CF6] focus:outline-hidden text-[#202744] cursor-pointer min-w-[120px] shadow-3xs flex items-center justify-between">
+                                <span className="block truncate font-semibold">{publicFilterLabel}</span>
+                                <ChevronDown className="h-3.5 w-3.5 text-[#8A90A2] shrink-0 ml-1.5" />
+                            </ListboxButton>
+                            <ListboxOptions className="absolute right-0 z-30 mt-1 max-h-60 w-36 overflow-auto rounded-xl bg-white py-1 text-xs shadow-lg ring-1 ring-black/5 focus:outline-hidden font-sans border border-[#EAE5DD]">
+                                <ListboxOption value="all" className="cursor-pointer select-none py-2 px-3 text-[#202744] data-[focus]:bg-[#FAF8F5]">
+                                    All visibility
+                                </ListboxOption>
+                                <ListboxOption value="public" className="cursor-pointer select-none py-2 px-3 text-[#202744] data-[focus]:bg-[#FAF8F5]">
+                                    Public
+                                </ListboxOption>
+                                <ListboxOption value="private" className="cursor-pointer select-none py-2 px-3 text-[#202744] data-[focus]:bg-[#FAF8F5]">
+                                    Private
+                                </ListboxOption>
+                            </ListboxOptions>
+                        </div>
+                    </Listbox>
+
+                    {/* Project Type Dropdown */}
+                    <Listbox value={typeFilter} onChange={setTypeFilter}>
+                        <div className="relative">
+                            <ListboxButton className="rounded-xl border border-[#EAE5DD] bg-white py-2.5 pr-8 pl-3.5 text-left font-sans text-xs focus:border-[#8B6CF6] focus:outline-hidden text-[#202744] cursor-pointer min-w-[125px] shadow-3xs flex items-center justify-between">
+                                <span className="block truncate font-semibold">{typeFilterLabel}</span>
+                                <ChevronDown className="h-3.5 w-3.5 text-[#8A90A2] shrink-0 ml-1.5" />
+                            </ListboxButton>
+                            <ListboxOptions className="absolute right-0 z-30 mt-1 max-h-60 w-40 overflow-auto rounded-xl bg-white py-1 text-xs shadow-lg ring-1 ring-black/5 focus:outline-hidden font-sans border border-[#EAE5DD]">
+                                <ListboxOption value="all" className="cursor-pointer select-none py-2 px-3 text-[#202744] data-[focus]:bg-[#FAF8F5]">
+                                    All types
+                                </ListboxOption>
+                                <ListboxOption value="WORK" className="cursor-pointer select-none py-2 px-3 text-[#202744] data-[focus]:bg-[#FAF8F5]">
+                                    Work
+                                </ListboxOption>
+                                <ListboxOption value="PERSONAL" className="cursor-pointer select-none py-2 px-3 text-[#202744] data-[focus]:bg-[#FAF8F5]">
+                                    Personal
+                                </ListboxOption>
+                                <ListboxOption value="FREELANCE" className="cursor-pointer select-none py-2 px-3 text-[#202744] data-[focus]:bg-[#FAF8F5]">
+                                    Freelance
+                                </ListboxOption>
+                                <ListboxOption value="OPEN_SOURCE" className="cursor-pointer select-none py-2 px-3 text-[#202744] data-[focus]:bg-[#FAF8F5]">
+                                    Open Source
+                                </ListboxOption>
+                            </ListboxOptions>
+                        </div>
+                    </Listbox>
+
+                    {/* View Switch Button (Grid / Table) */}
+                    <button
+                        type="button"
+                        onClick={() => setViewMode(viewMode === 'grid' ? 'table' : 'grid')}
+                        className="flex items-center space-x-1.5 rounded-xl border border-[#EAE5DD] bg-white px-3.5 py-2.5 font-sans text-xs font-semibold text-[#202744] shadow-3xs hover:bg-[#FAF8F5] transition cursor-pointer"
+                        title={viewMode === 'grid' ? 'Switch to Table representation' : 'Switch to Grid view'}
+                    >
+                        {viewMode === 'grid' ? (
+                            <>
+                                <LayoutGrid className="h-4 w-4 text-[#8B6CF6]" />
+                                <span>Grid view</span>
+                            </>
+                        ) : (
+                            <>
+                                <List className="h-4 w-4 text-[#8B6CF6]" />
+                                <span>Table view</span>
+                            </>
                         )}
-
-                    </div>
+                    </button>
                 </div>
+            </div>
+
+            {/* ─── Sub-filters Row: Tab Pills & Sort ─── */}
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-1">
+                {/* Left Tabs: All projects · X, Public · Y, Private · Z, Draft · W */}
+                <div className="flex flex-wrap items-center gap-1.5">
+                    <button
+                        type="button"
+                        onClick={() => setQuickFilter('all')}
+                        className={`rounded-full px-3.5 py-1 text-xs transition cursor-pointer ${
+                            quickFilter === 'all'
+                                ? 'bg-[#E8E0FF] text-[#8B6CF6] font-bold shadow-3xs'
+                                : 'text-[#69718A] hover:text-[#202744] hover:bg-white font-medium'
+                        }`}
+                    >
+                        All projects · {allCount}
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => setQuickFilter('public')}
+                        className={`rounded-full px-3.5 py-1 text-xs transition cursor-pointer ${
+                            quickFilter === 'public'
+                                ? 'bg-[#E8E0FF] text-[#8B6CF6] font-bold shadow-3xs'
+                                : 'text-[#69718A] hover:text-[#202744] hover:bg-white font-medium'
+                        }`}
+                    >
+                        Public · {publicCount}
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => setQuickFilter('private')}
+                        className={`rounded-full px-3.5 py-1 text-xs transition cursor-pointer ${
+                            quickFilter === 'private'
+                                ? 'bg-[#E8E0FF] text-[#8B6CF6] font-bold shadow-3xs'
+                                : 'text-[#69718A] hover:text-[#202744] hover:bg-white font-medium'
+                        }`}
+                    >
+                        Private · {privateCount}
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => setQuickFilter('draft')}
+                        className={`rounded-full px-3.5 py-1 text-xs transition cursor-pointer ${
+                            quickFilter === 'draft'
+                                ? 'bg-[#E8E0FF] text-[#8B6CF6] font-bold shadow-3xs'
+                                : 'text-[#69718A] hover:text-[#202744] hover:bg-white font-medium'
+                        }`}
+                    >
+                        Draft · {draftCount}
+                    </button>
+                </div>
+
+                {/* Right: Sort Dropdown */}
+                <Listbox value={sortBy} onChange={setSortBy}>
+                    <div className="relative">
+                        <ListboxButton className="flex items-center space-x-1 text-xs font-semibold text-[#69718A] hover:text-[#202744] transition cursor-pointer py-1 px-2 rounded-lg hover:bg-white">
+                            <span>{sortLabel}</span>
+                            <ChevronDown className="h-3.5 w-3.5 text-[#8A90A2]" />
+                        </ListboxButton>
+                        <ListboxOptions className="absolute right-0 z-30 mt-1 max-h-60 w-44 overflow-auto rounded-xl bg-white py-1 text-xs shadow-lg ring-1 ring-black/5 focus:outline-hidden font-sans border border-[#EAE5DD]">
+                            <ListboxOption value="recent" className="cursor-pointer select-none py-2 px-3 text-[#202744] data-[focus]:bg-[#FAF8F5]">
+                                Sort: Recently updated
+                            </ListboxOption>
+                            <ListboxOption value="name" className="cursor-pointer select-none py-2 px-3 text-[#202744] data-[focus]:bg-[#FAF8F5]">
+                                Sort: Project name (A-Z)
+                            </ListboxOption>
+                            <ListboxOption value="oldest" className="cursor-pointer select-none py-2 px-3 text-[#202744] data-[focus]:bg-[#FAF8F5]">
+                                Sort: Oldest first
+                            </ListboxOption>
+                        </ListboxOptions>
+                    </div>
+                </Listbox>
             </div>
 
             {/* Error Message if fetching fails */}
@@ -679,11 +807,11 @@ export const AdminProjects: React.FC = () => {
                 </div>
             )}
 
-            {/* Projects view conditional list */}
+            {/* ─── Projects Presentation: Grid or Table ─── */}
             {isLoading ? (
                 <div className="rounded-2xl border border-[#EAE5DD] bg-white p-16 text-center text-[#69718A]">
                     <Loader2 className="mx-auto h-8 w-8 animate-spin text-[#8B6CF6] mb-2" />
-                    <p className="font-sans text-xs font-medium">Loading project portfolios...</p>
+                    <p className="font-sans text-xs font-medium">Loading project repositories...</p>
                 </div>
             ) : filteredProjects.length === 0 ? (
                 <div className="rounded-2xl border border-dashed border-[#EAE5DD] bg-white p-16 text-center text-[#69718A] font-sans">
@@ -694,125 +822,299 @@ export const AdminProjects: React.FC = () => {
             ) : (
                 <>
                     {viewMode === 'grid' ? (
-                        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                            {filteredProjects.slice((activePage - 1) * ITEMS_PER_PAGE, activePage * ITEMS_PER_PAGE).map(proj => {
-                                const owner = usersList.find(u => u.id === proj.userId);
-                                return (
+                        <div className="space-y-6">
+                            {/* 3-Column Responsive Grid */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                {filteredProjects.slice((activePage - 1) * ITEMS_PER_PAGE, activePage * ITEMS_PER_PAGE).map((proj, idx) => (
                                     <div
                                         key={proj.id}
-                                        className="group flex flex-col justify-between overflow-hidden rounded-2xl border border-[#EAE5DD] bg-white shadow-xs transition duration-200 hover:border-[#8B6CF6]/40 hover:shadow-md"
+                                        className="group flex flex-col justify-between overflow-hidden rounded-2xl border border-[#EAE5DD] bg-white shadow-3xs transition-all duration-200 hover:border-[#8B6CF6]/40 hover:shadow-md"
                                     >
                                         <div>
-
-                                            {/* Thumbnail Image */}
-                                            <div className="relative aspect-video w-full bg-[#FAF8F5] border-b border-[#EAE5DD] overflow-hidden">
-                                                {proj.thumbnail ? (
-                                                    <img
-                                                        src={proj.thumbnail}
-                                                        alt={proj.title}
-                                                        referrerPolicy="no-referrer"
-                                                        className="h-full w-full object-cover transition duration-300 group-hover:scale-103"
-                                                    />
-                                                ) : (
-                                                    <div className="flex h-full w-full items-center justify-center text-[#8B6CF6]/40 bg-[#FAF8F5]">
-                                                        <FolderGit2 className="h-10 w-10 stroke-1" />
-                                                    </div>
-                                                )}
-
-                                                {/* Floating accessibility badges */}
-                                                <span className="absolute top-3 right-3 rounded-full px-2.5 py-0.5 font-sans text-[10px] font-bold uppercase tracking-wider bg-white/95 backdrop-blur-xs shadow-xs text-[#202744] border border-[#EAE5DD]">
-                                                    {proj.type}
-                                                </span>
+                                            {/* Top Mockup / Thumbnail Banner */}
+                                            <div className="relative aspect-[16/10] w-full bg-[#FAF8F5] border-b border-[#F0EBE1] overflow-hidden">
+                                                <ProjectCardThumbnail
+                                                    thumbnail={proj.thumbnail}
+                                                    title={proj.title}
+                                                    theme={getMockupTheme(idx, proj.id)}
+                                                />
                                             </div>
 
-                                            {/* Operational Data information */}
-                                            <div className="p-5 space-y-3">
-                                                <div>
-                                                    {isSuper && (
-                                                        <span className="block font-sans text-[10px] font-bold text-[#69718A] uppercase tracking-wider leading-none mb-1">
-                                                            {owner?.profile?.fullName || owner?.email || 'System Account'}
-                                                        </span>
-                                                    )}
-                                                    <h4 className="font-sans text-base font-bold text-[#202744] group-hover:text-[#8B6CF6] transition-colors leading-snug">
-                                                        {proj.title}
-                                                    </h4>
-                                                </div>
-
-                                                {/* Role specification */}
-                                                {proj.role && (
-                                                    <p className="font-sans text-xs text-[#69718A] leading-none">
-                                                        Role: <span className="text-[#202744] font-semibold">{proj.role}</span>
-                                                    </p>
-                                                )}
-
-                                                {/* Description */}
-                                                {proj.description && (
-                                                    <p className="line-clamp-3 font-sans text-xs text-[#69718A] leading-relaxed whitespace-pre-wrap">
-                                                        {proj.description}
-                                                    </p>
-                                                )}
-
-                                                {/* Tech Stacks Tags lists */}
-                                                <div className="flex flex-wrap gap-1.5 pt-1">
-                                                    {proj.techStacks.map((stack, idx) => (
-                                                        <span
-                                                            key={idx}
-                                                            className="inline-flex items-center space-x-1 rounded-md px-2 py-0.5 font-mono text-[10px] font-medium bg-[#FAF8F5] text-[#69718A] border border-[#EAE5DD]"
+                                            {/* Card Content */}
+                                            <div className="p-5">
+                                                {/* Category & 3-dots */}
+                                                <div className="flex items-center justify-between mb-1.5">
+                                                    <span className="font-sans text-[11px] font-bold tracking-wider text-[#8B6CF6] uppercase">
+                                                        {getProjectCategory(proj)}
+                                                    </span>
+                                                    <div className="relative" onClick={(e) => e.stopPropagation()}>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => setActiveMenuId(activeMenuId === proj.id ? null : proj.id)}
+                                                            className="p-1 rounded-lg text-[#8A90A2] hover:text-[#202744] hover:bg-[#FAF8F5] transition cursor-pointer"
+                                                            title="Options"
                                                         >
-                                                            <Code2 className="h-2.5 w-2.5 text-[#8B6CF6]" />
-                                                            <span>{stack}</span>
-                                                        </span>
-                                                    ))}
+                                                            <MoreHorizontal className="h-4 w-4" />
+                                                        </button>
+                                                        {activeMenuId === proj.id && (
+                                                            <div className="absolute right-0 top-full mt-1 w-36 rounded-xl bg-white border border-[#EAE5DD] shadow-lg py-1 z-30 animate-in fade-in-50 zoom-in-95 duration-100">
+                                                                <button
+                                                                    type="button"
+                                                                    id={`view-project-${proj.id}-btn`}
+                                                                    onClick={() => {
+                                                                        setActiveMenuId(null);
+                                                                        navigate(`/admin/projects/${proj.id}`);
+                                                                    }}
+                                                                    className="w-full text-left px-3 py-1.5 text-xs text-[#202744] hover:bg-[#FAF8F5] flex items-center space-x-2 cursor-pointer"
+                                                                >
+                                                                    <Eye className="h-3.5 w-3.5 text-[#69718A]" />
+                                                                    <span>View detail</span>
+                                                                </button>
+                                                                {!isSuper && (
+                                                                    <>
+                                                                        <button
+                                                                            type="button"
+                                                                            onClick={() => {
+                                                                                setActiveMenuId(null);
+                                                                                handleOpenEdit(proj);
+                                                                            }}
+                                                                            className="w-full text-left px-3 py-1.5 text-xs text-[#202744] hover:bg-[#FAF8F5] flex items-center space-x-2 cursor-pointer"
+                                                                        >
+                                                                            <Edit className="h-3.5 w-3.5 text-[#69718A]" />
+                                                                            <span>Edit project</span>
+                                                                        </button>
+                                                                        <button
+                                                                            type="button"
+                                                                            onClick={() => {
+                                                                                setActiveMenuId(null);
+                                                                                handleDelete(proj.id);
+                                                                            }}
+                                                                            className="w-full text-left px-3 py-1.5 text-xs text-rose-600 hover:bg-rose-50 flex items-center space-x-2 cursor-pointer"
+                                                                        >
+                                                                            <Trash2 className="h-3.5 w-3.5" />
+                                                                            <span>Delete</span>
+                                                                        </button>
+                                                                    </>
+                                                                )}
+                                                            </div>
+                                                        )}
+                                                    </div>
                                                 </div>
 
+                                                {/* Title */}
+                                                <h3
+                                                    onClick={() => navigate(`/admin/projects/${proj.id}`)}
+                                                    className="font-sans text-base font-bold text-[#202744] group-hover:text-[#8B6CF6] transition-colors leading-snug cursor-pointer line-clamp-1"
+                                                >
+                                                    {proj.title}
+                                                </h3>
+
+                                                {/* Tagline / Description */}
+                                                <p className="font-sans text-xs text-[#69718A] line-clamp-2 mt-1 leading-relaxed">
+                                                    {proj.description || 'Thoughtful work, carefully collected and crafted.'}
+                                                </p>
+
+                                                {/* Tech Stacks (middle dot separated string) */}
+                                                <p className="font-sans text-xs text-[#69718A] font-medium mt-3.5 line-clamp-1">
+                                                    {proj.techStacks.length > 0 ? proj.techStacks.join(' · ') : 'Next.js · TypeScript · Tailwind'}
+                                                </p>
                                             </div>
                                         </div>
 
-                                        {/* Footer linking actions */}
-                                        <div className="bg-[#FAF8F5]/80 border-t border-[#EAE5DD] px-5 py-3.5 flex items-center justify-between text-xs">
-                                            <span className={`inline-flex items-center space-x-1.5 rounded-full px-2 py-0.5 text-[10px] font-bold ${proj.isPublic
-                                                ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                                                : 'bg-white text-[#69718A] border border-[#EAE5DD]'
-                                            }`}>
-                                                {proj.isPublic ? '🌐 Public' : '🔒 Hidden'}
-                                            </span>
-
-                                            <div className="flex items-center space-x-1.5">
-                                                <button
-                                                    id={`view-project-${proj.id}-btn`}
-                                                    onClick={() => navigate(`/admin/projects/${proj.id}`)}
-                                                    className="rounded-lg border border-[#EAE5DD] bg-white p-2 text-[#69718A] hover:border-[#8B6CF6]/40 hover:text-[#8B6CF6] hover:bg-[#8B6CF6]/5 transition shadow-xs cursor-pointer"
-                                                    title="View Detail"
-                                                >
-                                                    <Eye className="h-3.5 w-3.5" />
-                                                </button>
-                                                {!isSuper ? (
-                                                    <>
-                                                        <button
-                                                            id={`edit-project-${proj.id}-btn`}
-                                                            onClick={() => handleOpenEdit(proj)}
-                                                            className="rounded-lg border border-[#EAE5DD] bg-white p-2 text-[#69718A] hover:border-[#8B6CF6]/40 hover:text-[#8B6CF6] hover:bg-[#8B6CF6]/5 transition shadow-xs cursor-pointer"
-                                                            title="Edit Project"
-                                                        >
-                                                            <Edit className="h-3.5 w-3.5" />
-                                                        </button>
-                                                        <button
-                                                            id={`delete-project-${proj.id}-btn`}
-                                                            onClick={() => handleDelete(proj.id)}
-                                                            className="rounded-lg border border-[#EAE5DD] bg-white p-2 text-[#69718A] hover:border-red-200 hover:text-red-600 hover:bg-red-50 transition shadow-xs cursor-pointer"
-                                                            title="Delete project"
-                                                        >
-                                                            <Trash2 className="h-3.5 w-3.5" />
-                                                        </button>
-                                                    </>
+                                        {/* Card Footer: Status Pill, Links, Pencil Edit */}
+                                        <div className="px-5 py-3.5 border-t border-[#F0EBE1] flex items-center justify-between text-xs">
+                                            <div className="flex items-center space-x-2.5">
+                                                {/* Status Badge */}
+                                                {proj.isPublic ? (
+                                                    <span className="inline-flex items-center rounded-md bg-[#EAFBF1] border border-[#C6F0D6] px-2 py-0.5 text-[11px] font-semibold text-[#1E8E3E]">
+                                                        Public
+                                                    </span>
+                                                ) : (!proj.projectUrl && !proj.githubUrl) ? (
+                                                    <span className="inline-flex items-center rounded-md bg-[#FFF8E6] border border-[#FFE8A3] px-2 py-0.5 text-[11px] font-semibold text-[#B07208]">
+                                                        Draft
+                                                    </span>
                                                 ) : (
-                                                    <div className="flex items-center space-x-1.5">
+                                                    <span className="inline-flex items-center rounded-md bg-[#F0EBE1] border border-[#EAE5DD] px-2 py-0.5 text-[11px] font-semibold text-[#69718A]">
+                                                        Private
+                                                    </span>
+                                                )}
+
+                                                {/* Links */}
+                                                <div className="flex items-center space-x-1.5 text-xs text-[#69718A]">
+                                                    {proj.projectUrl && (
+                                                        <a
+                                                            href={proj.projectUrl}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            className="inline-flex items-center space-x-1 hover:text-[#202744] font-medium transition"
+                                                        >
+                                                            <ExternalLink className="h-3 w-3" />
+                                                            <span>Live demo</span>
+                                                        </a>
+                                                    )}
+                                                    {proj.projectUrl && proj.githubUrl && <span>·</span>}
+                                                    {proj.githubUrl && (
+                                                        <a
+                                                            href={proj.githubUrl}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            className="hover:text-[#202744] font-medium transition"
+                                                        >
+                                                            GitHub
+                                                        </a>
+                                                    )}
+                                                </div>
+                                            </div>
+
+                                            {/* Pencil Edit Icon Button */}
+                                            {!isSuper && (
+                                                <button
+                                                    type="button"
+                                                    id={`edit-project-${proj.id}-btn`}
+                                                    onClick={() => handleOpenEdit(proj)}
+                                                    className="p-1.5 rounded-lg text-[#8A90A2] hover:text-[#8B6CF6] hover:bg-[#FAF8F5] transition cursor-pointer"
+                                                    title="Edit project"
+                                                >
+                                                    <Pencil className="h-3.5 w-3.5" />
+                                                </button>
+                                            )}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+
+                            {/* ─── Featured Spotlight Banner ─── */}
+                            <div className="mt-8 rounded-2xl border border-[#E8E0FF] bg-[#F7F4FF] px-6 py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                                <p className="font-sans text-xs text-[#202744] font-medium">
+                                    Your best work deserves a little spotlight. Pin up to 3 projects to your portfolio homepage.
+                                </p>
+                                <button
+                                    type="button"
+                                    onClick={() => navigate('/admin/theme-studio')}
+                                    className="shrink-0 flex items-center space-x-1.5 rounded-xl border border-[#EAE5DD] bg-white px-4 py-2 font-sans text-xs font-semibold text-[#202744] shadow-3xs hover:bg-[#FAF8F5] hover:border-[#8B6CF6]/40 transition cursor-pointer"
+                                >
+                                    <Star className="h-3.5 w-3.5 text-[#8B6CF6]" />
+                                    <span>Manage featured work</span>
+                                </button>
+                            </div>
+
+                            {/* ─── Bottom Pagination ─── */}
+                            <div className="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+                                <span className="font-sans text-xs text-[#69718A]">
+                                    Showing {filteredProjects.length === 0 ? 0 : (activePage - 1) * ITEMS_PER_PAGE + 1} to {Math.min(activePage * ITEMS_PER_PAGE, filteredProjects.length)} of {filteredProjects.length} projects
+                                </span>
+
+                                <div className="flex items-center space-x-2">
+                                    <button
+                                        type="button"
+                                        disabled={activePage <= 1}
+                                        onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                                        className="flex items-center space-x-1 rounded-xl border border-[#EAE5DD] bg-white px-3 py-1.5 font-sans text-xs font-semibold text-[#202744] shadow-3xs hover:bg-[#FAF8F5] disabled:opacity-40 disabled:cursor-not-allowed transition cursor-pointer"
+                                    >
+                                        <span>← Previous</span>
+                                    </button>
+
+                                    {Array.from({ length: totalPages || 1 }, (_, i) => i + 1).map(page => (
+                                        <button
+                                            key={page}
+                                            type="button"
+                                            onClick={() => setCurrentPage(page)}
+                                            className={`h-7 w-7 rounded-lg font-sans text-xs font-semibold transition cursor-pointer ${
+                                                page === activePage
+                                                    ? 'bg-[#E8E0FF] text-[#8B6CF6]'
+                                                    : 'text-[#69718A] hover:bg-white hover:text-[#202744]'
+                                            }`}
+                                        >
+                                            {page}
+                                        </button>
+                                    ))}
+
+                                    <button
+                                        type="button"
+                                        disabled={activePage >= totalPages}
+                                        onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                                        className="flex items-center space-x-1 rounded-xl border border-[#EAE5DD] bg-white px-3 py-1.5 font-sans text-xs font-semibold text-[#202744] shadow-3xs hover:bg-[#FAF8F5] disabled:opacity-40 disabled:cursor-not-allowed transition cursor-pointer"
+                                    >
+                                        <span>Next →</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    ) : (
+                        /* Soft Table Representation */
+                        <TableContainer>
+                            <Table minWidth="min-w-[800px]">
+                                <TableHeader>
+                                    <tr>
+                                        {isSuper && <TableHead>Developer</TableHead>}
+                                        <TableHead>Project</TableHead>
+                                        <TableHead>Tech Stack</TableHead>
+                                        <TableHead align="center">Status</TableHead>
+                                        <TableHead align="right">Actions</TableHead>
+                                    </tr>
+                                </TableHeader>
+                                <TableBody>
+                                    {filteredProjects.slice((activePage - 1) * ITEMS_PER_PAGE, activePage * ITEMS_PER_PAGE).map(proj => {
+                                        const owner = usersList.find(u => u.id === proj.userId);
+                                        return (
+                                            <TableRow key={proj.id}>
+                                                {isSuper && (
+                                                    <TableCell>
+                                                        <div className="font-bold text-[#202744] text-xs">{owner?.profile?.fullName || 'Sandbox Member'}</div>
+                                                        <div className="text-[11px] text-[#69718A]">{owner?.email}</div>
+                                                    </TableCell>
+                                                )}
+                                                <TableCell>
+                                                    <div className="flex items-center space-x-3.5">
+                                                        {proj.thumbnail ? (
+                                                            <img
+                                                                src={proj.thumbnail}
+                                                                alt={proj.title}
+                                                                referrerPolicy="no-referrer"
+                                                                className="h-10 w-16 rounded-xl object-cover bg-white border border-[#EAE5DD] shadow-3xs shrink-0"
+                                                            />
+                                                        ) : (
+                                                            <div className="flex h-10 w-16 items-center justify-center rounded-xl bg-[#FAF8F5] border border-[#EAE5DD] text-[#8B6CF6]/50 shrink-0">
+                                                                <FolderGit2 className="h-5 w-5 stroke-1" />
+                                                            </div>
+                                                        )}
+                                                        <div className="min-w-0">
+                                                            <div className="font-bold text-[#202744] text-xs leading-snug truncate">{proj.title}</div>
+                                                            <span className="inline-block mt-1 rounded-full px-2 py-0.5 font-sans text-[10px] font-medium bg-[#FAF8F5] border border-[#EAE5DD] text-[#69718A]">
+                                                                {proj.type === ProjectType.WORK ? 'Work' : 'Personal'}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                </TableCell>
+                                                <TableCell>
+                                                    <div className="flex flex-wrap gap-1 max-w-xs">
+                                                        {proj.techStacks.map((stack, idx) => (
+                                                            <span
+                                                                key={idx}
+                                                                className="inline-flex items-center space-x-0.5 rounded-md px-2 py-0.5 font-sans text-[10px] font-medium bg-[#FAF8F5] text-[#69718A] border border-[#EAE5DD]"
+                                                            >
+                                                                {stack}
+                                                            </span>
+                                                        ))}
+                                                    </div>
+                                                </TableCell>
+                                                <TableCell align="center">
+                                                    <Badge
+                                                        variant={proj.isPublic ? 'success' : 'secondary'}
+                                                        size="xs"
+                                                        dot={proj.isPublic}
+                                                    >
+                                                        {proj.isPublic ? 'Public' : 'Hidden'}
+                                                    </Badge>
+                                                </TableCell>
+                                                <TableCell align="right">
+                                                    <div className="flex items-center justify-end space-x-1">
                                                         {proj.projectUrl && (
                                                             <a
                                                                 href={proj.projectUrl}
                                                                 target="_blank"
                                                                 rel="noopener noreferrer"
-                                                                className="rounded-lg border border-[#EAE5DD] bg-white p-2 text-[#69718A] hover:text-[#8B6CF6] hover:border-[#8B6CF6]/40 shadow-xs transition"
+                                                                className="h-8 w-8 inline-flex items-center justify-center text-[#69718A] hover:text-[#8B6CF6] hover:bg-[#F3EEFF] rounded-lg transition"
                                                                 title="View Live Webpage"
                                                             >
                                                                 <Globe className="h-3.5 w-3.5" />
@@ -823,176 +1125,60 @@ export const AdminProjects: React.FC = () => {
                                                                 href={proj.githubUrl}
                                                                 target="_blank"
                                                                 rel="noopener noreferrer"
-                                                                className="rounded-lg border border-[#EAE5DD] bg-white p-2 text-[#69718A] hover:text-[#8B6CF6] hover:border-[#8B6CF6]/40 shadow-xs transition"
+                                                                className="h-8 w-8 inline-flex items-center justify-center text-[#69718A] hover:text-[#8B6CF6] hover:bg-[#F3EEFF] rounded-lg transition"
                                                                 title="Review repository link"
                                                             >
                                                                 <Github className="h-3.5 w-3.5" />
                                                             </a>
                                                         )}
-                                                    </div>
-                                                )}
-                                            </div>
-                                        </div>
-
-                                    </div>
-                                );
-                            })}
-                        </div>
-                    ) : (
-                        <div className="overflow-x-auto rounded-2xl border border-[#EAE5DD] bg-white shadow-xs">
-                            <table className="w-full min-w-[800px] border-collapse text-left text-xs font-sans">
-                                <thead className="bg-[#FAF8F5] border-b border-[#EAE5DD] text-[#69718A] uppercase tracking-wider text-[10px] font-bold">
-                                    <tr>
-                                        {isSuper && <th className="px-6 py-4">Developer</th>}
-                                        <th className="px-6 py-4">Project Title</th>
-                                        <th className="px-6 py-4">Tech Stack</th>
-                                        <th className="px-6 py-4 text-center">Status</th>
-                                        <th className="px-6 py-4 text-right">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-[#F0EBE1] text-[#69718A]">
-                                    {filteredProjects.slice((activePage - 1) * ITEMS_PER_PAGE, activePage * ITEMS_PER_PAGE).map(proj => {
-                                        const owner = usersList.find(u => u.id === proj.userId);
-                                        return (
-                                            <tr key={proj.id} className="hover:bg-[#FAF8F5]/60 transition">
-                                                {isSuper && (
-                                                    <td className="px-6 py-4">
-                                                        <div className="font-bold text-[#202744]">{owner?.profile?.fullName || 'Sandbox Member'}</div>
-                                                        <div className="text-[10px] font-mono text-[#69718A]">{owner?.email}</div>
-                                                    </td>
-                                                )}
-                                                <td className="px-6 py-4">
-                                                    <div className="flex items-center space-x-3.5">
-                                                        {proj.thumbnail ? (
-                                                            <img
-                                                                src={proj.thumbnail}
-                                                                alt={proj.title}
-                                                                referrerPolicy="no-referrer"
-                                                                className="h-10 w-16 rounded-xl object-cover bg-white border border-[#EAE5DD] shadow-xs"
-                                                            />
-                                                        ) : (
-                                                            <div className="flex h-10 w-16 items-center justify-center rounded-xl bg-[#FAF8F5] border border-[#EAE5DD] text-[#8B6CF6]/50">
-                                                                <FolderGit2 className="h-5 w-5 stroke-1" />
-                                                            </div>
+                                                        <TableActionButton
+                                                            id={`view-project-tbl-${proj.id}-btn`}
+                                                            icon={<Eye className="h-3.5 w-3.5" />}
+                                                            label="View Detail"
+                                                            onClick={() => navigate(`/admin/projects/${proj.id}`)}
+                                                        />
+                                                        {!isSuper && (
+                                                            <>
+                                                                <TableActionButton
+                                                                    icon={<Edit className="h-3.5 w-3.5" />}
+                                                                    label="Edit Project"
+                                                                    onClick={() => handleOpenEdit(proj)}
+                                                                />
+                                                                <TableActionButton
+                                                                    icon={<Trash2 className="h-3.5 w-3.5" />}
+                                                                    label="Delete Project"
+                                                                    variant="danger"
+                                                                    onClick={() => handleDelete(proj.id)}
+                                                                />
+                                                            </>
                                                         )}
-                                                        <div>
-                                                            <div className="font-bold text-[#202744] leading-snug">{proj.title}</div>
-                                                            <span className="inline-block mt-0.5 rounded-full px-2 py-0.5 font-sans text-[9px] font-bold bg-[#FAF8F5] border border-[#EAE5DD] text-[#69718A] uppercase">
-                                                                {proj.type}
-                                                            </span>
-                                                        </div>
                                                     </div>
-                                                </td>
-                                                <td className="px-6 py-4">
-                                                    <div className="flex flex-wrap gap-1 max-w-xs">
-                                                        {proj.techStacks.map((stack, idx) => (
-                                                            <span
-                                                                key={idx}
-                                                                className="inline-flex items-center space-x-0.5 rounded-md px-2 py-0.5 font-mono text-[9px] font-medium bg-[#FAF8F5] text-[#69718A] border border-[#EAE5DD]"
-                                                            >
-                                                                {stack}
-                                                            </span>
-                                                        ))}
-                                                    </div>
-                                                </td>
-                                                <td className="px-6 py-4 text-center">
-                                                    <span className={`inline-block rounded-full px-2.5 py-0.5 text-[10px] font-bold ${proj.isPublic
-                                                        ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                                                        : 'bg-[#FAF8F5] text-[#69718A] border border-[#EAE5DD]'
-                                                        }`}>
-                                                        {proj.isPublic ? '🌐 Public' : '🔒 Hidden'}
-                                                    </span>
-                                                </td>
-                                                <td className="px-6 py-4 text-right">
-                                                    <div className="flex items-center justify-end space-x-2">
-                                                        <div className="flex items-center space-x-1">
-                                                            {proj.projectUrl && (
-                                                                <a
-                                                                    href={proj.projectUrl}
-                                                                    target="_blank"
-                                                                    rel="noopener noreferrer"
-                                                                    className="text-[#69718A] hover:text-[#8B6CF6] p-1.5 bg-white rounded-lg border border-[#EAE5DD] shadow-xs"
-                                                                >
-                                                                    <Globe className="h-3.5 w-3.5" />
-                                                                </a>
-                                                            )}
-                                                            {proj.githubUrl && (
-                                                                <a
-                                                                    href={proj.githubUrl}
-                                                                    target="_blank"
-                                                                    rel="noopener noreferrer"
-                                                                    className="text-[#69718A] hover:text-[#8B6CF6] p-1.5 bg-white rounded-lg border border-[#EAE5DD] shadow-xs"
-                                                                >
-                                                                    <Github className="h-3.5 w-3.5" />
-                                                                </a>
-                                                            )}
-                                                        </div>
-
-                                                        <div className="flex items-center space-x-1 border-l border-[#EAE5DD] pl-2">
-                                                            <button
-                                                                id={`view-project-tbl-${proj.id}-btn`}
-                                                                onClick={() => navigate(`/admin/projects/${proj.id}`)}
-                                                                className="rounded-lg border border-[#EAE5DD] bg-white p-1.5 text-[#69718A] hover:border-[#8B6CF6]/40 hover:text-[#8B6CF6] hover:bg-[#8B6CF6]/5 transition shadow-xs cursor-pointer"
-                                                                title="View Detail"
-                                                            >
-                                                                <Eye className="h-3.5 w-3.5" />
-                                                            </button>
-                                                            {!isSuper && (
-                                                                <>
-                                                                    <button
-                                                                        onClick={() => handleOpenEdit(proj)}
-                                                                        className="rounded-lg border border-[#EAE5DD] bg-white p-1.5 text-[#69718A] hover:border-[#8B6CF6]/40 hover:text-[#8B6CF6] hover:bg-[#8B6CF6]/5 transition shadow-xs cursor-pointer"
-                                                                        title="Edit Project"
-                                                                    >
-                                                                        <Edit className="h-3.5 w-3.5" />
-                                                                    </button>
-                                                                    <button
-                                                                        onClick={() => handleDelete(proj.id)}
-                                                                        className="rounded-lg border border-[#EAE5DD] bg-white p-1.5 text-[#69718A] hover:border-red-200 hover:text-red-600 hover:bg-red-50 transition shadow-xs cursor-pointer"
-                                                                        title="Delete Project"
-                                                                    >
-                                                                        <Trash2 className="h-3.5 w-3.5" />
-                                                                    </button>
-                                                                </>
-                                                            )}
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                            </tr>
+                                                </TableCell>
+                                            </TableRow>
                                         );
                                     })}
-                                </tbody>
-                            </table>
-                        </div>
-                    )}
+                                </TableBody>
+                            </Table>
 
-                    {/* Pagination Controls */}
-                    {totalPages > 1 && (
-                        <div className="flex items-center justify-between border-t border-[#EAE5DD] bg-[#FAF8F5]/80 px-6 py-3.5 rounded-b-2xl font-sans text-xs">
-                            <div className="text-[#69718A]">
-                                Showing page <span className="font-semibold text-[#202744]">{activePage}</span> of{' '}
-                                <span className="font-semibold text-[#202744]">{totalPages}</span> ({filteredProjects.length} projects)
-                            </div>
-                            <div className="flex items-center space-x-2">
-                                <button
-                                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                                    disabled={activePage <= 1}
-                                    className="rounded-lg border border-[#EAE5DD] bg-white px-3 py-1.5 text-xs font-semibold text-[#202744] transition hover:bg-[#FAF8F5] disabled:opacity-50 cursor-pointer shadow-xs"
-                                >
-                                    Previous
-                                </button>
-                                <button
-                                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                                    disabled={activePage >= totalPages}
-                                    className="rounded-lg border border-[#EAE5DD] bg-white px-3 py-1.5 text-xs font-semibold text-[#202744] transition hover:bg-[#FAF8F5] disabled:opacity-50 cursor-pointer shadow-xs"
-                                >
-                                    Next
-                                </button>
-                            </div>
-                        </div>
+                            <Pagination
+                                currentPage={activePage}
+                                totalPages={totalPages}
+                                totalItems={filteredProjects.length}
+                                itemsPerPage={ITEMS_PER_PAGE}
+                                itemLabel="projects"
+                                onPageChange={setCurrentPage}
+                                variant="table"
+                            />
+                        </TableContainer>
                     )}
                 </>
             )}
+
+            {/* ─── Page Footer ─── */}
+            <div className="mt-8 pt-4 border-t border-[#EAE5DD] flex items-center justify-between text-xs text-[#8A90A2] font-sans pb-6">
+                <span>Foliowalaweh · Your Work · Your Story · Your Way</span>
+                <span>All changes saved · {currentTime}</span>
+            </div>
 
             {/* Creation / Edit Modal */}
             <Dialog open={isModalOpen} onClose={handleCloseModal} className="relative z-50">

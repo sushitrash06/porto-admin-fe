@@ -10,15 +10,22 @@ import {
   useCreateBusinessProject, 
   useDeleteBusinessProject,
   useUploadBusinessProjectThumbnail,
-  useUploadBusinessProjectImage
+  useUploadBusinessProjectImage,
+  useConvertPersonalProject
 } from '../../hooks/useBusinessProjects';
+import { useMyProjects } from '../../hooks/useProjects';
+import { useToast } from '../../hooks/useToast';
 import { Dialog, DialogPanel, DialogTitle, DialogBackdrop, Listbox, ListboxButton, ListboxOptions, ListboxOption } from '@headlessui/react';
 import { 
   FolderGit2, Plus, Edit, Trash2, ShieldAlert, 
   Calendar, Loader2, ChevronDown, Check, Building, MapPin, Globe, EyeOff, X,
-  Camera, Image as ImageIcon, PlusCircle
+  Camera, Image as ImageIcon, PlusCircle, ArrowDownToLine, Sparkles
 } from 'lucide-react';
 import { ConfirmDialog } from '../molecules/ConfirmDialog';
+import { SearchBar } from '../molecules/SearchBar';
+import { Pagination } from '../molecules/Pagination';
+import { Badge } from '../atoms/Badge';
+import { TableActionButton } from '../molecules/Table';
 
 const projectTypesList = [
   { value: 'RESIDENTIAL', label: 'Residential' },
@@ -33,11 +40,14 @@ const projectTypesList = [
 
 export const BusinessProjects: React.FC = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   // Queries
   const { data: projects, isLoading, isError, error: fetchError } = useBusinessProjects();
+  const { data: personalProjects = [], isLoading: isPersonalLoading } = useMyProjects({ enabled: true });
   const createMutation = useCreateBusinessProject();
   const deleteMutation = useDeleteBusinessProject();
+  const convertMutation = useConvertPersonalProject();
 
   // Pagination & Filters
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -46,6 +56,9 @@ export const BusinessProjects: React.FC = () => {
 
   // Modal Dialogue Creator state
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [isImportModalOpen, setIsImportModalOpen] = useState<boolean>(false);
+  const [importDeleteOriginal, setImportDeleteOriginal] = useState<boolean>(false);
+  const [convertingId, setConvertingId] = useState<string | null>(null);
 
   // Form Fields
   const [title, setTitle] = useState<string>('');
@@ -177,12 +190,38 @@ export const BusinessProjects: React.FC = () => {
       message: 'Are you sure you want to permanently delete this commercial case study? All related details and image registers will be lost.',
       onConfirm: () => {
         deleteMutation.mutate(id, {
+          onSuccess: () => {
+            toast.success('Commercial case study deleted successfully.');
+          },
           onError: (err) => {
-            alert(err.response?.data?.message || err.message || 'Failed to delete project.');
+            const errMsg = err.response?.data?.message || err.message || 'Failed to delete project.';
+            toast.error(typeof errMsg === 'string' ? errMsg : 'Failed to delete project.');
           }
         });
       }
     });
+  };
+
+  const handleImportPersonalProject = (personalProjectId: string) => {
+    setConvertingId(personalProjectId);
+    convertMutation.mutate(
+      { personalProjectId, deleteOriginal: importDeleteOriginal },
+      {
+        onSuccess: (data) => {
+          toast.success(
+            `Project "${data.title}" converted to commercial case study successfully!`
+          );
+          setIsImportModalOpen(false);
+          setConvertingId(null);
+        },
+        onError: (err) => {
+          const errMsg =
+            err.response?.data?.message || err.message || 'Failed to import personal project.';
+          toast.error(typeof errMsg === 'string' ? errMsg : 'Failed to import project.');
+          setConvertingId(null);
+        },
+      }
+    );
   };
 
   const filteredProjects = useMemo(() => {
@@ -222,28 +261,39 @@ export const BusinessProjects: React.FC = () => {
           </div>
         </div>
 
-        <button
-          id="create-new-business-project-btn"
-          onClick={handleOpenCreate}
-          className="flex cursor-pointer items-center justify-center space-x-2 rounded-xl bg-[#8B6CF6] px-4 py-2.5 font-sans text-xs font-semibold text-white shadow-xs transition hover:bg-[#7A5CE0] active:scale-95 self-start sm:self-auto"
-        >
-          <Plus className="h-4 w-4" />
-          <span>New Project</span>
-        </button>
+        <div className="flex flex-wrap items-center gap-2.5 self-start sm:self-auto">
+          <button
+            id="import-from-personal-btn"
+            type="button"
+            onClick={() => setIsImportModalOpen(true)}
+            className="flex cursor-pointer items-center justify-center space-x-2 rounded-xl border border-[#EAE5DD] bg-white hover:bg-[#FAF8F5] px-4 py-2.5 font-sans text-xs font-semibold text-[#202744] shadow-3xs transition active:scale-95"
+            title="Convert a personal portfolio project into a commercial business case study"
+          >
+            <ArrowDownToLine className="h-4 w-4 text-[#8B6CF6]" />
+            <span>Import from Personal</span>
+          </button>
+
+          <button
+            id="create-new-business-project-btn"
+            onClick={handleOpenCreate}
+            className="flex cursor-pointer items-center justify-center space-x-2 rounded-xl bg-[#8B6CF6] px-4 py-2.5 font-sans text-xs font-semibold text-white shadow-xs transition hover:bg-[#7A5CE0] active:scale-95"
+          >
+            <Plus className="h-4 w-4" />
+            <span>New Project</span>
+          </button>
+        </div>
       </div>
 
       {/* Search Filter */}
       {projects && projects.length > 0 && (
-        <div className="relative max-w-md">
-          <input
-            type="text"
+        <div className="max-w-md w-full">
+          <SearchBar
             value={searchQuery}
-            onChange={(e) => {
-              setSearchQuery(e.target.value);
+            onChange={(val) => {
+              setSearchQuery(val);
               setCurrentPage(1);
             }}
             placeholder="Search projects by title, client, or keyword..."
-            className="w-full rounded-xl border border-[#EAE5DD] bg-white px-4 py-2.5 font-sans text-xs text-[#202744] placeholder-[#69718A]/60 focus:border-[#8B6CF6] focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-[#8B6CF6]/20 shadow-xs"
           />
         </div>
       )}
@@ -261,7 +311,7 @@ export const BusinessProjects: React.FC = () => {
 
       {/* Project content */}
       {isLoading ? (
-        <div className="rounded-2xl border border-[#EAE5DD] bg-white p-14 text-center text-[#69718A] shadow-xs">
+        <div className="rounded-2xl border border-[#EAE5DD] bg-white p-14 text-center text-[#69718A] shadow-3xs">
           <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-violet-50 text-[#8B6CF6] mx-auto mb-3 border border-violet-100">
             <Loader2 className="h-6 w-6 animate-spin" />
           </div>
@@ -271,7 +321,7 @@ export const BusinessProjects: React.FC = () => {
       ) : !projects || projects.length === 0 ? (
         /* Empty state with CTA */
         <div className="rounded-2xl border border-dashed border-[#EAE5DD] bg-[#FAF8F5]/50 p-14 text-center text-[#69718A] font-sans">
-          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-violet-50 text-[#8B6CF6] mx-auto mb-3 border border-violet-100 shadow-xs">
+          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-violet-50 text-[#8B6CF6] mx-auto mb-3 border border-violet-100 shadow-3xs">
             <FolderGit2 className="h-7 w-7" />
           </div>
           <h3 className="text-base font-bold text-[#202744]">No Business Projects Published</h3>
@@ -280,7 +330,7 @@ export const BusinessProjects: React.FC = () => {
           </p>
           <button
             onClick={handleOpenCreate}
-            className="mt-5 inline-flex items-center space-x-2 rounded-xl bg-[#8B6CF6] px-4 py-2 font-sans text-xs font-bold text-white shadow-xs hover:bg-[#7A5CE0] transition active:scale-95 cursor-pointer"
+            className="mt-5 inline-flex items-center space-x-2 rounded-xl bg-[#8B6CF6] px-4 py-2 font-sans text-xs font-semibold text-white shadow-xs hover:bg-[#7857ED] transition active:scale-95 cursor-pointer"
           >
             <Plus className="h-4 w-4" />
             <span>Create Case Study</span>
@@ -298,15 +348,15 @@ export const BusinessProjects: React.FC = () => {
               <div
                 key={proj.id}
                 onClick={() => navigate(`/admin/business/projects/${proj.id}`)}
-                className="group cursor-pointer flex flex-col justify-between overflow-hidden rounded-2xl border border-[#EAE5DD] bg-white shadow-xs transition-all duration-200 hover:border-[#8B6CF6]/40 hover:shadow-md"
+                className="group cursor-pointer flex flex-col justify-between overflow-hidden rounded-2xl border border-[#EAE5DD] bg-white shadow-3xs transition-all duration-200 hover:border-[#8B6CF6]/40 hover:shadow-xs"
               >
                 {/* Thumbnail Header Area */}
-                <div className="relative aspect-video w-full bg-[#FAF8F5] border-b border-[#F0EBE1] overflow-hidden flex items-center justify-center">
+                <div className="relative aspect-video w-full bg-[#FAF8F5] border-b border-[#F3EFEA] overflow-hidden flex items-center justify-center">
                   {proj.thumbnail ? (
                     <img 
                       src={proj.thumbnail} 
                       alt={proj.title} 
-                      className="h-full w-full object-cover group-hover:scale-103 transition duration-300"
+                      className="h-full w-full object-cover group-hover:scale-102 transition duration-300"
                     />
                   ) : (
                     <div className="text-[#69718A]/50 flex flex-col items-center">
@@ -315,32 +365,34 @@ export const BusinessProjects: React.FC = () => {
                     </div>
                   )}
 
-                  <span className={`absolute top-3 right-3 inline-flex items-center space-x-1 rounded-full px-2.5 py-0.5 font-sans text-[10px] font-semibold shadow-xs backdrop-blur-xs ${
-                    proj.isPublic 
-                      ? 'bg-emerald-50/90 text-emerald-700 border border-emerald-200' 
-                      : 'bg-white/90 text-[#69718A] border border-[#EAE5DD]'
-                  }`}>
-                    {proj.isPublic ? <Globe className="h-3 w-3 text-emerald-600" /> : <EyeOff className="h-3 w-3 text-[#69718A]" />}
-                    <span>{proj.isPublic ? 'Public' : 'Hidden'}</span>
-                  </span>
+                  <div className="absolute top-3 right-3">
+                    <Badge
+                      variant={proj.isPublic ? 'success' : 'neutral'}
+                      size="xs"
+                      className="backdrop-blur-xs bg-white/90 shadow-3xs"
+                    >
+                      {proj.isPublic ? <Globe className="h-3 w-3" /> : <EyeOff className="h-3 w-3" />}
+                      <span>{proj.isPublic ? 'Public' : 'Hidden'}</span>
+                    </Badge>
+                  </div>
                 </div>
 
                 {/* Card Info details */}
                 <div className="p-5 flex-1 flex flex-col justify-between">
                   <div className="space-y-2.5">
-                    <div className="flex items-center justify-between font-mono text-[9px] font-bold uppercase tracking-wider text-[#69718A]">
-                      <span className="px-2 py-0.5 rounded-md bg-[#FAF8F5] border border-[#EAE5DD] text-[#8B6CF6]">
+                    <div className="flex items-center justify-between">
+                      <Badge variant="primary" size="xs">
                         {proj.projectType.replace('_', ' ')}
-                      </span>
+                      </Badge>
                       {proj.year && (
-                        <span className="flex items-center text-[#69718A]">
-                          <Calendar className="h-3 w-3 mr-1 text-[#8B6CF6]" />
+                        <span className="flex items-center font-sans text-xs text-[#69718A]">
+                          <Calendar className="h-3.5 w-3.5 mr-1 text-[#8B6CF6]" />
                           {proj.year}
                         </span>
                       )}
                     </div>
 
-                    <h4 className="font-sans text-sm font-bold text-[#202744] group-hover:text-[#8B6CF6] transition line-clamp-1">
+                    <h4 className="font-sans text-sm font-semibold text-[#202744] group-hover:text-[#8B6CF6] transition line-clamp-1">
                       {proj.title}
                     </h4>
 
@@ -360,20 +412,19 @@ export const BusinessProjects: React.FC = () => {
                   </div>
 
                   {/* Footer options */}
-                  <div className="mt-5 border-t border-[#F0EBE1] pt-3.5 flex items-center justify-between">
+                  <div className="mt-5 border-t border-[#F3EFEA] pt-3.5 flex items-center justify-between">
                     <span className="font-sans text-xs font-semibold text-[#8B6CF6] inline-flex items-center group-hover:translate-x-0.5 transition">
                       <span>Configure specs</span>
                       <Edit className="h-3.5 w-3.5 ml-1.5" />
                     </span>
 
-                    <button
+                    <TableActionButton
+                      icon={<Trash2 className="h-3.5 w-3.5" />}
+                      label="Delete case study"
+                      variant="danger"
                       onClick={(e) => handleDelete(proj.id, e)}
                       disabled={deleteMutation.isPending}
-                      className="rounded-xl border border-[#EAE5DD] bg-white p-2 text-[#69718A] hover:border-rose-200 hover:text-rose-600 hover:bg-rose-50 transition cursor-pointer shadow-xs"
-                      title="Delete entry"
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </button>
+                    />
                   </div>
                 </div>
               </div>
@@ -381,30 +432,15 @@ export const BusinessProjects: React.FC = () => {
           </div>
 
           {/* Pagination */}
-          {totalPages > 1 && (
-            <div className="flex items-center justify-between rounded-xl border border-[#EAE5DD] bg-[#FAF8F5] px-6 py-3 font-sans text-xs">
-              <div className="text-[#69718A]">
-                Showing page <span className="font-semibold text-[#202744]">{activePage}</span> of{' '}
-                <span className="font-semibold text-[#202744]">{totalPages}</span> ({filteredProjects.length} projects)
-              </div>
-              <div className="flex items-center space-x-2">
-                <button
-                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                  disabled={activePage <= 1}
-                  className="rounded-lg border border-[#EAE5DD] bg-white px-3 py-1.5 text-xs font-semibold text-[#202744] transition hover:bg-[#FAF8F5] disabled:opacity-50 cursor-pointer shadow-xs"
-                >
-                  Prev
-                </button>
-                <button
-                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                  disabled={activePage >= totalPages}
-                  className="rounded-lg border border-[#EAE5DD] bg-white px-3 py-1.5 text-xs font-semibold text-[#202744] transition hover:bg-[#FAF8F5] disabled:opacity-50 cursor-pointer shadow-xs"
-                >
-                  Next
-                </button>
-              </div>
-            </div>
-          )}
+          <Pagination
+            currentPage={activePage}
+            totalPages={totalPages}
+            totalItems={filteredProjects.length}
+            itemsPerPage={ITEMS_PER_PAGE}
+            itemLabel="projects"
+            onPageChange={setCurrentPage}
+            variant="standalone"
+          />
         </>
       )}
 
@@ -705,6 +741,138 @@ export const BusinessProjects: React.FC = () => {
                 </button>
               </div>
             </form>
+          </DialogPanel>
+        </div>
+      </Dialog>
+
+      {/* ─── Import Personal Project Modal ─── */}
+      <Dialog
+        open={isImportModalOpen}
+        onClose={() => !convertingId && setIsImportModalOpen(false)}
+        className="relative z-50"
+      >
+        <DialogBackdrop className="fixed inset-0 bg-[#202744]/20 backdrop-blur-xs transition-opacity animate-in fade-in" />
+        <div className="fixed inset-0 flex w-screen items-center justify-center p-4">
+          <DialogPanel className="max-w-xl w-full rounded-2xl bg-white border border-[#EAE5DD] shadow-2xl p-6 font-sans animate-in zoom-in-95 duration-150 max-h-[85vh] flex flex-col">
+            <div className="flex items-center justify-between pb-4 border-b border-[#F0EBE1]">
+              <div className="flex items-center space-x-2.5">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#E8E0FF] text-[#8B6CF6]">
+                  <ArrowDownToLine className="h-4 w-4" />
+                </div>
+                <div>
+                  <DialogTitle className="text-base font-bold text-[#202744]">
+                    Import from Personal Portfolio
+                  </DialogTitle>
+                  <p className="text-xs text-[#69718A]">
+                    Select a project to convert into a client case study without re-entering data.
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsImportModalOpen(false)}
+                disabled={!!convertingId}
+                className="text-[#8A90A2] hover:text-[#202744] p-1 rounded-lg hover:bg-[#FAF8F5] transition cursor-pointer"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            <div className="py-4 flex-1 overflow-y-auto space-y-3">
+              {/* Option toggle deleteOriginal */}
+              <div className="p-3 rounded-xl bg-[#FAF8F5] border border-[#EAE5DD] flex items-center justify-between">
+                <div>
+                  <p className="text-xs font-bold text-[#202744]">Delete original personal project?</p>
+                  <p className="text-[11px] text-[#69718A]">
+                    If enabled, the project will be removed from your personal portfolio.
+                  </p>
+                </div>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={importDeleteOriginal}
+                    onChange={(e) => setImportDeleteOriginal(e.target.checked)}
+                    className="sr-only peer"
+                  />
+                  <div className="w-10 h-5 bg-[#EAE5DD] peer-focus:outline-hidden rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#8B6CF6]"></div>
+                </label>
+              </div>
+
+              {isPersonalLoading ? (
+                <div className="flex flex-col items-center justify-center py-12 text-[#69718A]">
+                  <Loader2 className="h-6 w-6 animate-spin text-[#8B6CF6] mb-2" />
+                  <span className="text-xs">Loading personal projects...</span>
+                </div>
+              ) : personalProjects.length === 0 ? (
+                <div className="text-center py-10 px-4">
+                  <p className="text-xs font-semibold text-[#202744]">No personal projects found</p>
+                  <p className="text-xs text-[#69718A] mt-1">
+                    Create a project in your Personal Workspace first to import it here.
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {personalProjects.map((proj) => (
+                    <div
+                      key={proj.id}
+                      className="flex items-center justify-between p-3 rounded-xl border border-[#EAE5DD] bg-white hover:border-[#8B6CF6]/50 hover:bg-[#FAF8F5] transition"
+                    >
+                      <div className="flex items-center space-x-3 min-w-0 flex-1 pr-3">
+                        {proj.thumbnail ? (
+                          <img
+                            src={proj.thumbnail}
+                            alt={proj.title}
+                            className="h-10 w-10 rounded-lg object-cover border border-[#EAE5DD] shrink-0"
+                          />
+                        ) : (
+                          <div className="h-10 w-10 rounded-lg bg-[#E8E0FF] text-[#8B6CF6] flex items-center justify-center shrink-0">
+                            <FolderGit2 className="h-5 w-5" />
+                          </div>
+                        )}
+                        <div className="min-w-0 flex-1">
+                          <p className="text-xs font-bold text-[#202744] truncate">{proj.title}</p>
+                          <div className="flex items-center gap-1.5 mt-0.5">
+                            <span className="font-mono text-[10px] text-[#8B6CF6] font-semibold uppercase">
+                              {proj.type}
+                            </span>
+                            {proj.techStacks?.length > 0 && (
+                              <span className="text-[10px] text-[#69718A] truncate">
+                                · {proj.techStacks.slice(0, 3).join(', ')}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => handleImportPersonalProject(proj.id)}
+                        disabled={convertingId === proj.id}
+                        className="shrink-0 flex items-center space-x-1.5 rounded-lg bg-[#8B6CF6] hover:bg-[#7857ED] text-white px-3 py-1.5 text-xs font-bold transition shadow-xs cursor-pointer active:scale-95 disabled:opacity-60"
+                      >
+                        {convertingId === proj.id ? (
+                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                        ) : (
+                          <Sparkles className="h-3.5 w-3.5" />
+                        )}
+                        <span>{convertingId === proj.id ? 'Importing...' : 'Import'}</span>
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="pt-3 border-t border-[#F0EBE1] flex justify-end">
+              <button
+                type="button"
+                onClick={() => setIsImportModalOpen(false)}
+                disabled={!!convertingId}
+                className="rounded-xl border border-[#EAE5DD] bg-white px-4 py-2 font-sans text-xs font-semibold text-[#69718A] hover:bg-[#FAF8F5] hover:text-[#202744] cursor-pointer transition"
+              >
+                Close
+              </button>
+            </div>
           </DialogPanel>
         </div>
       </Dialog>

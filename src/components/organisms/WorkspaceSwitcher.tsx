@@ -6,7 +6,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { User, Briefcase, Plus, ChevronDown, Check } from 'lucide-react';
-import { ActivateBusinessModal } from './ActivateBusinessModal';
 
 export interface WorkspaceSwitcherProps {
   currentUser: {
@@ -25,7 +24,6 @@ export const WorkspaceSwitcher: React.FC<WorkspaceSwitcherProps> = ({
   onWorkspaceChange,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [showActivateModal, setShowActivateModal] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
 
@@ -142,7 +140,7 @@ export const WorkspaceSwitcher: React.FC<WorkspaceSwitcherProps> = ({
                 type="button"
                 onClick={() => {
                   setIsOpen(false);
-                  setShowActivateModal(true);
+                  navigate('/admin/business/activate');
                 }}
                 className="w-full flex items-center gap-2.5 px-3 py-2.5 mt-1 rounded-xl text-left text-xs bg-gradient-to-r from-[#E7F2FF] to-[#E8E0FF] hover:opacity-95 text-[#202744] border border-[#BFDEFF] transition-all group cursor-pointer"
               >
@@ -158,18 +156,6 @@ export const WorkspaceSwitcher: React.FC<WorkspaceSwitcherProps> = ({
           </div>
         )}
       </div>
-
-      {showActivateModal && (
-        <ActivateBusinessModal
-          isOpen={showActivateModal}
-          onClose={() => setShowActivateModal(false)}
-          onSuccess={() => {
-            setShowActivateModal(false);
-            navigate('/admin/business/dashboard');
-            window.location.reload();
-          }}
-        />
-      )}
     </>
   );
 };

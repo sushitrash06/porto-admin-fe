@@ -12,11 +12,19 @@ import { Role } from '../../types';
 import {
     Users, Briefcase, FolderGit2,
     ArrowRight, Clock, Activity,
-    ExternalLink
+    ExternalLink, Plus, Palette
 } from 'lucide-react';
+import { useProfile } from '../../hooks/useProfile';
+import { useBusinessProfile } from '../../hooks/useBusinessProfile';
+import { Badge } from '../atoms/Badge';
+import { TableIdentityTile } from '../molecules/Table';
 
 export const AdminDashboardOverview: React.FC = () => {
     const navigate = useNavigate();
+
+    // Current user profile details for studio navigation
+    const { data: profile } = useProfile();
+    const { data: businessProfile } = useBusinessProfile();
 
     // Fetch aggregate data
     const { data: usersData, isLoading: isUsersLoading } = useUsers({ page: 1, limit: 1 });
@@ -141,13 +149,38 @@ export const AdminDashboardOverview: React.FC = () => {
                     </p>
                 </div>
 
-                <button
-                    onClick={() => navigate('/admin/business/dashboard')}
-                    className="self-start shrink-0 flex items-center space-x-2 rounded-xl border border-[#EAE5DD] bg-white px-5 py-2.5 font-sans text-xs font-bold text-[#202744] transition hover:border-[#8B6CF6] hover:text-[#8B6CF6] hover:shadow-xs active:scale-95 cursor-pointer shadow-3xs"
-                >
-                    <span>Open User Studio (Azkaxism)</span>
-                    <ExternalLink className="h-3.5 w-3.5" />
-                </button>
+                <div className="flex flex-wrap items-center gap-2.5 self-start shrink-0">
+                    <button
+                        onClick={() => navigate('/admin/templates/builder')}
+                        className="flex items-center space-x-2 rounded-xl bg-[#8B6CF6] hover:bg-[#7857ED] px-4 py-2.5 font-sans text-xs font-bold text-white transition active:scale-95 cursor-pointer shadow-3xs"
+                    >
+                        <Plus className="h-3.5 w-3.5" />
+                        <span>+ Create New Template</span>
+                    </button>
+                    <button
+                        onClick={() => navigate('/admin/profile')}
+                        className="flex items-center space-x-2 rounded-xl border border-[#EAE5DD] bg-white px-4 py-2.5 font-sans text-xs font-bold text-[#202744] transition hover:border-[#8B6CF6] hover:text-[#8B6CF6] hover:shadow-xs active:scale-95 cursor-pointer shadow-3xs"
+                    >
+                        <span>Personal Workspace {profile?.fullName ? `(${profile.fullName})` : ''}</span>
+                        <ExternalLink className="h-3.5 w-3.5" />
+                    </button>
+                    {businessProfile ? (
+                        <button
+                            onClick={() => navigate('/admin/business/dashboard')}
+                            className="flex items-center space-x-2 rounded-xl border border-[#EAE5DD] bg-white px-4 py-2.5 font-sans text-xs font-bold text-[#202744] transition hover:border-[#8B6CF6] hover:text-[#8B6CF6] hover:shadow-xs active:scale-95 cursor-pointer shadow-3xs"
+                        >
+                            <span>Business Studio ({businessProfile.businessName})</span>
+                            <ExternalLink className="h-3.5 w-3.5" />
+                        </button>
+                    ) : (
+                        <button
+                            onClick={() => navigate('/admin/business/activate')}
+                            className="flex items-center space-x-2 rounded-xl border border-[#D5C6FF] bg-[#F4F0FF] hover:bg-[#ECE3FF] px-4 py-2.5 font-sans text-xs font-bold text-[#5533CC] transition active:scale-95 cursor-pointer shadow-3xs"
+                        >
+                            <span>+ Activate Business Studio</span>
+                        </button>
+                    )}
+                </div>
             </div>
 
             {/* ─── Stats Cards Grid ─── */}
@@ -217,45 +250,47 @@ export const AdminDashboardOverview: React.FC = () => {
 
                     <div className="space-y-2.5">
                         {recentUsers.map(user => {
-                            const initial = user.profile?.fullName 
-                                ? user.profile.fullName.substring(0, 2).toUpperCase()
-                                : user.email.substring(0, 2).toUpperCase();
                             const displayName = user.profile?.fullName || 'No Profile';
 
                             return (
                                 <div
                                     key={user.id}
                                     onClick={() => navigate('/admin/users')}
-                                    className="group flex items-center justify-between rounded-xl border border-[#F0EBE1] bg-[#FAF8F5] px-4 py-3.5 transition hover:border-[#8B6CF6]/50 hover:bg-white hover:shadow-2xs cursor-pointer"
+                                    className="group flex items-center justify-between rounded-xl border border-[#EAE5DD] bg-white px-4 py-3 transition-all duration-150 hover:border-[#8B6CF6]/40 hover:bg-[#8B6CF6]/[0.035] hover:shadow-3xs cursor-pointer"
                                 >
                                     <div className="flex items-center space-x-3.5 min-w-0">
-                                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#E8E0FF] border border-[#8B6CF6]/20 font-mono text-xs font-bold text-[#8B6CF6]">
-                                            {initial}
-                                        </div>
+                                        <TableIdentityTile
+                                            name={displayName}
+                                            image={user.profile?.profileImage}
+                                            variant={user.role === Role.ADMIN ? 'violet' : 'neutral'}
+                                            size="md"
+                                        />
                                         <div className="min-w-0">
                                             <div className="flex items-center space-x-2">
-                                                <p className="font-sans text-xs font-bold text-[#202744] truncate">
+                                                <p className="font-sans text-xs font-semibold text-[#202744] truncate group-hover:text-[#8B6CF6] transition-colors">
                                                     {displayName}
                                                 </p>
-                                                <span className="rounded bg-white border border-[#EAE5DD] px-1.5 py-0.5 font-mono text-[9px] font-bold uppercase text-[#69718A]">
+                                                <Badge
+                                                    variant={user.role === Role.ADMIN ? 'primary' : 'neutral'}
+                                                    size="xs"
+                                                >
                                                     {user.role}
-                                                </span>
+                                                </Badge>
                                             </div>
-                                            <p className="font-mono text-[10px] text-[#69718A] truncate mt-0.5">
+                                            <p className="font-sans text-[11px] text-[#69718A] truncate mt-0.5">
                                                 {user.email}
                                             </p>
                                         </div>
                                     </div>
 
                                     <div className="flex items-center space-x-3 shrink-0">
-                                        <span className={`rounded-md px-2 py-0.5 font-mono text-[9px] font-bold uppercase tracking-wider border ${
-                                            user.isEmailVerified
-                                                ? 'border-emerald-200 text-emerald-700 bg-emerald-50'
-                                                : 'border-amber-200 text-amber-700 bg-amber-50'
-                                        }`}>
-                                            {user.isEmailVerified ? 'VERIFIED' : 'UNVERIFIED'}
-                                        </span>
-                                        <ArrowRight className="h-3.5 w-3.5 text-[#69718A] transition group-hover:text-[#8B6CF6] group-hover:translate-x-0.5" />
+                                        <Badge
+                                            variant={user.isEmailVerified ? 'success' : 'warning'}
+                                            size="xs"
+                                        >
+                                            {user.isEmailVerified ? 'Verified' : 'Unverified'}
+                                        </Badge>
+                                        <ArrowRight className="h-3.5 w-3.5 text-[#69718A] transition-transform duration-150 group-hover:text-[#8B6CF6] group-hover:translate-x-0.5" />
                                     </div>
                                 </div>
                             );
@@ -271,6 +306,29 @@ export const AdminDashboardOverview: React.FC = () => {
                         <h3 className="font-sans text-xs font-bold uppercase tracking-wider text-[#69718A] mb-4">
                             Admin Quick Actions
                         </h3>
+
+                        <button
+                            onClick={() => navigate('/admin/templates/builder')}
+                            className="w-full flex items-center justify-between rounded-xl border border-[#D5C6FF] bg-[#F4F0FF] p-3 text-left transition hover:bg-[#ECE3FF] cursor-pointer group shadow-3xs"
+                        >
+                            <div className="flex items-center space-x-2.5">
+                                <Palette className="h-4 w-4 text-[#8B6CF6]" />
+                                <span className="font-sans text-xs font-bold text-[#5533CC]">
+                                    + Create New Template
+                                </span>
+                            </div>
+                            <ArrowRight className="h-3.5 w-3.5 text-[#8B6CF6] group-hover:translate-x-0.5 transition" />
+                        </button>
+
+                        <button
+                            onClick={() => navigate('/admin/templates')}
+                            className="w-full flex items-center justify-between rounded-xl border border-[#F0EBE1] bg-[#FAF8F5] p-3 text-left transition hover:border-[#8B6CF6]/50 hover:bg-white hover:shadow-2xs cursor-pointer group"
+                        >
+                            <span className="font-sans text-xs font-medium text-[#202744] group-hover:text-[#8B6CF6] transition">
+                                Browse Theme Templates
+                            </span>
+                            <ArrowRight className="h-3.5 w-3.5 text-[#69718A] group-hover:text-[#8B6CF6] transition" />
+                        </button>
 
                         <button
                             onClick={() => navigate('/admin/users')}

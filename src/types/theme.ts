@@ -113,6 +113,7 @@ export interface ThemeTokens {
   backgroundColor: string;
   surfaceColor?: string;
   textColor?: string;
+  textSecondaryColor?: string;
   borderRadius?: string;
   darkMode?: boolean;
 }
@@ -126,7 +127,12 @@ export interface SectionBlock {
   props?: Record<string, unknown>;
 }
 
+export type TemplateType = 'BUILDER' | 'CUSTOM_HTML';
+
 export interface LayoutConfig {
+  templateType?: TemplateType;
+  customHtml?: string;
+  customCss?: string;
   theme: ThemeTokens;
   sections: SectionBlock[];
 }
