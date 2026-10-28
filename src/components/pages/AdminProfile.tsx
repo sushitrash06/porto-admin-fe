@@ -8,7 +8,8 @@ import { useProfile, useUpdateProfile, useUploadProfileImage, useUploadProfileBa
 import { getSessionPayload } from '../../lib/auth';
 import { AccountSecuritySection } from '../molecules/AccountSecuritySection';
 import { ProfileThemeTab } from '../organisms/ProfileThemeTab';
-import { UserCheck, ShieldAlert, Loader2, Camera, Mail, Phone, MapPin, Sparkles, Tag, Plus, X, Globe, EyeOff, Lock, FileText, Upload, Download, Image as ImageIcon, Key, Copy, Check, ExternalLink, HelpCircle, Palette } from 'lucide-react';
+import { Dialog, DialogPanel, DialogTitle, DialogBackdrop } from '@headlessui/react';
+import { UserCheck, ShieldAlert, Loader2, Camera, Mail, Phone, MapPin, Sparkles, Tag, Plus, X, Globe, EyeOff, Lock, FileText, Upload, Download, Image as ImageIcon, Key, Copy, Check, ExternalLink, HelpCircle, Palette, ArrowRight } from 'lucide-react';
 export const AdminProfile: React.FC = () => {
     const { data: profile, isLoading, isError, error: fetchError } = useProfile();
     const updateProfileMutation = useUpdateProfile();
@@ -24,6 +25,34 @@ export const AdminProfile: React.FC = () => {
     // Copy to clipboard state
     const [copiedField, setCopiedField] = useState<string>('');
     const [showHowToUse, setShowHowToUse] = useState<boolean>(false);
+    const [showWelcomeModal, setShowWelcomeModal] = useState<boolean>(false);
+
+    // Otomatis selalu munculkan popup Cara Penggunaan jika user belum punya profil (GET /profiles/me kosong/belum ada fullName)
+    useEffect(() => {
+        if (userId) {
+            sessionStorage.removeItem(`folio_welcome_seen_${userId}`);
+            sessionStorage.removeItem(`folio_welcome_dismissed_${userId}`);
+            localStorage.removeItem(`folio_welcome_modal_dismissed_${userId}`);
+        }
+
+        if (!isLoading && (!profile || !profile.fullName)) {
+            setShowWelcomeModal(true);
+        }
+    }, [isLoading, profile, userId]);
+
+    const handleStartProfile = () => {
+        setShowWelcomeModal(false);
+        setTimeout(() => {
+            const nameInput = document.getElementById('field-fullname') as HTMLInputElement | null;
+            if (nameInput) {
+                nameInput.focus();
+            }
+        }, 100);
+    };
+
+    const handleCloseWelcomeModal = () => {
+        setShowWelcomeModal(false);
+    };
 
     const handleCopy = (text: string, field: string) => {
         navigator.clipboard.writeText(text).then(() => {
@@ -273,19 +302,57 @@ export const AdminProfile: React.FC = () => {
                         </p>
                     </div>
 
-                    {profile && userId && (
-                        <a
-                            href={`/portfolio/${userId}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-[#EAE5DD] bg-white text-xs font-bold text-[#202744] hover:bg-[#FAF8F5] hover:border-[#8B6CF6]/40 transition shadow-xs self-start sm:self-auto cursor-pointer"
+                    <div className="flex items-center gap-2.5 self-start sm:self-auto">
+                        <button
+                            type="button"
+                            onClick={() => setShowWelcomeModal(true)}
+                            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-violet-200 bg-violet-50 text-xs font-bold text-[#8B6CF6] hover:bg-violet-100 hover:border-violet-300 transition shadow-3xs cursor-pointer"
                         >
-                            <ExternalLink className="w-3.5 h-3.5 text-[#8B6CF6]" />
-                            <span>Live Portfolio</span>
-                        </a>
-                    )}
+                            <Sparkles className="w-3.5 h-3.5 text-[#8B6CF6]" />
+                            <span>Cara Penggunaan</span>
+                        </button>
+
+                        {profile && userId && profile.fullName && (
+                            <a
+                                href={`/portfolio/${userId}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-[#EAE5DD] bg-white text-xs font-bold text-[#202744] hover:bg-[#FAF8F5] hover:border-[#8B6CF6]/40 transition shadow-xs cursor-pointer"
+                            >
+                                <ExternalLink className="w-3.5 h-3.5 text-[#8B6CF6]" />
+                                <span>Live Portfolio</span>
+                            </a>
+                        )}
+                    </div>
                 </div>
             </div>
+
+            {/* Guidance Banner if profile is incomplete */}
+            {(!profile || !profile.fullName) && (
+                <div className="rounded-2xl border border-violet-200 bg-gradient-to-r from-violet-50/90 via-purple-50/50 to-blue-50/70 p-4 sm:p-5 shadow-3xs flex flex-col sm:flex-row sm:items-center justify-between gap-4 animate-in fade-in duration-300">
+                    <div className="flex items-start gap-3.5">
+                        <div className="w-10 h-10 rounded-xl bg-[#8B6CF6] text-white flex items-center justify-center shrink-0 shadow-xs">
+                            <Sparkles className="w-5 h-5" />
+                        </div>
+                        <div>
+                            <h3 className="font-sans text-xs sm:text-sm font-extrabold text-[#202744]">
+                                Langkah Awal: Lengkapi Profil Pertamamu
+                            </h3>
+                            <p className="font-sans text-xs text-[#69718A] mt-0.5 leading-relaxed">
+                                Isi minimal <strong>Nama Lengkap</strong> dan <strong>Headline</strong> di bawah ini, lalu klik <strong>Save Profile Settings</strong> agar menu <em>Projects</em>, <em>Experiences</em>, dan <em>Theme Studio</em> terbuka.
+                            </p>
+                        </div>
+                    </div>
+                    <button
+                        type="button"
+                        onClick={() => setShowWelcomeModal(true)}
+                        className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-white border border-[#EAE5DD] text-xs font-bold text-[#8B6CF6] hover:bg-[#FAF8F5] transition shadow-3xs shrink-0 cursor-pointer self-start sm:self-auto"
+                    >
+                        <HelpCircle className="w-3.5 h-3.5" />
+                        <span>Lihat Alur Lengkap</span>
+                    </button>
+                </div>
+            )}
 
             {/* Tab Navigation */}
             <div className="flex items-center gap-1.5 rounded-xl bg-[#F1ECE4]/70 p-1.5 overflow-x-auto border border-[#EAE5DD]">
@@ -334,12 +401,32 @@ export const AdminProfile: React.FC = () => {
                         <div className="lg:col-span-4">
                             <div className="relative rounded-2xl border border-[#EAE5DD] bg-white shadow-xs overflow-hidden flex flex-col items-center text-center pb-5">
                                 {/* Banner */}
-                                <div className="w-full h-24 bg-[#FAF8F5] border-b border-[#EAE5DD] relative">
+                                <div className="w-full h-24 bg-[#FAF8F5] border-b border-[#EAE5DD] relative group/banner overflow-hidden">
                                     {profile?.bannerImage ? (
-                                        <img src={profile.bannerImage} alt="Banner Background" className="w-full h-full object-cover" />
+                                        <img src={profile.bannerImage} alt="Banner Background" className="w-full h-full object-cover group-hover/banner:scale-105 transition duration-300" />
                                     ) : (
                                         <div className="w-full h-full bg-linear-to-r from-[#FAF8F5] to-[#E8E0FF]/40 flex items-center justify-center text-[#8B6CF6]/40">
                                             <ImageIcon className="h-6 w-6 stroke-1" />
+                                        </div>
+                                    )}
+
+                                    {/* Upload Trigger Hover Overlay */}
+                                    <label className="absolute inset-0 flex items-center justify-center bg-[#202744]/50 text-white opacity-0 group-hover/banner:opacity-100 transition-opacity cursor-pointer z-10">
+                                        <Camera className="h-4 w-4 mr-1.5" />
+                                        <span className="font-sans text-[11px] font-bold">Ganti Header</span>
+                                        <input type="file" accept="image/*" onChange={handleBannerChange} disabled={uploadBannerMutation.isPending} className="sr-only" />
+                                    </label>
+
+                                    {/* Subtle pill button visible before hover */}
+                                    <label className="absolute top-2 right-2 flex items-center gap-1 px-2 py-1 rounded-md bg-[#202744]/60 hover:bg-[#202744]/80 text-white text-[10px] font-medium backdrop-blur-xs cursor-pointer group-hover/banner:opacity-0 transition-opacity z-10 shadow-xs">
+                                        <Camera className="h-3 w-3" />
+                                        <span>Ganti Header</span>
+                                        <input type="file" accept="image/*" onChange={handleBannerChange} disabled={uploadBannerMutation.isPending} className="sr-only" />
+                                    </label>
+
+                                    {uploadBannerMutation.isPending && (
+                                        <div className="absolute inset-0 flex items-center justify-center bg-[#202744]/70 text-white z-20">
+                                            <Loader2 className="h-5 w-5 animate-spin" />
                                         </div>
                                     )}
                                 </div>
@@ -398,7 +485,7 @@ export const AdminProfile: React.FC = () => {
                                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                     <div>
                                         <label className="block font-sans text-[11px] font-bold text-[#202744] uppercase tracking-wider mb-1.5">Full Name <span className="text-red-500">*</span></label>
-                                        <input type="text" required value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Sarah Doe" className="w-full rounded-xl border border-[#EAE5DD] bg-[#FAF8F5] px-3.5 py-2.5 font-sans text-xs focus:border-[#8B6CF6] focus:bg-white focus:ring-2 focus:ring-[#8B6CF6]/15 focus:outline-hidden text-[#202744] transition-all" />
+                                        <input id="field-fullname" type="text" required value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Sarah Doe" className="w-full rounded-xl border border-[#EAE5DD] bg-[#FAF8F5] px-3.5 py-2.5 font-sans text-xs focus:border-[#8B6CF6] focus:bg-white focus:ring-2 focus:ring-[#8B6CF6]/15 focus:outline-hidden text-[#202744] transition-all" />
                                     </div>
                                     <div>
                                         <label className="block font-sans text-[11px] font-bold text-[#202744] uppercase tracking-wider mb-1.5">Professional Headline</label>
@@ -467,7 +554,7 @@ export const AdminProfile: React.FC = () => {
 
                         {/* Skills */}
                         <div className="space-y-3">
-                            <label className="block font-sans text-[11px] font-bold text-[#202744] uppercase tracking-wider mb-1">Developer Expertise Skills</label>
+                            <label className="block font-sans text-[11px] font-bold text-[#202744] uppercase tracking-wider mb-1">Expertise Skills</label>
                             <div className="flex gap-2">
                                 <input type="text" value={skillInput} onChange={(e) => setSkillInput(e.target.value)} placeholder="e.g. Kubernetes, React Query, TypeScript" className="flex-1 rounded-xl border border-[#EAE5DD] bg-[#FAF8F5] px-3.5 py-2.5 font-sans text-xs focus:border-[#8B6CF6] focus:bg-white focus:ring-2 focus:ring-[#8B6CF6]/15 focus:outline-hidden text-[#202744] transition-all" />
                                 <button type="button" onClick={handleAddSkill} className="px-4 bg-[#FAF8F5] border border-[#EAE5DD] hover:bg-[#E8E0FF]/50 hover:border-[#8B6CF6]/40 text-[#202744] font-bold uppercase tracking-wider text-[11px] rounded-xl transition flex items-center space-x-1 cursor-pointer">
@@ -869,6 +956,137 @@ export const AdminProfile: React.FC = () => {
                     </div>
                 </div>
             )}
+
+            {/* ═══════════════════════════════════════════════════════════════ */}
+            {/* POP UP MODAL CARA PENGGUNAAN (HEADLESS UI DIALOG)               */}
+            {/* ═══════════════════════════════════════════════════════════════ */}
+            <Dialog open={showWelcomeModal} onClose={handleCloseWelcomeModal} className="relative z-50">
+                {/* Backdrop with smooth blur */}
+                <DialogBackdrop className="fixed inset-0 bg-[#161B2E]/60 backdrop-blur-xs transition-opacity duration-200 animate-in fade-in" />
+
+                {/* Centered Scrollable Wrapper */}
+                <div className="fixed inset-0 z-50 overflow-y-auto">
+                    <div className="flex min-h-full items-center justify-center p-3 sm:p-6 text-center">
+                        <DialogPanel className="w-full max-w-xl transform overflow-hidden rounded-3xl bg-white text-left shadow-2xl border border-[#EAE5DD] my-auto animate-in fade-in-50 zoom-in-95 duration-200">
+                            {/* Decorative top accent gradient */}
+                            <div className="h-1.5 w-full bg-gradient-to-r from-[#8B6CF6] via-[#4697F5] to-[#FFC45B]" />
+
+                            {/* Close Button */}
+                            <button
+                                type="button"
+                                onClick={handleCloseWelcomeModal}
+                                className="absolute top-5 right-5 p-2 rounded-xl text-[#69718A] hover:text-[#202744] hover:bg-[#FAF8F5] transition cursor-pointer z-10"
+                                title="Tutup"
+                            >
+                                <X className="w-5 h-5" />
+                            </button>
+
+                            <div className="p-6 sm:p-7 space-y-5">
+                                {/* Modal Header */}
+                                <div className="space-y-1.5 pr-8">
+                                    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#E8E0FF]/60 text-[#8B6CF6] border border-[#D5C6FF]/60 text-[11px] font-bold uppercase tracking-wider">
+                                        <Sparkles className="w-3.5 h-3.5 text-[#8B6CF6]" />
+                                        <span>Panduan Memulai Cepat</span>
+                                    </div>
+                                    <DialogTitle className="text-xl sm:text-2xl font-black text-[#202744] tracking-tight">
+                                        Selamat Datang di Foliowalaweh! 👋
+                                    </DialogTitle>
+                                    <p className="text-xs sm:text-sm text-[#69718A] leading-relaxed">
+                                        Yuk siapkan portofolio profesionalmu! Ikuti <strong>4 langkah mudah</strong> ini agar portofoliomu siap diluncurkan dan dibagikan ke recruiter atau klien:
+                                    </p>
+                                </div>
+
+                                {/* Step-by-Step Flow List */}
+                                <div className="space-y-2.5">
+                                    {/* Step 1 */}
+                                    <div className="flex items-start gap-3 p-3 sm:p-3.5 rounded-2xl bg-[#F8F6FF] border border-violet-200/90 transition hover:border-[#8B6CF6] shadow-3xs">
+                                        <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-[#8B6CF6] text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-xs">
+                                            1
+                                        </div>
+                                        <div className="space-y-0.5 flex-1 min-w-0">
+                                            <div className="flex items-center gap-2">
+                                                <h4 className="font-sans text-xs sm:text-sm font-bold text-[#202744]">
+                                                    Lengkapi Profil & Identitas (Halaman Ini)
+                                                </h4>
+                                                <span className="text-[10px] font-extrabold text-violet-700 bg-violet-100/80 px-2 py-0.2 rounded-full uppercase tracking-wider">
+                                                    Langkah 1
+                                                </span>
+                                            </div>
+                                            <p className="font-sans text-[11px] text-[#69718A] leading-relaxed">
+                                                Ketik <strong>Nama Lengkap</strong>, <strong>Headline</strong> profesi (misal: <em>Full Stack Engineer</em> atau <em>UI/UX Designer</em>), dan upload foto profilmu di bawah, lalu klik <strong>Save Profile Settings</strong>.
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    {/* Step 2 */}
+                                    <div className="flex items-start gap-3 p-3 sm:p-3.5 rounded-2xl bg-[#FAF8F5] border border-[#EAE5DD] transition hover:border-[#4697F5] shadow-3xs">
+                                        <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-[#4697F5] text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-xs">
+                                            2
+                                        </div>
+                                        <div className="space-y-0.5 flex-1 min-w-0">
+                                            <h4 className="font-sans text-xs sm:text-sm font-bold text-[#202744]">
+                                                Pilih Template & Warna di Theme Studio
+                                            </h4>
+                                            <p className="font-sans text-[11px] text-[#69718A] leading-relaxed">
+                                                Setelah profil disimpan, buka menu <strong>Theme Studio</strong> di sidebar kiri untuk memilih berbagai layout HTML template dan mengatur palet warna portofoliomu.
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    {/* Step 3 */}
+                                    <div className="flex items-start gap-3 p-3 sm:p-3.5 rounded-2xl bg-[#FAF8F5] border border-[#EAE5DD] transition hover:border-amber-400 shadow-3xs">
+                                        <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-[#FFC45B] text-[#202744] flex items-center justify-center font-bold text-xs shrink-0 shadow-xs">
+                                            3
+                                        </div>
+                                        <div className="space-y-0.5 flex-1 min-w-0">
+                                            <h4 className="font-sans text-xs sm:text-sm font-bold text-[#202744]">
+                                                Tambahkan Proyek & Riwayat Pengalaman
+                                            </h4>
+                                            <p className="font-sans text-[11px] text-[#69718A] leading-relaxed">
+                                                Pamerkan hasil karyamu di menu <strong>Projects</strong> dan riwayat kerja di menu <strong>Experiences</strong> lengkap dengan tag teknologi, foto mockup, dan link demo/GitHub.
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    {/* Step 4 */}
+                                    <div className="flex items-start gap-3 p-3 sm:p-3.5 rounded-2xl bg-[#FAF8F5] border border-emerald-400/80 transition hover:border-emerald-500 shadow-3xs">
+                                        <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-emerald-500 text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-xs">
+                                            4
+                                        </div>
+                                        <div className="space-y-0.5 flex-1 min-w-0">
+                                            <h4 className="font-sans text-xs sm:text-sm font-bold text-[#202744]">
+                                                Publikasikan & Siap Dibagikan ke Dunia!
+                                            </h4>
+                                            <p className="font-sans text-[11px] text-[#69718A] leading-relaxed">
+                                                Portofolio onlinemu langsung aktif secara live! Salin link publik portofoliomu untuk dipasang di bio media sosial, profil LinkedIn, atau dilampirkan pada CV kerja.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Modal Actions */}
+                                <div className="flex flex-col sm:flex-row items-center gap-2.5 pt-2">
+                                    <button
+                                        type="button"
+                                        onClick={handleStartProfile}
+                                        className="w-full sm:flex-1 py-3 px-5 rounded-2xl bg-[#8B6CF6] hover:bg-[#7A56F4] text-white text-xs font-bold flex items-center justify-center gap-2 shadow-md shadow-violet-500/20 transition active:scale-[0.98] cursor-pointer"
+                                    >
+                                        <span>Mulai Isi Profil Sekarang (Langkah 1)</span>
+                                        <ArrowRight className="w-4 h-4" />
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={handleCloseWelcomeModal}
+                                        className="w-full sm:w-auto py-3 px-4 rounded-2xl text-xs font-semibold text-[#69718A] hover:text-[#202744] hover:bg-[#FAF8F5] transition cursor-pointer"
+                                    >
+                                        Nanti Saja
+                                    </button>
+                                </div>
+                            </div>
+                        </DialogPanel>
+                    </div>
+                </div>
+            </Dialog>
         </div>
     );
 };

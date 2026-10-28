@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
-import type { LayoutConfig, SectionBlock } from '../../types/theme';
+import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import type { LayoutConfig, SectionBlock, ThemeTokens } from '../../types/theme';
 import type { Profile, Experience, Project, BusinessProfile, BusinessService, BusinessProject } from '../../types';
 import {
   Mail, Phone, MapPin, Github, ExternalLink, Calendar,
@@ -1013,7 +1013,7 @@ export function compileCustomHtml(
   const profile = data.profile || {};
   const business = data.businessProfile || {};
   const services = data.businessServices || profile.services || [];
-  const theme = data.layout.theme || ({} as any);
+  const theme: Partial<ThemeTokens> = data.layout?.theme || {};
 
   const fallbackProjects = [
     {
@@ -1158,28 +1158,131 @@ export function compileCustomHtml(
   output = output.replace(/{{theme\.textSecondaryColor}}/g, theme.textSecondaryColor || '#94A3B8');
 
   // 4. Injected CSS
-  const styleTag = `<style>
+  // Load customCss FIRST, then dynamic theme tokens LAST with !important
+  // so dynamic tokens ALWAYS win over any static :root fallback in uploaded CSS!
+  const customCssTag = customCss ? `<style id="folio-custom-stylesheet">\n${customCss}\n</style>` : '';
+  const themeTokensTag = `<style id="folio-dynamic-theme-tokens">
     :root {
-      --primary: ${theme.primaryColor || '#8B6CF6'};
-      --secondary: ${theme.secondaryColor || '#4697F5'};
-      --bg: ${theme.backgroundColor || '#0F172A'};
-      --surface: ${theme.surfaceColor || '#1E293B'};
-      --text: ${theme.textColor || '#F8FAFC'};
-      --text-secondary: ${theme.textSecondaryColor || '#94A3B8'};
-      --radius: ${theme.borderRadius || '12px'};
+      --primary: ${theme.primaryColor || '#8B6CF6'} !important;
+      --secondary: ${theme.secondaryColor || '#4697F5'} !important;
+      --bg: ${theme.backgroundColor || '#0F172A'} !important;
+      --surface: ${theme.surfaceColor || '#1E293B'} !important;
+      --text: ${theme.textColor || '#F8FAFC'} !important;
+      --text-secondary: ${theme.textSecondaryColor || '#94A3B8'} !important;
+      --radius: ${theme.borderRadius || '12px'} !important;
     }
-    body { margin: 0; padding: 0; font-family: ${theme.fontFamily || 'Inter, sans-serif'}; }
-    ${customCss || ''}
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: ${theme.fontFamily || 'Inter, sans-serif'};
+      background-color: var(--bg) !important;
+      color: var(--text) !important;
+    }
   </style>`;
 
+  const injectedTags = `${customCssTag}\n${themeTokensTag}`;
+
   if (output.includes('</head>')) {
-    output = output.replace('</head>', `${styleTag}</head>`);
+    output = output.replace('</head>', `${injectedTags}\n</head>`);
   } else {
-    output = `${styleTag}\n${output}`;
+    output = `${injectedTags}\n${output}`;
   }
 
   return output;
 }
+
+interface CustomHtmlIframeProps {
+  customHtml: string;
+  customCss?: string;
+  data: DynamicPortfolioData;
+}
+
+export const CustomHtmlIframe: React.FC<CustomHtmlIframeProps> = ({
+  customHtml,
+  customCss,
+  data,
+}) => {
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const theme: Partial<ThemeTokens> = data.layout?.theme || {};
+
+  // Structure & Content: Only recompile when HTML, CSS, or user data changes!
+  // Theme changes will NOT reload the iframe, eliminating all blinking/flickering!
+  const compiledDoc = useMemo(() => {
+    return compileCustomHtml(customHtml, customCss, data);
+  }, [
+    customHtml,
+    customCss,
+    data.profile,
+    data.experiences,
+    data.projects,
+    data.businessProfile,
+    data.businessServices,
+    data.businessProjects,
+  ]);
+
+  // Inject dynamic CSS variables directly into iframe without reloading document
+  const applyThemeTokens = useCallback(() => {
+    try {
+      const iframe = iframeRef.current;
+      if (!iframe) return;
+      const doc = iframe.contentDocument || iframe.contentWindow?.document;
+      if (!doc || !doc.head) return;
+
+      let styleTag = doc.getElementById('folio-dynamic-theme-tokens') as HTMLStyleElement | null;
+      if (!styleTag) {
+        styleTag = doc.createElement('style');
+        styleTag.id = 'folio-dynamic-theme-tokens';
+        doc.head.appendChild(styleTag);
+      }
+
+      const primary = theme.primaryColor || '#8B6CF6';
+      const secondary = theme.secondaryColor || '#4697F5';
+      const bg = theme.backgroundColor || '#0F172A';
+      const surface = theme.surfaceColor || '#1E293B';
+      const text = theme.textColor || (theme.darkMode ? '#F8FAFC' : '#0F172A');
+      const textSecondary = theme.textSecondaryColor || (theme.darkMode ? '#94A3B8' : '#64748B');
+      const radius = theme.borderRadius || '12px';
+      const fontFamily = theme.fontFamily || 'Inter, sans-serif';
+
+      styleTag.innerHTML = `
+        :root {
+          --primary: ${primary} !important;
+          --secondary: ${secondary} !important;
+          --bg: ${bg} !important;
+          --surface: ${surface} !important;
+          --text: ${text} !important;
+          --text-secondary: ${textSecondary} !important;
+          --radius: ${radius} !important;
+        }
+        body {
+          font-family: ${fontFamily} !important;
+          background-color: var(--bg) !important;
+          color: var(--text) !important;
+        }
+      `;
+    } catch {
+      // Ignored for security/cross-origin edge cases
+    }
+  }, [theme]);
+
+  // Apply immediately when theme tokens change (0ms latency, zero flicker)
+  useEffect(() => {
+    applyThemeTokens();
+  }, [applyThemeTokens]);
+
+  return (
+    <div className="w-full min-h-screen bg-transparent flex flex-col">
+      <iframe
+        ref={iframeRef}
+        srcDoc={compiledDoc}
+        onLoad={applyThemeTokens}
+        title="Custom HTML Portfolio"
+        className="w-full flex-1 border-0 min-h-screen"
+        sandbox="allow-scripts allow-same-origin allow-popups"
+      />
+    </div>
+  );
+};
 
 export const DynamicPortfolioRenderer: React.FC<DynamicPortfolioRendererProps> = ({
   data,
@@ -1253,16 +1356,12 @@ export const DynamicPortfolioRenderer: React.FC<DynamicPortfolioRendererProps> =
 
   // ─── If Template is Uploaded Custom HTML + CSS ───
   if (layout.templateType === 'CUSTOM_HTML' && layout.customHtml) {
-    const compiledDoc = compileCustomHtml(layout.customHtml, layout.customCss, data);
     return (
-      <div className="w-full min-h-screen bg-transparent flex flex-col">
-        <iframe
-          srcDoc={compiledDoc}
-          title="Custom HTML Portfolio"
-          className="w-full flex-1 border-0 min-h-screen"
-          sandbox="allow-scripts allow-same-origin allow-popups"
-        />
-      </div>
+      <CustomHtmlIframe
+        customHtml={layout.customHtml}
+        customCss={layout.customCss}
+        data={data}
+      />
     );
   }
 

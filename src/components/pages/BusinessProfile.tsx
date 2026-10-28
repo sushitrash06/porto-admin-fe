@@ -203,16 +203,48 @@ export const BusinessProfilePage: React.FC = () => {
         <div className="lg:col-span-4 space-y-6">
           <div className="relative rounded-2xl border border-[#EAE5DD] bg-white shadow-xs overflow-hidden flex flex-col items-center text-center pb-5">
             {/* Banner Background */}
-            <div className="w-full h-28 bg-[#FAF8F5] border-b border-[#F0EBE1] relative">
+            <div className="w-full h-28 bg-[#FAF8F5] border-b border-[#F0EBE1] relative group/banner overflow-hidden">
               {profile?.bannerImage ? (
                 <img
                   src={profile.bannerImage}
                   alt="Business Banner"
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover group-hover/banner:scale-105 transition duration-300"
                 />
               ) : (
                 <div className="w-full h-full bg-linear-to-r from-violet-50/50 to-blue-50/50 flex items-center justify-center text-[#8B6CF6]/40">
                   <ImageIcon className="h-7 w-7 stroke-1" />
+                </div>
+              )}
+
+              {/* Upload Trigger Hover Overlay */}
+              <label className="absolute inset-0 flex items-center justify-center bg-[#202744]/50 text-white opacity-0 group-hover/banner:opacity-100 transition-opacity cursor-pointer z-10">
+                <Camera className="h-4 w-4 mr-1.5" />
+                <span className="font-sans text-[11px] font-bold">Ganti Header</span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleBannerChange}
+                  disabled={uploadBannerMutation.isPending}
+                  className="sr-only"
+                />
+              </label>
+
+              {/* Subtle pill button visible before hover */}
+              <label className="absolute top-2 right-2 flex items-center gap-1 px-2 py-1 rounded-md bg-[#202744]/60 hover:bg-[#202744]/80 text-white text-[10px] font-medium backdrop-blur-xs cursor-pointer group-hover/banner:opacity-0 transition-opacity z-10 shadow-xs">
+                <Camera className="h-3 w-3" />
+                <span>Ganti Header</span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleBannerChange}
+                  disabled={uploadBannerMutation.isPending}
+                  className="sr-only"
+                />
+              </label>
+
+              {uploadBannerMutation.isPending && (
+                <div className="absolute inset-0 flex items-center justify-center bg-[#202744]/70 text-white z-20">
+                  <Loader2 className="h-5 w-5 animate-spin" />
                 </div>
               )}
             </div>

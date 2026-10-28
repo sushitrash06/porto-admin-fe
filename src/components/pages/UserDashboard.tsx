@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { Button } from '../atoms/Button';
 import { Badge } from '../atoms/Badge';
+import { UserOnboardingGuide } from '../organisms/UserOnboardingGuide';
 
 interface UserDashboardProps {
   currentUser: User;
@@ -262,6 +263,14 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({ currentUser }) => 
           </a>
         </div>
       </div>
+
+      {/* ─── Interactive Onboarding / Getting Started Checklist ─── */}
+      <UserOnboardingGuide
+        currentUser={currentUser}
+        profile={profile}
+        projectsCount={myProjects.length}
+        experiencesCount={experiences.length}
+      />
 
       {/* ─── 4 Summary Metric Cards ─── */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
